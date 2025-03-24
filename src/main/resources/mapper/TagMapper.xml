@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkm.forum.mapper.TagMapper">
+
+    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Tag">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="tageName" column="tageName" jdbcType="VARCHAR"/>
+            <result property="isParent" column="isParent" jdbcType="TINYINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tageName,parentId,
+        isParent,createTime,updateTime,
+        isDelete
+    </sql>
+    <update id="updateBatchById" >
+        <foreach collection="list" item="item" separator=";">
+            UPDATE tag
+            SET
+            isDelete = #{item.isDelete}
+            WHERE id = #{item.id}
+        </foreach>
+    </update>
+</mapper>
