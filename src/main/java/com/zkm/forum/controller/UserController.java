@@ -170,6 +170,6 @@ public class UserController {
 
     @PostMapping("/logout")
     public void logout(HttpServletRequest httpServletRequest){
-         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+         httpServletRequest.getSession().removeAttribute("user_login");
     }
 }
