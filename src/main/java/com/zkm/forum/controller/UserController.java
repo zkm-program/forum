@@ -130,7 +130,7 @@ public class UserController {
 
     /**
      * 用户修改自己信息
-     * @param user
+     * @param userUpdateMyRequest
      * @param httpServletRequest
      * @return
      */
@@ -170,6 +170,6 @@ public class UserController {
 
     @PostMapping("/logout")
     public void logout(HttpServletRequest httpServletRequest){
-         httpServletRequest.getSession().removeAttribute("user_login");
+         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
     }
 }
