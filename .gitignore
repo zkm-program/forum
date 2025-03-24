@@ -1,2 +1,4 @@
 *.yml
+*.list
 .idea/
+target/
