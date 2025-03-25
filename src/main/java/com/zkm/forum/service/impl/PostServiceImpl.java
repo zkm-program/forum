@@ -3,9 +3,9 @@ package com.zkm.forum.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zkm.forum.common.ErrorCode;
-import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.AddPostRequest;
+import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
 import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.enums.UserRoleEnum;
@@ -28,6 +28,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         implements PostService {
     @Resource
     UserServiceImpl userServiceImpl;
+    @Resource
+    PostMapper postMapper;
 
     @Override
     public Boolean addPost(AddPostRequest addPostRequest, HttpServletRequest httpServletRequest) {
@@ -57,6 +59,21 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             }
         }
         return this.saveOrUpdate(post);
+    }
+
+    @Override
+    public Boolean updatePostDeletForMy(UpdatePostDeleteForMy updatePostDeleteForMy, HttpServletRequest httpServletRequest) {
+        User loginuser = userServiceImpl.getLoginuser(httpServletRequest);
+        Long id = updatePostDeleteForMy.getId();
+        Long userId = updatePostDeleteForMy.getUserId();
+        Integer isDelete = updatePostDeleteForMy.getIsDelete();
+        if (!loginuser.getId().equals(userId)) {
+            if (!loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
+                throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
+            }
+        }
+
+        return postMapper.updateDeleteById(id,isDelete);
     }
 }
 
