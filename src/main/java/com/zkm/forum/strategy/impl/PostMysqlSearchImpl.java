@@ -14,7 +14,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service("postMysqlSearchImpl")
 public class PostMysqlSearchImpl implements SearchStrategy {

@@ -7,7 +7,9 @@ import com.zkm.forum.common.ResultUtils;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.AddPostRequest;
+import com.zkm.forum.model.dto.post.PostSearchRequest;
 import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
+import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.service.PostService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/post")
@@ -35,5 +38,10 @@ public class PostController {
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     public BaseResponse<Boolean> updatePostDeletForMy(UpdatePostDeleteForMy updatePostDeleteForMy, HttpServletRequest httpServletRequest){
         return ResultUtils.success(postService.updatePostDeletForMy(updatePostDeleteForMy,httpServletRequest));
+    }
+    @PostMapping("/searchPost")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<List<PostSearchVo>> searchPost(PostSearchRequest postSearchRequest){
+        return ResultUtils.success(postService.searchPost(postSearchRequest));
     }
 }
