@@ -11,6 +11,8 @@ import java.util.Date;
  */
 @Data
 public class PostVo implements Serializable {
+
+
     private String title;
     private String content;
     private String tags;

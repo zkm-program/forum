@@ -22,4 +22,5 @@ public interface PostService extends IService<Post> {
     Boolean updatePostDeletForMy(UpdatePostDeleteForMy updatePostDeleteForMy, HttpServletRequest httpServletRequest);
 
     List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest);
+
 }

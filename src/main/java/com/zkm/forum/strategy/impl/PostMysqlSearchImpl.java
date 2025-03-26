@@ -78,6 +78,7 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                     postSearchVo.setFavourNum(post.getFavourNum());
                     postSearchVo.setThumbNum(post.getThumbNum());
                     postSearchVo.setUpdateTime(post.getUpdateTime());
+                    postSearchVo.setId(post.getId());
                     return postSearchVo;
                 }
 
