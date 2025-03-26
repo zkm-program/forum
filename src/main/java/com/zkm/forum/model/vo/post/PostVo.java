@@ -1,13 +1,16 @@
 package com.zkm.forum.model.vo.post;
 
-import com.zkm.forum.common.PageRequest;
 import com.zkm.forum.model.entity.User;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+
+/**
+ * 点进某个帖子查看详情
+ */
 @Data
-public class PostQueryVo extends PageRequest implements Serializable {
+public class PostVo implements Serializable {
     private String title;
     private String content;
     private String tags;

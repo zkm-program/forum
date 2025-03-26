@@ -10,4 +10,7 @@ public interface CommonConstant {
      * 降序
      */
     String SORT_ORDER_DESC = " descend";
+    String PRE_TAG = "<mark>";
+
+    String POST_TAG = "</mark>";
 }

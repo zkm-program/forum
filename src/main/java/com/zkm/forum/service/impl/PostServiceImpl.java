@@ -5,12 +5,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.AddPostRequest;
+import com.zkm.forum.model.dto.post.PostSearchRequest;
 import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
 import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.enums.UserRoleEnum;
+import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.mapper.PostMapper;
+import com.zkm.forum.strategy.context.SearchStrategyContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     UserServiceImpl userServiceImpl;
     @Resource
     PostMapper postMapper;
+    @Resource
+    SearchStrategyContext searchStrategyContext;
 
     @Override
     public Boolean addPost(AddPostRequest addPostRequest, HttpServletRequest httpServletRequest) {
@@ -74,6 +79,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         }
 
         return postMapper.updateDeleteById(id,isDelete);
+    }
+
+    @Override
+    public List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest) {
+        return searchStrategyContext.excuteSearchStrategy(postSearchRequest.getKeyWords());
     }
 }
 

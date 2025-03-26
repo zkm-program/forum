@@ -3,8 +3,8 @@ package com.zkm.forum.model.enums;
 import lombok.Getter;
 
 public enum SearchModeEnum {
-    MYSQL("mysql","PostMySearchImpl"),
-    ELASTICSEARCH("elasticsearch","PostEsSearchImpl");
+    MYSQL("mysql","postMysqlSearchImpl"),
+    ELASTICSEARCH("elasticsearch","postElasticSearchImpl");
     @Getter
     private String mode;
     @Getter
