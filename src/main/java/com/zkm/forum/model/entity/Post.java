@@ -48,6 +48,7 @@ public class Post implements Serializable {
      * 创建用户 id
      */
     private Long userId;
+    private Integer viewCount;
 
     /**
      * 创建时间

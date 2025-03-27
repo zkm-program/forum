@@ -102,7 +102,6 @@ public class UserController {
      * @param userQueryRequest
      * @return
      */
-    // todo 鉴权失效
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {

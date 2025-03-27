@@ -14,6 +14,7 @@ public class PostVo implements Serializable {
 
 
     private String title;
+    private Integer viewCount;
     private String content;
     private String tags;
     private Integer thumbNum;

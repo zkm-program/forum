@@ -13,6 +13,7 @@ import com.zkm.forum.model.enums.UserRoleEnum;
 import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.mapper.PostMapper;
+import  com.zkm.forum.strategy.context.SearchStrategyContext;
 import com.zkm.forum.strategy.context.SearchStrategyContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;

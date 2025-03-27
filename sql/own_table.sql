@@ -54,6 +54,7 @@ create table if not exists post
     type tinyint NOT NULL DEFAULT 1 COMMENT '文章类型 1原创 2转载 3翻译',
     password varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '访问密码',
     original_url varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '原文链接',
+    viewCount int DEFAULT 0 not null comment '浏览量',
     index idx_userId (userId)
 ) comment '帖子' collate = utf8mb4_unicode_ci;
 

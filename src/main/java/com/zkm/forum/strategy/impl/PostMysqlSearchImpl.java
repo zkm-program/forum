@@ -20,8 +20,8 @@ public class PostMysqlSearchImpl implements SearchStrategy {
 
     @Resource
     PostMapper postMapper;
-    @Resource
-    CommonConstant constant;
+//    @Resource
+//    CommonConstant constant;
     @Resource
     UserMapper userMapper;
 
@@ -52,9 +52,9 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                         int lastIndex = (post.getContent().length() - keyIndex) > 35 ? keyIndex + 35 : post.getContent().length();
                         String lastString = post.getContent().substring(keyIndex, lastIndex);
                         if (lowerCase) {
-                            postSearchVo.setContent((preString + lastString).replaceAll(keyWords.toLowerCase(), constant.PRE_TAG + keyWords.toLowerCase() + constant.POST_TAG));
+                            postSearchVo.setContent((preString + lastString).replaceAll(keyWords.toLowerCase(), CommonConstant.PRE_TAG + keyWords.toLowerCase() + CommonConstant.POST_TAG));
                         } else {
-                            postSearchVo.setContent((preString + lastString).replaceAll(keyWords.toUpperCase(), constant.PRE_TAG + keyWords.toUpperCase() + constant.POST_TAG));
+                            postSearchVo.setContent((preString + lastString).replaceAll(keyWords.toUpperCase(), CommonConstant.PRE_TAG + keyWords.toUpperCase() + CommonConstant.POST_TAG));
                         }
                     } else {
                         return null;
@@ -69,9 +69,9 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                     }
                     if (key != -1) {
                         if (lowerCase) {
-                            postSearchVo.setTitle(post.getTitle().replaceAll(keyWords.toLowerCase(), constant.PRE_TAG + keyWords.toLowerCase() + constant.POST_TAG));
+                            postSearchVo.setTitle(post.getTitle().replaceAll(keyWords.toLowerCase(), CommonConstant.PRE_TAG + keyWords.toLowerCase() + CommonConstant.POST_TAG));
                         } else {
-                            postSearchVo.setTitle(post.getTitle().replaceAll(keyWords.toUpperCase(), constant.PRE_TAG + keyWords.toUpperCase() + constant.POST_TAG));
+                            postSearchVo.setTitle(post.getTitle().replaceAll(keyWords.toUpperCase(), CommonConstant.PRE_TAG + keyWords.toUpperCase() + CommonConstant.POST_TAG));
                         }
                     }
 

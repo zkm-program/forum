@@ -1,5 +1,8 @@
 package com.zkm.forum.constant;
 
+import org.springframework.stereotype.Component;
+
+
 public interface CommonConstant {
     /**
      * 升序
