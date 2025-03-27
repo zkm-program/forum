@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 点进某个帖子查看详情
@@ -16,7 +17,7 @@ public class PostVo implements Serializable {
     private String title;
     private Integer viewCount;
     private String content;
-    private String tags;
+    private List<String> tags;
     private Integer thumbNum;
     private Integer favourNum;
     private User author;

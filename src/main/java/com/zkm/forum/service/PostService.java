@@ -7,6 +7,7 @@ import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
 import com.zkm.forum.model.entity.Post;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zkm.forum.model.vo.post.PostSearchVo;
+import com.zkm.forum.model.vo.post.PostVo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -23,4 +24,5 @@ public interface PostService extends IService<Post> {
 
     List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest);
 
+    PostVo getPostById(Long id,HttpServletRequest httpServletRequest);
 }

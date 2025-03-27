@@ -1,6 +1,7 @@
 package com.zkm.forum.service.impl;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.exception.BusinessException;
@@ -11,16 +12,23 @@ import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.enums.UserRoleEnum;
 import com.zkm.forum.model.vo.post.PostSearchVo;
+import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.mapper.PostMapper;
-import  com.zkm.forum.strategy.context.SearchStrategyContext;
 import com.zkm.forum.strategy.context.SearchStrategyContext;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static com.zkm.forum.constant.RedisConstant.*;
 
 /**
  * @author 张凯铭
@@ -31,11 +39,21 @@ import java.util.List;
 public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         implements PostService {
     @Resource
-    UserServiceImpl userServiceImpl;
+    private UserServiceImpl userServiceImpl;
     @Resource
-    PostMapper postMapper;
+    private PostMapper postMapper;
     @Resource
-    SearchStrategyContext searchStrategyContext;
+    private SearchStrategyContext searchStrategyContext;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+            20,
+            50,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingDeque<>(10000),
+            new ThreadPoolExecutor.CallerRunsPolicy()
+    );
 
     @Override
     public Boolean addPost(AddPostRequest addPostRequest, HttpServletRequest httpServletRequest) {
@@ -79,19 +97,50 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             }
         }
 
-        return postMapper.updateDeleteById(id,isDelete);
+        return postMapper.updateDeleteById(id, isDelete);
     }
 
     @Override
     public List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest) {
         return searchStrategyContext.excuteSearchStrategy(postSearchRequest.getKeyWords());
     }
+
+    @Override
+    public PostVo getPostById(Long id,HttpServletRequest httpServletRequest) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "该文章不存在");
+        }
+        PostVo postVo = new PostVo();
+        Post post = this.getById(id);
+        BeanUtils.copyProperties(post, postVo);
+        postVo.setTags(JSONUtil.toList(JSONUtil.parseArray(post.getTags()), String.class));
+        updatePostViewCount(id);
+        User loginuser = userServiceImpl.getLoginuser(httpServletRequest);
+        CompletableFuture.runAsync(() -> {
+            //id是文章id
+            List<Long> readPostIds = List.of();
+            readPostIds.add(id);
+            String readKey=USER_POST_READ+loginuser.getId()+id;
+            Long count = redisTemplate.opsForSet().size(readKey);
+            if(count==null||count%5==0){
+                List<String> tags = postVo.getTags();
+                QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
+                postQueryWrapper.in("tags",postVo.getTags())
+                        .last("LIMIT 5").notIn("id",readPostIds);
+                List<Post> recommendPostList = this.list(postQueryWrapper);
+                readPostIds.addAll(recommendPostList.stream().map(Post::getId).toList());
+            }
+            redisTemplate.opsForSet().add(readKey,readPostIds);
+
+
+        }, threadPoolExecutor);
+        return postVo;
+    }
+    public Double updatePostViewCount(Long id){
+        return  redisTemplate.opsForZSet().incrementScore(POST_VIEWS_COUNT,id,1D);
+    }
 }
 
-//private User loginUser(HttpServletRequest httpServletRequest) {
-//    Object attribute = httpServletRequest.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-//
-//}
 
 
 
