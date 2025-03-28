@@ -7,6 +7,7 @@ import com.zkm.forum.common.ResultUtils;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.AddPostRequest;
+import com.zkm.forum.model.dto.post.GetPrivateRecommendRequest;
 import com.zkm.forum.model.dto.post.PostSearchRequest;
 import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
 import com.zkm.forum.model.vo.post.PostSearchVo;
@@ -71,7 +72,7 @@ public class PostController {
      * @return
      */
     @GetMapping("/private/recommend/{userId}")
-    public BaseResponse<List<PostVo>> getPrivateRecommend(@PathVariable("userId") Long userId,@RequestParam(required = false) List<Long> viewedIds ) {
+    public BaseResponse<List<PostVo>> getPrivateRecommend(@PathVariable("userId") Long userId, @RequestBody GetPrivateRecommendRequest getPrivateRecommendRequest) {
 
         return ResultUtils.success(null);
     }

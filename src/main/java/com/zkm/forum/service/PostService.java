@@ -2,6 +2,7 @@ package com.zkm.forum.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkm.forum.model.dto.post.AddPostRequest;
+import com.zkm.forum.model.dto.post.GetPrivateRecommendRequest;
 import com.zkm.forum.model.dto.post.PostSearchRequest;
 import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
 import com.zkm.forum.model.entity.Post;
@@ -26,5 +27,5 @@ public interface PostService extends IService<Post> {
     List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest);
 
     PostVo getPostById(Long id,HttpServletRequest httpServletRequest);
-    List<PostVo> getPrivateRecommend(Long userId,List<Long> viewedIds);
+    List<PostVo> getPrivateRecommend(Long userId, GetPrivateRecommendRequest getPrivateRecommendRequest);
 }
