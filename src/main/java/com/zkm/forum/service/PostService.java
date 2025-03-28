@@ -8,6 +8,7 @@ import com.zkm.forum.model.entity.Post;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.model.vo.post.PostVo;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -25,4 +26,5 @@ public interface PostService extends IService<Post> {
     List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest);
 
     PostVo getPostById(Long id,HttpServletRequest httpServletRequest);
+    List<PostVo> getPrivateRecommend(Long userId,List<Long> viewedIds);
 }
