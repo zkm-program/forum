@@ -17,6 +17,8 @@ import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.mapper.PostMapper;
 import com.zkm.forum.strategy.context.SearchStrategyContext;
+
+import com.zkm.forum.utils.RedisUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -47,6 +49,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     private SearchStrategyContext searchStrategyContext;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    RedisUtils redisUtils;
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
             20,
             50,
@@ -139,6 +143,28 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         return postVo;
     }
 
+    @Override
+    public List<PostVo> getPrivateRecommend(Long userId, GetPrivateRecommendRequest getPrivateRecommendRequest) {
+        String readKey = USER_POST_READ + userId;
+        List<Long> viewedIds = getPrivateRecommendRequest.getViewedIds();
+        List<PostVo> postCommendVoForRedis;
+        List<String> tags = getPrivateRecommendRequest.getTags();
+        if (viewedIds != null && !viewedIds.isEmpty()) {
+            redisTemplate.opsForSet().add(readKey, viewedIds);
+        }
+        String userCommendKey = USER_RECOMMEND + userId;
+        Set<Object> readPostIds = redisTemplate.opsForSet().members(readKey);
+        String recommendKey = "user:recommend:" + userId;
+        Long expire = redisTemplate.getExpire(recommendKey, TimeUnit.SECONDS);
+        if (expire < 60) {
+            postCommendVoForRedis = getPostCommendVoForRedis(recommendKey, tags, readPostIds);
+            return postCommendVoForRedis;
+        }
+//        return listObjectToPostVo(Objects.requireNonNull(redisTemplate.opsForList().range(recommendKey, 0, -1)));
+        //如果redis中的私人推荐过期了，则需要重新查询
+        return redisUtils.getList(userCommendKey,PostVo.class);
+    }
+
     private List<PostVo> getPostCommendVoForRedis(String userCommendKey, List<String> tags, Set<Object> readPostIds) {
 
         List<PostVo> recommendPostVolist = null;
@@ -163,29 +189,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
         return recommendPostVolist;
     }
-
-
-    @Override
-    public List<PostVo> getPrivateRecommend(Long userId, GetPrivateRecommendRequest getPrivateRecommendRequest) {
-        String readKey = USER_POST_READ + userId;
-        List<Long> viewedIds = getPrivateRecommendRequest.getViewedIds();
-        List<PostVo> postCommendVoForRedis;
-        List<String> tags = getPrivateRecommendRequest.getTags();
-        if (viewedIds != null && !viewedIds.isEmpty()) {
-            redisTemplate.opsForSet().add(readKey, viewedIds);
-        }
-        String userCommendKey = USER_RECOMMEND + userId;
-        Set<Object> readPostIds = redisTemplate.opsForSet().members(readKey);
-        String recommendKey = "user:recommend:" + userId;
-        Long expire = redisTemplate.getExpire(recommendKey, TimeUnit.SECONDS);
-        if (expire < 60) {
-            postCommendVoForRedis = getPostCommendVoForRedis(recommendKey, tags, readPostIds);
-            return postCommendVoForRedis;
-        }
-        return listObjectToPostVo(Objects.requireNonNull(redisTemplate.opsForList().range(recommendKey, 0, -1)));
-        //如果redis中的私人推荐过期了，则需要重新查询
-    }
-
     private boolean isRead(Long userId, Set<Object> set) {
         return Boolean.TRUE.equals(
                 redisTemplate.opsForSet().isMember("user:read:" + userId, set)
@@ -196,18 +199,18 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         return redisTemplate.opsForZSet().incrementScore(POST_VIEWS_COUNT, id, 1);
     }
 
-    private static List<PostVo> listObjectToPostVo(List<Object> list) {
-        List<PostVo> postVoList = new ArrayList<>();
-        for (Object obj : list) {
-            if (obj instanceof PostVo) {
-                PostVo postVo = (PostVo) obj;
-                postVoList.add(postVo);
-            } else {
-                throw new IllegalArgumentException("List contains non-PostVo elements");
-            }
-        }
-        return postVoList;
-    }
+//    private static List<PostVo> listObjectToPostVo(List<Object> list) {
+//        List<PostVo> postVoList = new ArrayList<>();
+//        for (Object obj : list) {
+//            if (obj instanceof PostVo) {
+//                PostVo postVo = (PostVo) obj;
+//                postVoList.add(postVo);
+//            } else {
+//                throw new IllegalArgumentException("List contains non-PostVo elements");
+//            }
+//        }
+//        return postVoList;
+//    }
 }
 
 
