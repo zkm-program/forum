@@ -28,6 +28,7 @@ public class UserController {
 
     /**
      * 注册
+     *
      * @param userRegisterRequest
      * @return
      */
@@ -66,6 +67,7 @@ public class UserController {
 
     /**
      * 登录
+     *
      * @param userLoginRequest
      * @param request
      * @return
@@ -87,6 +89,7 @@ public class UserController {
 
     /**
      * 发送邮箱验证码
+     *
      * @param userQqEmail
      */
     @PostMapping("/sendcode")
@@ -99,6 +102,7 @@ public class UserController {
 
     /**
      * 管理员分页获取用户信息
+     *
      * @param userQueryRequest
      * @return
      */
@@ -114,6 +118,7 @@ public class UserController {
 
     /**
      * 管理员获取用户信息
+     *
      * @param userQqEmail
      * @return
      */
@@ -129,6 +134,7 @@ public class UserController {
 
     /**
      * 用户修改自己信息
+     *
      * @param userUpdateMyRequest
      * @param httpServletRequest
      * @return
@@ -136,7 +142,7 @@ public class UserController {
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     @PostMapping("/updatemy")
     public BaseResponse<Boolean> userUpdateMy(@RequestBody UserUpdateMyRequest userUpdateMyRequest, HttpServletRequest httpServletRequest) {
-        User loginuser = userService.getLoginuser(httpServletRequest);
+        User loginuser = userService.getLoginUser(httpServletRequest);
         if (!loginuser.getUserRole().equals(UserConstant.ADMIN_ROLE)) {
             if (!loginuser.getId().equals(userUpdateMyRequest.getId())) {
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "没有权限修改信息");
@@ -144,31 +150,31 @@ public class UserController {
         }
 
 
-
         return ResultUtils.success(userService.userUpdateMy(userUpdateMyRequest));
     }
 
     /**
      * 管理员修改用户信息
+     *
      * @param updateForAdminRequest
      * @return
      */
-     @PostMapping("/updateForAdmin")
+    @PostMapping("/updateForAdmin")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updateForAdmin(@RequestBody UpdateForAdminRequest updateForAdminRequest){
+    public BaseResponse<Boolean> updateForAdmin(@RequestBody UpdateForAdminRequest updateForAdminRequest) {
         String userRole = updateForAdminRequest.getUserRole();
         int matchCount = updateForAdminRequest.getMatchCount();
         String userQqEmail = updateForAdminRequest.getUserQqEmail();
         User oldUser = userService.getUserByEmail(userQqEmail);
 
-        if((matchCount-oldUser.getMatchCount())>20){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"修改数过大，请换个较小的数");
+        if ((matchCount - oldUser.getMatchCount()) > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "修改数过大，请换个较小的数");
         }
-        return ResultUtils.success(userService.updateForAdmin(matchCount,userRole,userQqEmail));
+        return ResultUtils.success(userService.updateForAdmin(matchCount, userRole, userQqEmail));
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletRequest httpServletRequest){
-         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+    public void logout(HttpServletRequest httpServletRequest) {
+        httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
     }
 }

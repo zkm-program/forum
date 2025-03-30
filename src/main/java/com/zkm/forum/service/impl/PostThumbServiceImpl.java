@@ -12,6 +12,7 @@ import com.zkm.forum.model.entity.User;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.service.PostThumbService;
 import com.zkm.forum.mapper.PostThumbMapper;
+import com.zkm.forum.service.UserService;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +28,14 @@ import javax.servlet.http.HttpServletRequest;
 public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb>
         implements PostThumbService {
     @Resource
-    UserServiceImpl userServiceImpl;
+    UserService userService ;
 
     @Resource
     PostService postService;
 
     @Override
     public Integer doPostThumb(PostThumbRequest postThumbRequest, HttpServletRequest request) {
-        User loginuser = userServiceImpl.getLoginuser(request);
+        User loginuser = userService .getLoginUser(request);
         Long userId = postThumbRequest.getUserId();
         Long postId = postThumbRequest.getPostId();
 

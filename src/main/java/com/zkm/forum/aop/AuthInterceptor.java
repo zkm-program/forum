@@ -32,7 +32,7 @@ public class AuthInterceptor {
             return joinPoint.proceed();
         }
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
-        User user = userService.getLoginuser(request);
+        User user = userService.getLoginUser(request);
         String userRole = user.getUserRole();
         UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(userRole);
         if (userRole == null) {

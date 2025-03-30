@@ -4,6 +4,7 @@ import com.zkm.forum.common.BaseResponse;
 import com.zkm.forum.common.ResultUtils;
 import com.zkm.forum.model.dto.postfavour.PostFavourRequest;
 import com.zkm.forum.service.PostFavourService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
+@Lazy
 @RestController
 @RequestMapping("/postfavour")
 public class PostFavourController {

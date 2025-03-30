@@ -1,11 +1,12 @@
 package com.zkm.forum.utils;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Component
 public class RedisUtils {
     @Resource
     private  RedisTemplate<String, Object> redisTemplate;

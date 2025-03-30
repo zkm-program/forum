@@ -19,7 +19,7 @@ public interface UserService extends IService<User> {
 
     void sendCode(String userQqEmail);
 
-    User getLoginuser(HttpServletRequest request);
+    User getLoginUser(HttpServletRequest request);
 
     LoginUserVO login(String userQqEmail, String userPassword, HttpServletRequest request);
 
@@ -29,6 +29,6 @@ public interface UserService extends IService<User> {
 
     Boolean userUpdateMy(UserUpdateMyRequest userUpdateMyRequest);
 
-    Boolean updateForAdmin(int matchCount, String userRole,String userQqEmail);
+    Boolean updateForAdmin(int matchCount, String userRole, String userQqEmail);
 
 }

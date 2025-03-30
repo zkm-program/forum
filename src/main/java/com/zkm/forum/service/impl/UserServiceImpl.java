@@ -38,7 +38,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final String SALT = "Masami";
 
 
-
     @Override
     public Long userRegister(String userPassword, String checkPassword, String userQqEmail, String userCode, String userName, String gender) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -78,8 +77,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱或密码错误或账户不存在");
         }
-        if(user.getUserRole().equals(UserConstant.BAN_ROLE)){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"该账号已被封，禁止登录！");
+        if (user.getUserRole().equals(UserConstant.BAN_ROLE)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被封，禁止登录！");
         }
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
         return objToVo(user);
@@ -99,6 +98,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        Object attribute = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        User user = (User) attribute;
+        if (user == null || user.getId() == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Long userId = user.getId();
+        user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        return user;
+    }
+
 
     /**
      * 每30分钟清理一次内存，就是验证码30分钟过期
@@ -112,20 +126,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }, 1, 1, TimeUnit.MINUTES);
     }
 
-    @Override
-    public User getLoginuser(HttpServletRequest request) {
-        Object attribute = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        User user = (User) attribute;
-        if (user == null || user.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        Long userId = user.getId();
-        user = this.getById(userId);
-        if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        return user;
-    }
 
     public static User voToObj(LoginUserVO loginUserVO) {
         User user = new User();
@@ -144,25 +144,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest){
+    public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         String gender = userQueryRequest.getGender();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
         String isReported = userQueryRequest.getIsReported();
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(StringUtils.isNotBlank(gender),"gender",gender);
-        queryWrapper.eq(StringUtils.isNotBlank(isReported),"isReported",isReported);
-        queryWrapper.orderBy(StringUtils.isNotBlank(sortField),sortOrder.equals(CommonConstant.SORT_ORDER_ASC),sortField);
+        queryWrapper.eq(StringUtils.isNotBlank(gender), "gender", gender);
+        queryWrapper.eq(StringUtils.isNotBlank(isReported), "isReported", isReported);
+        queryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
     }
 
     @Override
     public User getUserByEmail(String userQqEmail) {
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(StringUtils.isNotBlank(userQqEmail),"userQqEmail",userQqEmail);
+        queryWrapper.eq(StringUtils.isNotBlank(userQqEmail), "userQqEmail", userQqEmail);
         User user = this.getOne(queryWrapper);
-        if(user==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"用户不存在");
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
         }
         return user;
     }
@@ -182,16 +182,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Boolean updateForAdmin(int matchCount, String userRole,String userQqEmail) {
+    public Boolean updateForAdmin(int matchCount, String userRole, String userQqEmail) {
         User olduser = this.getUserByEmail(userQqEmail);
         User newuser = new User();
         newuser.setUserRole(userRole);
         newuser.setMatchCount(matchCount);
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("userQqEmail",userQqEmail);
+        updateWrapper.eq("userQqEmail", userQqEmail);
         boolean result = this.update(newuser, updateWrapper);
-        if (!result){
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,"修改失败请稍后再试！");
+        if (!result) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改失败请稍后再试！");
         }
         return result;
     }

@@ -1,5 +1,6 @@
 package com.zkm.forum.strategy.impl;
 
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.zkm.forum.constant.CommonConstant;
@@ -20,7 +21,7 @@ public class PostMysqlSearchImpl implements SearchStrategy {
 
     @Resource
     PostMapper postMapper;
-//    @Resource
+    //    @Resource
 //    CommonConstant constant;
     @Resource
     UserMapper userMapper;
@@ -33,7 +34,7 @@ public class PostMysqlSearchImpl implements SearchStrategy {
         QueryWrapper<Post> postSearchVoQueryWrapper = new QueryWrapper<>();
         postSearchVoQueryWrapper.eq("title", keyWords)
                 .or()
-                .eq("content", keyWords);
+                .eq("content", keyWords).or().apply("JSON_CONTAINS(tags, '\"{0}\"')", keyWords);
         List<Post> posts = postMapper.selectList(postSearchVoQueryWrapper);
         return posts.stream().map(post -> {
                     PostSearchVo postSearchVo = new PostSearchVo();
@@ -74,11 +75,11 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                             postSearchVo.setTitle(post.getTitle().replaceAll(keyWords.toUpperCase(), CommonConstant.PRE_TAG + keyWords.toUpperCase() + CommonConstant.POST_TAG));
                         }
                     }
-
                     postSearchVo.setFavourNum(post.getFavourNum());
                     postSearchVo.setThumbNum(post.getThumbNum());
                     postSearchVo.setUpdateTime(post.getUpdateTime());
                     postSearchVo.setId(post.getId());
+                    postSearchVo.setTag(keyWords);
                     return postSearchVo;
                 }
 

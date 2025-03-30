@@ -16,6 +16,7 @@ import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.mapper.PostMapper;
+import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.context.SearchStrategyContext;
 
 import com.zkm.forum.utils.RedisUtils;
@@ -42,7 +43,7 @@ import static com.zkm.forum.constant.RedisConstant.*;
 public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         implements PostService {
     @Resource
-    private UserServiceImpl userServiceImpl;
+    private UserService userService ;
     @Resource
     private PostMapper postMapper;
     @Resource
@@ -82,7 +83,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         String tagStr = JSONUtil.toJsonStr(tags);
         post.setTags(tagStr);
         if (id != 0) {
-            User loginuser = userServiceImpl.getLoginuser(httpServletRequest);
+            User loginuser = userService .getLoginUser(httpServletRequest);
             if (!loginuser.getId().equals(addPostRequest.getUserId()) || !loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
             }
@@ -92,7 +93,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
     @Override
     public Boolean updatePostDeletForMy(UpdatePostDeleteForMy updatePostDeleteForMy, HttpServletRequest httpServletRequest) {
-        User loginuser = userServiceImpl.getLoginuser(httpServletRequest);
+        User loginuser = userService .getLoginUser(httpServletRequest);
         Long id = updatePostDeleteForMy.getId();
         Long userId = updatePostDeleteForMy.getUserId();
         Integer isDelete = updatePostDeleteForMy.getIsDelete();
@@ -121,7 +122,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         postVo.setTags(JSONUtil.toList(JSONUtil.parseArray(post.getTags()), String.class));
         updatePostViewCount(id);
         CompletableFuture.runAsync(() -> {
-            User loginuser = userServiceImpl.getLoginuser(httpServletRequest);
+            User loginuser = userService .getLoginUser(httpServletRequest);
             Long loginUserId = loginuser.getId();
             String userCommendKey = USER_RECOMMEND + loginUserId;
             String readKey = USER_POST_READ + loginUserId;
@@ -134,7 +135,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             }
             Long expire = redisTemplate.getExpire(userCommendKey, TimeUnit.SECONDS);
             if (expire < 60) {
-                getPostCommendVoForRedis(userCommendKey, postVo.getTags(), readPostIds);
+                getPostCommendVoForRedis(userCommendKey, postVo.getTags().get(0), readPostIds);
             }
             redisTemplate.opsForSet().add(readKey, id, readPostIds);
         }, threadPoolExecutor);
@@ -157,19 +158,19 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         String recommendKey = "user:recommend:" + userId;
         Long expire = redisTemplate.getExpire(recommendKey, TimeUnit.SECONDS);
         if (expire < 60) {
-            postCommendVoForRedis = getPostCommendVoForRedis(recommendKey, tags, readPostIds);
+            postCommendVoForRedis = getPostCommendVoForRedis(recommendKey, tags.get(0), readPostIds);
             return postCommendVoForRedis;
         }
 //        return listObjectToPostVo(Objects.requireNonNull(redisTemplate.opsForList().range(recommendKey, 0, -1)));
         //如果redis中的私人推荐过期了，则需要重新查询
-        return redisUtils.getList(userCommendKey,PostVo.class);
+        return redisUtils.getList(userCommendKey, PostVo.class);
     }
 
-    private List<PostVo> getPostCommendVoForRedis(String userCommendKey, List<String> tags, Set<Object> readPostIds) {
+    private List<PostVo> getPostCommendVoForRedis(String userCommendKey, String tag, Set<Object> readPostIds) {
 
         List<PostVo> recommendPostVolist = null;
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
-        postQueryWrapper.in("tags", tags)
+        postQueryWrapper.apply("JSON_CONTAINS(tags, '\"{0}\"')", tag)
                 .last("LIMIT 3").notIn("id", readPostIds);
         List<Post> recommendPostList = this.list(postQueryWrapper);
         recommendPostVolist = recommendPostList.stream().map(recommendPost -> PostVo.builder()
@@ -189,6 +190,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
         return recommendPostVolist;
     }
+
     private boolean isRead(Long userId, Set<Object> set) {
         return Boolean.TRUE.equals(
                 redisTemplate.opsForSet().isMember("user:read:" + userId, set)

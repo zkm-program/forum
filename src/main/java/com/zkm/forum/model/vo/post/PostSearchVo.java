@@ -23,4 +23,5 @@ public class PostSearchVo {
     private Date createTime;
     private Integer type;
     private String original_url;
+    private String tag;
 }
