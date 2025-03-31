@@ -28,4 +28,6 @@ public interface PostService extends IService<Post> {
 
     PostVo getPostById(Long id,HttpServletRequest httpServletRequest);
     List<PostVo> getPrivateRecommend(Long userId, GetPrivateRecommendRequest getPrivateRecommendRequest);
+    List<PostVo> getLoginPublicRecommend();
+
 }

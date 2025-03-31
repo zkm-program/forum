@@ -27,7 +27,7 @@ public class PostVo implements Serializable {
     private List<String> tags;
     private Integer thumbNum;
     private Integer favourNum;
-    private User author;
+    private String authorName;
     private Date createTime;
     private Date updateTime;
     private Integer status;

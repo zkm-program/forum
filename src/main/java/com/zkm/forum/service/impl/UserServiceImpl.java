@@ -4,6 +4,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.constant.UserConstant;
@@ -20,11 +21,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 
 /**
  * @author 张凯铭
@@ -33,7 +37,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-
+    @Resource
+    private Cache<String, String> LOCAL_CACHE;
     private HashMap<String, Long> codeWithTime = new HashMap<>();
     private static final String SALT = "Masami";
 
@@ -81,6 +86,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被封，禁止登录！");
         }
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        LOCAL_CACHE.put(USERID_USERNAME+user.getId(),user.getUserName());
         return objToVo(user);
     }
 

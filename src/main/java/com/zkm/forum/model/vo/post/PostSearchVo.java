@@ -13,15 +13,11 @@ import java.util.List;
 @Data
 public class PostSearchVo {
     private Long id;
-    private String authorName;
     private String title;
     private String content;
     private Integer thumbNum;
     private Integer favourNum;
-    private Date updateTime;
-    private List<Post> listPosts;
-    private Date createTime;
     private Integer type;
-    private String original_url;
     private String tag;
+    private String authorName;
 }

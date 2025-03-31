@@ -30,9 +30,9 @@ public class MailUtils {
     // 端口
     private static final String emailPort = "465";
     // 发件人邮箱地址
-    private static final String emailAccount = " "; // 这个是普通QQ邮箱
+    private static final String emailAccount = "3149611191@qq.com"; // 这个是普通QQ邮箱
     // 发件人邮箱授权码
-    private static final String emailPassword = " ";
+    private static final String emailPassword = "bgqarmhustrydgad";
 
 
     /**

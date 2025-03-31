@@ -3,28 +3,39 @@ package com.zkm.forum.strategy.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.mapper.PostMapper;
 import com.zkm.forum.mapper.UserMapper;
 import com.zkm.forum.model.entity.Post;
+import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.post.PostSearchVo;
+import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.SearchStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 
 @Service("postMysqlSearchImpl")
 public class PostMysqlSearchImpl implements SearchStrategy {
 
     @Resource
     PostMapper postMapper;
-    //    @Resource
-//    CommonConstant constant;
     @Resource
-    UserMapper userMapper;
+    UserService userService;
+    @Resource
+    private Cache<String, String> LOCAL_CACHE;
+
 
     @Override
     public List<PostSearchVo> searchPost(String keyWords) {
@@ -32,9 +43,14 @@ public class PostMysqlSearchImpl implements SearchStrategy {
             return new ArrayList<>();
         }
         QueryWrapper<Post> postSearchVoQueryWrapper = new QueryWrapper<>();
-        postSearchVoQueryWrapper.eq("title", keyWords)
+        postSearchVoQueryWrapper.like("title", keyWords)
                 .or()
-                .eq("content", keyWords).or().apply("JSON_CONTAINS(tags, '\"{0}\"')", keyWords);
+                .like("content", keyWords).or()
+                //只要标签【Json字符串】中包含搜索词，就会被返回
+                .apply("JSON_CONTAINS(tags, {0})", "\"" + keyWords.replace("\"", "\\\"") + "\"");
+//        postSearchVoQueryWrapper.like("title", keyWords)
+//                .or()
+//                .like("content", keyWords);
         List<Post> posts = postMapper.selectList(postSearchVoQueryWrapper);
         return posts.stream().map(post -> {
                     PostSearchVo postSearchVo = new PostSearchVo();
@@ -58,7 +74,7 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                             postSearchVo.setContent((preString + lastString).replaceAll(keyWords.toUpperCase(), CommonConstant.PRE_TAG + keyWords.toUpperCase() + CommonConstant.POST_TAG));
                         }
                     } else {
-                        return null;
+                        postSearchVo.setContent(content);
                     }
                     lowerCase = true;
                     int key = post.getTitle().indexOf(keyWords.toLowerCase());
@@ -74,12 +90,24 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                         } else {
                             postSearchVo.setTitle(post.getTitle().replaceAll(keyWords.toUpperCase(), CommonConstant.PRE_TAG + keyWords.toUpperCase() + CommonConstant.POST_TAG));
                         }
+                    } else {
+                        postSearchVo.setTitle(post.getTitle());
                     }
                     postSearchVo.setFavourNum(post.getFavourNum());
                     postSearchVo.setThumbNum(post.getThumbNum());
-                    postSearchVo.setUpdateTime(post.getUpdateTime());
+
                     postSearchVo.setId(post.getId());
-                    postSearchVo.setTag(keyWords);
+                    postSearchVo.setTag(CommonConstant.PRE_TAG + keyWords + CommonConstant.POST_TAG);
+                    postSearchVo.setType(post.getType());
+                    String ifPresent = LOCAL_CACHE.getIfPresent(USERID_USERNAME + post.getUserId());
+                    if (ifPresent != null) {
+                        postSearchVo.setAuthorName(ifPresent);
+                    } else {
+                        CompletableFuture.runAsync(() -> {
+                            User author = userService.getById(post.getUserId());
+                            LOCAL_CACHE.put(USERID_USERNAME + author.getId(), author.getUserName());
+                        });
+                    }
                     return postSearchVo;
                 }
 

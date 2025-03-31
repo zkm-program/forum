@@ -3,6 +3,7 @@ package com.zkm.forum.service.impl;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.AddPostRequest;
@@ -35,6 +36,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.zkm.forum.constant.LocalCacheConstant.POSTFAVOUR;
+import static com.zkm.forum.constant.LocalCacheConstant.POSTTHUM;
 import static com.zkm.forum.constant.RedisConstant.*;
 
 /**
@@ -54,6 +57,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     private SearchStrategyContext searchStrategyContext;
     @Resource
     private StringRedisTemplate strngredisTemplate;
+    @Resource
+    private Cache<String, String> LOCAL_CACHE;
     //    @Resource
 //    RedisUtils redisUtils;
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
@@ -131,7 +136,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                 Long loginUserId = loginuser.getId();
                 String userCommendKey = USER_RECOMMEND + loginUserId;
                 String readKey = USER_POST_READ + loginUserId;
-                Set<String> readPostIds = strngredisTemplate.opsForSet().members(readKey).stream().map(obj -> String.valueOf(obj)).collect(Collectors.toSet());
+                Set<String> readPostIds = Objects.requireNonNull(strngredisTemplate.opsForSet().members(readKey)).stream().map(JSONUtil::toJsonStr).collect(Collectors.toSet());
 //            List<Long> ;
                 //id是文章id
                 if (readPostIds.isEmpty()) {
@@ -149,7 +154,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             }
 
         }, threadPoolExecutor);
-        Double viewsCount = strngredisTemplate.opsForZSet().score("POST_VIEWS_COUNT", id);
+        Double viewsCount = strngredisTemplate.opsForZSet().score("POST_VIEWS_COUNT", String.valueOf(id));
         postVo.setViewCount(viewsCount);
         return postVo;
     }
@@ -189,6 +194,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
         postVos = range.stream().map(obj -> JSONUtil.toBean(obj, PostVo.class)).collect(Collectors.toList());
         return postVos;
 //        return redisUtils.getList(userCommendKey, PostVo.class);
+    }
+
+    @Override
+    public List<PostVo> getLoginPublicRecommend() {
+
+        return List.of();
     }
 
     private List<PostVo> getPostCommendVoForRedis(String userCommendKey, String tag, Set<String> readPostIds) {

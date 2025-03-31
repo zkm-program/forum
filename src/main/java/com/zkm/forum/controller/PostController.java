@@ -1,5 +1,6 @@
 package com.zkm.forum.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.zkm.forum.annotation.AuthCheck;
 import com.zkm.forum.common.BaseResponse;
 import com.zkm.forum.common.ErrorCode;
@@ -15,20 +16,24 @@ import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
 import org.apache.commons.lang3.ObjectUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import static com.zkm.forum.constant.RedisConstant.*;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/post")
 public class PostController {
     @Resource
     PostService postService;
-//    @Resource
-//    RedisTemplate<String,Object> redisTemplate;
+    @Resource
+    StringRedisTemplate stringredisTemplate;
 
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
@@ -57,16 +62,27 @@ public class PostController {
     }
 
     /**
-     * 首页的公共推荐
+     * 首页的公共推荐(登录看到的)
+     *
      * @return
      */
-    @GetMapping("/public/recommend")
-    public BaseResponse<PostVo> getPublicRecommend( ) {
-        return ResultUtils.success(null);
+    @GetMapping("/public/login/recommend")
+    @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
+    public BaseResponse<List<PostVo>> getLoginPublicRecommend() {
+        return ResultUtils.success(Objects.requireNonNull(stringredisTemplate
+                        .opsForList().range(PRE_CACHE_POST_LOGIN, 0, 14))
+                .stream().map(str-> JSONUtil.toBean(str,PostVo.class)).toList());
     }
 
+    @GetMapping("/logout/recommend")
+    public BaseResponse<List<PostVo>> getLogoutRecommend(){
+        return ResultUtils.success(Objects.requireNonNull(stringredisTemplate
+                .opsForList().range(PRE_CACHE_POST_LOGOUT, 0, 14))
+                .stream().map(str->JSONUtil.toBean(str,PostVo.class)).toList());
+    }
     /**
      * 每个用户看文章下滑会触发私人推荐文章
+     *
      * @param userId
      * @param httpServletRequest
      * @return
@@ -74,7 +90,7 @@ public class PostController {
     @PostMapping("/private/recommend/{userId}")
     public BaseResponse<List<PostVo>> getPrivateRecommend(@PathVariable("userId") Long userId, @RequestBody GetPrivateRecommendRequest getPrivateRecommendRequest) {
 
-        return ResultUtils.success(postService.getPrivateRecommend(userId,getPrivateRecommendRequest));
+        return ResultUtils.success(postService.getPrivateRecommend(userId, getPrivateRecommendRequest));
     }
 
 }
