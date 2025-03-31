@@ -14,7 +14,7 @@ import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.redis.core.RedisTemplate;
+//import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import static com.zkm.forum.constant.RedisConstant.*;
@@ -27,8 +27,8 @@ import java.util.List;
 public class PostController {
     @Resource
     PostService postService;
-    @Resource
-    RedisTemplate<String,Object> redisTemplate;
+//    @Resource
+//    RedisTemplate<String,Object> redisTemplate;
 
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
@@ -71,10 +71,10 @@ public class PostController {
      * @param httpServletRequest
      * @return
      */
-    @GetMapping("/private/recommend/{userId}")
+    @PostMapping("/private/recommend/{userId}")
     public BaseResponse<List<PostVo>> getPrivateRecommend(@PathVariable("userId") Long userId, @RequestBody GetPrivateRecommendRequest getPrivateRecommendRequest) {
 
-        return ResultUtils.success(null);
+        return ResultUtils.success(postService.getPrivateRecommend(userId,getPrivateRecommendRequest));
     }
 
 }
