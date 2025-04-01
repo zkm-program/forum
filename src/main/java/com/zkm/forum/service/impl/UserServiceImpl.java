@@ -42,8 +42,9 @@ import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Resource
     private Cache<String, String> LOCAL_CACHE;
-    @Resource
-    UserService userService;
+    //加上这个会报循环依赖错误
+//    @Resource
+//    UserService userService;
     private HashMap<String, Long> codeWithTime = new HashMap<>();
     private static final String SALT = "Masami";
 
@@ -91,7 +92,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被封，禁止登录！");
         }
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
-        LOCAL_CACHE.put(USERID_USERNAME+user.getId(),user.getUserName());
+        LOCAL_CACHE.put(USERID_USERNAME + user.getId(), user.getUserName());
         return objToVo(user);
     }
 
@@ -208,6 +209,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         return result;
     }
+
     @Override
     public Boolean reportUser(ReportUserRequest reportUserRequest, HttpServletRequest request) {
         User loginUser = this.getLoginUser(request);
@@ -215,13 +217,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean result;
         synchronized (String.valueOf(userId).intern()) {
             User user = this.getById(reportUserRequest.getUserId());
-            if (user.getIsReported()==1) {
+            if (user.getIsReported() == 1) {
                 return true;
             } else {
                 user.setIsReported(1);
                 user.setReportResults(reportUserRequest.getReportedResults());
                 user.setReportUserId(reportUserRequest.getReportUserId());
-                result = userService.updateById(user);
+                result = this.updateById(user);
             }
             if (!result) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "系统繁忙，请稍后再试");

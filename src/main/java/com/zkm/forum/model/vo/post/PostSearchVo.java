@@ -18,6 +18,6 @@ public class PostSearchVo {
     private Integer thumbNum;
     private Integer favourNum;
     private Integer type;
-    private String tag;
+    private List<String> tag;
     private String authorName;
 }

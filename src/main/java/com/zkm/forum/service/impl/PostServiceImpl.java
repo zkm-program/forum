@@ -46,8 +46,7 @@ import static com.zkm.forum.constant.RedisConstant.*;
  */
 @Slf4j
 @Service
-public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
-        implements PostService {
+public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements PostService {
     @Resource
     private UserService userService;
     @Resource
@@ -59,16 +58,10 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Resource
     private Cache<String, String> LOCAL_CACHE;
 
-    @Resource
-    private PostService postService;
-    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
-            20,
-            50,
-            60L,
-            TimeUnit.SECONDS,
-            new LinkedBlockingDeque<>(10000),
-            new ThreadPoolExecutor.CallerRunsPolicy()
-    );
+    //加上这个会报循环依赖错误
+//    @Resource
+//    private PostService postService;
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(20, 50, 60L, TimeUnit.SECONDS, new LinkedBlockingDeque<>(10000), new ThreadPoolExecutor.CallerRunsPolicy());
 
     @Override
     public Boolean addPost(AddPostRequest addPostRequest, HttpServletRequest httpServletRequest) {
@@ -186,10 +179,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
             log.error(e.getMessage());
         }
         List<PostVo> postVos = new ArrayList<>();
-        List<String> range = strngredisTemplate.opsForList()
-                .range(userCommendKey, 0, -1)
-                .stream()
-                .map(obj -> JSONUtil.toJsonStr(obj)) // 直接转换（因配置了JSON序列化）
+        List<String> range = strngredisTemplate.opsForList().range(userCommendKey, 0, -1).stream().map(obj -> JSONUtil.toJsonStr(obj)) // 直接转换（因配置了JSON序列化）
                 .collect(Collectors.toList());
         postVos = range.stream().map(obj -> JSONUtil.toBean(obj, PostVo.class)).collect(Collectors.toList());
         return postVos;
@@ -218,7 +208,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
                 post.setIsReported(1);
                 post.setReportResults(reportPostRequest.getReportedResults());
                 post.setReportUserId(reportPostRequest.getReportUserId());
-                result = postService.updateById(post);
+                result = this.updateById(post);
             }
             if (!result) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "系统繁忙，请稍后再试");
@@ -232,41 +222,21 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 
         List<PostVo> recommendPostVolist = null;
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
-        postQueryWrapper
-                .apply("JSON_CONTAINS(tags, {0})", "\"" + tag.replace("\"", "\\\"") + "\"")
-                .notIn(!readPostIds.isEmpty(), "id", readPostIds)
-                .last("LIMIT 3");
+        postQueryWrapper.apply("JSON_CONTAINS(tags, {0})", "\"" + tag.replace("\"", "\\\"") + "\"").notIn(!readPostIds.isEmpty(), "id", readPostIds).last("LIMIT 3");
         List<Post> recommendPostList = this.list(postQueryWrapper);
-        recommendPostVolist = recommendPostList.stream().map(recommendPost -> PostVo.builder()
-                .is_featured(recommendPost.getIs_featured())
-                .is_top(recommendPost.getIs_top())
-                .original_url(recommendPost.getOriginal_url())
-                .createTime(recommendPost.getCreateTime())
-                .favourNum(recommendPost.getFavourNum())
-                .content(recommendPost.getContent())
-                .tags(JSONUtil.toList(JSONUtil.parseArray(recommendPost.getTags()), String.class))
-                .status(recommendPost.getStatus())
-                .thumbNum(recommendPost.getThumbNum())
-                .title(recommendPost.getTitle())
-                .id(recommendPost.getId()).build()).toList();
-        recommendPostVolist.forEach(postVo ->
-                strngredisTemplate.opsForList().rightPush(userCommendKey, JSONUtil.toJsonStr(postVo))
-        );
+        recommendPostVolist = recommendPostList.stream().map(recommendPost -> PostVo.builder().is_featured(recommendPost.getIs_featured()).is_top(recommendPost.getIs_top()).original_url(recommendPost.getOriginal_url()).createTime(recommendPost.getCreateTime()).favourNum(recommendPost.getFavourNum()).content(recommendPost.getContent()).tags(JSONUtil.toList(JSONUtil.parseArray(recommendPost.getTags()), String.class)).status(recommendPost.getStatus()).thumbNum(recommendPost.getThumbNum()).title(recommendPost.getTitle()).id(recommendPost.getId()).build()).toList();
+        recommendPostVolist.forEach(postVo -> strngredisTemplate.opsForList().rightPush(userCommendKey, JSONUtil.toJsonStr(postVo)));
         strngredisTemplate.expire(userCommendKey, 5, TimeUnit.MINUTES);
 
         return recommendPostVolist;
     }
 
     private boolean isRead(Long userId, Set<Object> set) {
-        return Boolean.TRUE.equals(
-                strngredisTemplate.opsForSet().isMember("user:read:" + userId, set)
-        );
+        return Boolean.TRUE.equals(strngredisTemplate.opsForSet().isMember("user:read:" + userId, set));
     }
 
     private Double updatePostViewCount(Long id) {
-        return strngredisTemplate.opsForZSet().incrementScore(POST_VIEWS_COUNT,
-                String.valueOf(id),
-                1);
+        return strngredisTemplate.opsForZSet().incrementScore(POST_VIEWS_COUNT, String.valueOf(id), 1);
     }
 
     private QueryWrapper<Post> getQuerWrapper(PostQueryRequest postQueryRequest) {

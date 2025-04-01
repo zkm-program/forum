@@ -1,6 +1,7 @@
 package com.zkm.forum.strategy.impl;
 
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 
@@ -93,11 +95,13 @@ public class PostMysqlSearchImpl implements SearchStrategy {
                     } else {
                         postSearchVo.setTitle(post.getTitle());
                     }
+                    List<String> tagList = JSONUtil.toList(post.getTags(), String.class);
+                    List<String> list = tagList.stream().filter(tag -> tag.contains(keyWords.toUpperCase())).filter(tag -> tag.contains(keyWords.toLowerCase())).toList();
                     postSearchVo.setFavourNum(post.getFavourNum());
                     postSearchVo.setThumbNum(post.getThumbNum());
 
                     postSearchVo.setId(post.getId());
-                    postSearchVo.setTag(CommonConstant.PRE_TAG + keyWords + CommonConstant.POST_TAG);
+                    postSearchVo.setTag(list);
                     postSearchVo.setType(post.getType());
                     String ifPresent = LOCAL_CACHE.getIfPresent(USERID_USERNAME + post.getUserId());
                     if (ifPresent != null) {
