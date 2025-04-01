@@ -2,14 +2,15 @@ package com.zkm.forum.service.impl;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.zkm.forum.common.ErrorCode;
+import com.zkm.forum.common.PageRequest;
+import com.zkm.forum.constant.CommonConstant;
+import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
-import com.zkm.forum.model.dto.post.AddPostRequest;
-import com.zkm.forum.model.dto.post.GetPrivateRecommendRequest;
-import com.zkm.forum.model.dto.post.PostSearchRequest;
-import com.zkm.forum.model.dto.post.UpdatePostDeleteForMy;
+import com.zkm.forum.model.dto.post.*;
 import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.enums.UserRoleEnum;
@@ -22,6 +23,8 @@ import com.zkm.forum.strategy.context.SearchStrategyContext;
 
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -59,8 +63,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     private StringRedisTemplate strngredisTemplate;
     @Resource
     private Cache<String, String> LOCAL_CACHE;
-    //    @Resource
-//    RedisUtils redisUtils;
+
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
             20,
             50,
@@ -196,11 +199,16 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
 //        return redisUtils.getList(userCommendKey, PostVo.class);
     }
 
-    @Override
-    public List<PostVo> getLoginPublicRecommend() {
 
-        return List.of();
+
+    @Override
+    public Page<Post> listPostForAdmin(PostQueryRequest postQueryRequest) {
+        int current = postQueryRequest.getCurrent();
+        int pageSize = postQueryRequest.getPageSize();
+        Page<Post> postPage = new Page<>(current, pageSize);
+        return this.page(postPage, getQuerWrapper(postQueryRequest));
     }
+
 
     private List<PostVo> getPostCommendVoForRedis(String userCommendKey, String tag, Set<String> readPostIds) {
 
@@ -238,21 +246,40 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     }
 
     private Double updatePostViewCount(Long id) {
-        return strngredisTemplate.opsForZSet().incrementScore(POST_VIEWS_COUNT, String.valueOf(id), 1);
+        return strngredisTemplate.opsForZSet().incrementScore(POST_VIEWS_COUNT,
+                String.valueOf(id),
+                1);
     }
 
-//    private static List<PostVo> listObjectToPostVo(List<Object> list) {
-//        List<PostVo> postVoList = new ArrayList<>();
-//        for (Object obj : list) {
-//            if (obj instanceof PostVo) {
-//                PostVo postVo = (PostVo) obj;
-//                postVoList.add(postVo);
-//            } else {
-//                throw new IllegalArgumentException("List contains non-PostVo elements");
-//            }
-//        }
-//        return postVoList;
-//    }
+    private QueryWrapper<Post> getQuerWrapper(PostQueryRequest postQueryRequest) {
+        Long id = postQueryRequest.getId();
+        String title = postQueryRequest.getTitle();
+        List<String> tags = postQueryRequest.getTags();
+
+        Long userId = postQueryRequest.getUserId();
+        int isReported = postQueryRequest.getIsReported();
+
+        LocalDateTime end = postQueryRequest.getEnd();
+        LocalDateTime begin = postQueryRequest.getBegin();
+        Integer status = postQueryRequest.getStatus();
+        Integer type = postQueryRequest.getType();
+
+        String sortField = postQueryRequest.getSortField();
+        String sortOrder = postQueryRequest.getSortOrder();
+        QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
+        postQueryWrapper.eq(id != null, "id", id);
+        postQueryWrapper.like(StringUtils.isNotBlank(title), "title", title);
+        postQueryWrapper.apply("JSON_CONTAINS(tags, {0})", "\"" + tags.get(0).replace("\"", "\\\"") + "\"");
+        postQueryWrapper.eq(userId != null, "userId", userId);
+        postQueryWrapper.eq("isReported", isReported);
+        postQueryWrapper.between("createTime", begin, end);
+        postQueryWrapper.eq(status != null, "status", status);
+        postQueryWrapper.eq(type != null, "type", type);
+        postQueryWrapper.orderBy(StringUtils.isNotBlank(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), "sortField");
+
+        return postQueryWrapper;
+    }
+
 }
 
 

@@ -36,15 +36,15 @@ public class PreCacheJob {
         QueryWrapper<Post> postLoginQueryWrapper = new QueryWrapper<>();
         postLoginQueryWrapper
                 // 筛选昨天创建的帖子
-                .between("create_time", yesterdayStart, yesterdayEnd)
+                .between("createTime", yesterdayStart, yesterdayEnd)
                 // 按(点赞数+收藏数)的总和降序排序
-                .orderByDesc("(thumb_num + favour_num)")
+                .orderByDesc("(thumbNum + favourNum)")
                 // 限制15条
                 .last("LIMIT 15");
         List<Post> preLoginPostList = postService.list(postLoginQueryWrapper);
         stringRedisTemplate.opsForList().rightPush(PRE_CACHE_POST_LOGIN, JSONUtil.toJsonStr(postToPostVo(preLoginPostList)));
         QueryWrapper<Post> postLogoutQueryWrapper = new QueryWrapper<>();
-        postLogoutQueryWrapper.orderByDesc("(thumb_num + favour_num)")
+        postLogoutQueryWrapper.orderByDesc("(thumbNum + favourNum)")
                 // 限制15条
                 .last("LIMIT 15");
         List<Post> preLogoutPostList = postService.list(postLogoutQueryWrapper);

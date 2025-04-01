@@ -25,6 +25,11 @@ public class Post implements Serializable {
     private String title;
 
     /**
+     * 0-没有，1-被举报
+     */
+    private int isReported;
+
+    /**
      * 内容
      */
     private String content;
