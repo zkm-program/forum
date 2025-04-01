@@ -10,8 +10,11 @@ import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.UserMapper;
+import com.zkm.forum.model.dto.post.ReportPostRequest;
+import com.zkm.forum.model.dto.user.ReportUserRequest;
 import com.zkm.forum.model.dto.user.UserQueryRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
+import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.service.UserService;
@@ -39,6 +42,8 @@ import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Resource
     private Cache<String, String> LOCAL_CACHE;
+    @Resource
+    UserService userService;
     private HashMap<String, Long> codeWithTime = new HashMap<>();
     private static final String SALT = "Masami";
 
@@ -202,6 +207,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改失败请稍后再试！");
         }
         return result;
+    }
+    @Override
+    public Boolean reportUser(ReportUserRequest reportUserRequest, HttpServletRequest request) {
+        User loginUser = this.getLoginUser(request);
+        Long userId = loginUser.getId();
+        boolean result;
+        synchronized (String.valueOf(userId).intern()) {
+            User user = this.getById(reportUserRequest.getUserId());
+            if (user.getIsReported()==1) {
+                return true;
+            } else {
+                user.setIsReported(1);
+                user.setReportResults(reportUserRequest.getReportedResults());
+                user.setReportUserId(reportUserRequest.getReportUserId());
+                result = userService.updateById(user);
+            }
+            if (!result) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "系统繁忙，请稍后再试");
+            }
+            return result;
+        }
     }
 
 

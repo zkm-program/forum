@@ -177,4 +177,8 @@ public class UserController {
     public void logout(HttpServletRequest httpServletRequest) {
         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
     }
+    @PostMapping("/report/post")
+    public BaseResponse<Boolean> reportPost(ReportUserRequest reportUserRequest, HttpServletRequest request) {
+        return ResultUtils.success(userService.reportUser(reportUserRequest, request));
+    }
 }

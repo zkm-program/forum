@@ -2,6 +2,8 @@ package com.zkm.forum.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.zkm.forum.model.dto.post.ReportPostRequest;
+import com.zkm.forum.model.dto.user.ReportUserRequest;
 import com.zkm.forum.model.dto.user.UserQueryRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
 import com.zkm.forum.model.entity.User;
@@ -31,4 +33,5 @@ public interface UserService extends IService<User> {
 
     Boolean updateForAdmin(int matchCount, String userRole, String userQqEmail);
 
+    Boolean reportUser(ReportUserRequest reportUserRequest, HttpServletRequest request);
 }

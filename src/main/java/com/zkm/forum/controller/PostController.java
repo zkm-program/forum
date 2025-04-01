@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkm.forum.annotation.AuthCheck;
 import com.zkm.forum.common.BaseResponse;
 import com.zkm.forum.common.ErrorCode;
-import com.zkm.forum.common.PageRequest;
 import com.zkm.forum.common.ResultUtils;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
@@ -16,7 +15,6 @@ import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
 import org.apache.commons.lang3.ObjectUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,6 +97,11 @@ public class PostController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     BaseResponse<Page<Post>> listPostForAdmin(PostQueryRequest postQueryRequest) {
         return ResultUtils.success(postService.listPostForAdmin(postQueryRequest));
+    }
+
+    @PostMapping("/report/post")
+    public BaseResponse<Boolean> reportPost(ReportPostRequest reportPostRequest, HttpServletRequest request) {
+        return ResultUtils.success(postService.reportPost(reportPostRequest, request));
     }
 
 }

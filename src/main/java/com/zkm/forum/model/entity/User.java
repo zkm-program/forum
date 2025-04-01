@@ -23,7 +23,7 @@ public class User implements Serializable {
     /**
      * 是否被举报
      */
-    private Boolean isReported;
+    private int isReported;
     /**
      * 用户姓名
      */
@@ -78,6 +78,8 @@ public class User implements Serializable {
      */
     private String gender;
 
+    private String reportResults;
+    private Long reportUserId;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

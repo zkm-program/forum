@@ -6,9 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.zkm.forum.common.ErrorCode;
-import com.zkm.forum.common.PageRequest;
 import com.zkm.forum.constant.CommonConstant;
-import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.*;
 import com.zkm.forum.model.entity.Post;
@@ -23,7 +21,6 @@ import com.zkm.forum.strategy.context.SearchStrategyContext;
 
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
@@ -40,8 +37,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.zkm.forum.constant.LocalCacheConstant.POSTFAVOUR;
-import static com.zkm.forum.constant.LocalCacheConstant.POSTTHUM;
 import static com.zkm.forum.constant.RedisConstant.*;
 
 /**
@@ -64,6 +59,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     @Resource
     private Cache<String, String> LOCAL_CACHE;
 
+    @Resource
+    private PostService postService;
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
             20,
             50,
@@ -200,13 +197,34 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post>
     }
 
 
-
     @Override
     public Page<Post> listPostForAdmin(PostQueryRequest postQueryRequest) {
         int current = postQueryRequest.getCurrent();
         int pageSize = postQueryRequest.getPageSize();
         Page<Post> postPage = new Page<>(current, pageSize);
         return this.page(postPage, getQuerWrapper(postQueryRequest));
+    }
+
+    @Override
+    public Boolean reportPost(ReportPostRequest reportPostRequest, HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        Long userId = loginUser.getId();
+        boolean result;
+        synchronized (String.valueOf(userId).intern()) {
+            Post post = this.getById(reportPostRequest.getPostId());
+            if (post.getIsReported() == 1) {
+                return true;
+            } else {
+                post.setIsReported(1);
+                post.setReportResults(reportPostRequest.getReportedResults());
+                post.setReportUserId(reportPostRequest.getReportUserId());
+                result = postService.updateById(post);
+            }
+            if (!result) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "系统繁忙，请稍后再试");
+            }
+            return result;
+        }
     }
 
 

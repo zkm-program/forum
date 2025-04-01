@@ -2,7 +2,7 @@ create table if not exists user
 (
     id           bigint auto_increment comment 'id' primary key,
     userName     varchar(256) not null comment '用户姓名',
-    isReported       TINYINT      default 0 comment "0是没被举报，1是被举报了",
+    isReported   TINYINT               default 0 comment "0是没被举报，1是被举报了",
     tags         varchar(1024)         default null comment '用户标签,json数组里面都是字符串形式',
     userQqEmail  varchar(256) not null comment '用户邮箱',
     userPassword varchar(256) not null comment '用户密码',
@@ -13,6 +13,8 @@ create table if not exists user
     isDelete     tinyint      not null default 0 comment '是否删除',
     userAvatar   varchar(1024)         default null comment '用户头像',
     gender       varchar(256) not null comment '用户性别',
+    reportResults    VARCHAR(256) default '' comment "被举报原因",
+    reportUserId     bigint                                                        not null comment "举报用户id",
     index idx_userQqEmail (userQqEmail),
     CONSTRAINT uniIdx_userQqEmail UNIQUE (userQqEmail)
 
@@ -53,6 +55,8 @@ create table if not exists post
     original_url     varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '原文链接',
     isReported       TINYINT      default 0 comment "0是没被举报，1是被举报了",
     viewCount        int          DEFAULT 0                                        not null comment '浏览量',
+    reportResults    VARCHAR(256) default '' comment "被举报原因",
+    reportUserId     bigint                                                        not null comment "举报用户id",
     index idx_userId (userId)
 ) comment '帖子' collate = utf8mb4_unicode_ci;
 

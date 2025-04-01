@@ -1,13 +1,11 @@
 package com.zkm.forum.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zkm.forum.common.PageRequest;
 import com.zkm.forum.model.dto.post.*;
 import com.zkm.forum.model.entity.Post;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.model.vo.post.PostVo;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -28,5 +26,6 @@ public interface PostService extends IService<Post> {
     List<PostVo> getPrivateRecommend(Long userId, GetPrivateRecommendRequest getPrivateRecommendRequest);
 
     Page<Post> listPostForAdmin(PostQueryRequest postQueryRequest);
+    Boolean reportPost(ReportPostRequest reportPostRequest, HttpServletRequest request);
 
 }

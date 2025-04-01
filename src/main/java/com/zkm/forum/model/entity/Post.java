@@ -4,13 +4,15 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * 帖子
+ *
  * @TableName post
  */
-@TableName(value ="post")
+@TableName(value = "post")
 @Data
 public class Post implements Serializable {
     /**
@@ -105,7 +107,8 @@ public class Post implements Serializable {
      * 原文链接
      */
     private String original_url;
-
+    private String reportResults;
+    private Long reportUserId;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }
