@@ -232,6 +232,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         }
     }
 
+    // todo 加到策略模式里面，同时返回样式中针对用户的搜索词进行加粗标识
     @Override
     public Page<PostSearchVo> searchEsPost(PostQueryRequest postQueryRequest) {
         List<String> orTags = postQueryRequest.getOrTags();

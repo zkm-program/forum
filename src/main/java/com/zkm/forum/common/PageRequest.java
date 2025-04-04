@@ -13,7 +13,7 @@ public class PageRequest implements Serializable {
     private int current = 1;
 
     /**
-     * 页面大小
+     * 页面大小(一页有几条数据)
      */
     private int pageSize = 10;
 
