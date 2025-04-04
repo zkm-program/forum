@@ -9,9 +9,13 @@ import java.util.List;
 
 @Data
 public class PostQueryRequest extends PageRequest {
+    private String keyWords;
     private Long id;
     private String title;
     private List<String> tags;
+    private List<String> orTags;
+    private String content;
+    private String userName;
     private Integer thumbNum;
     private Integer favourNum;
     private Long userId;

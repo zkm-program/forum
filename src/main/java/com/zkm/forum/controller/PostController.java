@@ -100,8 +100,13 @@ public class PostController {
     }
 
     @PostMapping("/report/post")
-    public BaseResponse<Boolean> reportPost(ReportPostRequest reportPostRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> reportPost(@RequestBody ReportPostRequest reportPostRequest, HttpServletRequest request) {
         return ResultUtils.success(postService.reportPost(reportPostRequest, request));
+    }
+
+    @PostMapping("/searchEsPost")
+    public BaseResponse<Page<PostSearchVo>> searchEsPost(@RequestBody PostQueryRequest postQueryRequest){
+       return ResultUtils.success(postService.searchEsPost(postQueryRequest));
     }
 
 }

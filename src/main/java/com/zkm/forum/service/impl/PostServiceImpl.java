@@ -1,5 +1,6 @@
 package com.zkm.forum.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -22,12 +23,24 @@ import com.zkm.forum.strategy.context.SearchStrategyContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.*;
 import org.springframework.beans.BeanUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.print.DocFlavor;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -62,6 +75,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 //    @Resource
 //    private PostService postService;
     ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(20, 50, 60L, TimeUnit.SECONDS, new LinkedBlockingDeque<>(10000), new ThreadPoolExecutor.CallerRunsPolicy());
+    @Autowired
+    private ElasticsearchRestTemplate elasticsearchTemplate;
 
     @Override
     public Boolean addPost(AddPostRequest addPostRequest, HttpServletRequest httpServletRequest) {
@@ -215,6 +230,107 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             }
             return result;
         }
+    }
+
+    @Override
+    public Page<PostSearchVo> searchEsPost(PostQueryRequest postQueryRequest) {
+        List<String> orTags = postQueryRequest.getOrTags();
+        String keyWords = postQueryRequest.getKeyWords();
+        Long id = postQueryRequest.getId();
+        String title = postQueryRequest.getTitle();
+        List<String> tags = postQueryRequest.getTags();
+        String content = postQueryRequest.getContent();
+        String userName = postQueryRequest.getUserName();
+        Integer thumbNum = postQueryRequest.getThumbNum();
+        Integer favourNum = postQueryRequest.getFavourNum();
+        Long userId = postQueryRequest.getUserId();
+        int isReported = postQueryRequest.getIsReported();
+        Double viewCount = postQueryRequest.getViewCount();
+        Date createTime = postQueryRequest.getCreateTime();
+        Integer status = postQueryRequest.getStatus();
+        Integer type = postQueryRequest.getType();
+        LocalDateTime begin = postQueryRequest.getBegin();
+        LocalDateTime end = postQueryRequest.getEnd();
+        int current = postQueryRequest.getCurrent();
+        int pageSize = postQueryRequest.getPageSize();
+        String sortField = postQueryRequest.getSortField();
+        String sortOrder = postQueryRequest.getSortOrder();
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("isDelete", 0));
+        if (id != null && id != 0) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery("id", id));
+        }
+        if (userId != null && userId != 0) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery("userId", userId));
+        }
+        if (StringUtils.isNotBlank(userName)) {
+            boolQueryBuilder.filter(QueryBuilders.termQuery("userName", userName));
+        }
+        if (StringUtils.isNotBlank(keyWords)) {
+            boolQueryBuilder.should(QueryBuilders.matchQuery("title", title));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
+            boolQueryBuilder.minimumShouldMatch(1);
+        }
+        if (StringUtils.isNotBlank(title)) {
+            boolQueryBuilder.should(QueryBuilders.matchQuery("title", title));
+            boolQueryBuilder.minimumShouldMatch(1);
+        }
+        if (StringUtils.isNotBlank(content)) {
+            boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
+            boolQueryBuilder.minimumShouldMatch(1);
+        }
+        if (!tags.isEmpty()) {
+            for (String tag : tags) {
+                boolQueryBuilder.filter(QueryBuilders.termQuery("tags", tag));
+            }
+        }
+        if (CollUtil.isNotEmpty(orTags)) {
+            BoolQueryBuilder orBoolQueryBuilder = QueryBuilders.boolQuery();
+            for (String tag : orTags) {
+                orBoolQueryBuilder.should(QueryBuilders.termQuery("tags", tag));
+            }
+            orBoolQueryBuilder.minimumShouldMatch(1);
+            boolQueryBuilder.filter(orBoolQueryBuilder);
+        }
+        SortBuilder<?> sortBuilder = SortBuilders.scoreSort();
+        if (StringUtils.isNotBlank(sortField)) {
+            sortBuilder = SortBuilders.fieldSort(sortField);
+            sortBuilder.order(CommonConstant.SORT_ORDER_ASC.equals(sortOrder) ? SortOrder.ASC : SortOrder.DESC);
+        }
+        PageRequest pageRequest = PageRequest.of(current, pageSize);
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder).withPageable(pageRequest).withSorts(sortBuilder).build();
+        SearchHits<PostEsDTO> searchHits = elasticsearchTemplate.search(searchQuery, PostEsDTO.class);
+        Page<PostSearchVo> page = new Page<>();
+        page.setTotal(searchHits.getTotalHits());
+        List<Post> resourceList = new ArrayList<>();
+        if (searchHits.hasSearchHits()) {
+            List<SearchHit<PostEsDTO>> searchHitList = searchHits.getSearchHits();
+            List<Long> postIdList = searchHitList.stream().map(searchHit -> searchHit.getContent().getId()).toList();
+            List<Post> posts = this.listByIds(postIdList);
+            if (posts != null) {
+                Map<Long, List<Post>> map = posts.stream().collect(Collectors.groupingBy(Post::getId));
+                for (Long postId : postIdList) {
+                    if (map.containsKey(postId)) {
+                        resourceList.add(map.get(postId).get(0));
+                    } else {
+                        String delete = elasticsearchTemplate.delete(String.valueOf(postId), PostEsDTO.class);
+                        log.info("delete post {}", delete);
+                    }
+                }
+            }
+
+
+        }
+        List<PostSearchVo> postSearchVos = new ArrayList<>();
+        for (Post post : resourceList) {
+            PostSearchVo postSearchVo = new PostSearchVo();
+            BeanUtils.copyProperties(post, postSearchVo);
+            postSearchVo.setTag(JSONUtil.toList(post.getTags(), String.class));
+            postSearchVos.add(postSearchVo);
+        }
+
+        page.setRecords(postSearchVos);
+        return page;
     }
 
 

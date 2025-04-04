@@ -27,5 +27,6 @@ public interface PostService extends IService<Post> {
 
     Page<Post> listPostForAdmin(PostQueryRequest postQueryRequest);
     Boolean reportPost(ReportPostRequest reportPostRequest, HttpServletRequest request);
+    Page<PostSearchVo> searchEsPost(PostQueryRequest postQueryRequest);
 
 }
