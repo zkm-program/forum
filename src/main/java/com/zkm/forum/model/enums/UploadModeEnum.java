@@ -1,9 +1,11 @@
 package com.zkm.forum.model.enums;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 @Getter
+
 public enum UploadModeEnum {
     OSS("oss","ossUploadStrategyImpl"),
     COS("cos","cosUploadStrategyImpl"),
@@ -14,7 +16,7 @@ public enum UploadModeEnum {
         this.mode=mode;
         this.strategy=strategy;
     }
-    private String getStrategy(String mode){
+    public static String getStrategy(String mode){
         for (UploadModeEnum uploadModeEnum:UploadModeEnum.values()){
             if(uploadModeEnum.getMode().equals(mode)){
                 return uploadModeEnum.getStrategy();
