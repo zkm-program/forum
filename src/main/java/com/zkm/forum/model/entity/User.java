@@ -46,6 +46,8 @@ public class User implements Serializable {
      */
     private int matchCount;
 
+    private int superMatchCount;
+
 
     /**
      * 用户角色

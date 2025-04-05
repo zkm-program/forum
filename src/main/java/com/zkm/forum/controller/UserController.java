@@ -10,18 +10,17 @@ import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.user.*;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
+import com.zkm.forum.model.vo.user.MatchUserVo;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.UploadStrategy;
 import com.zkm.forum.strategy.context.UploadStrategyContext;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RequestMapping("/user")
 @RestController
@@ -182,12 +181,25 @@ public class UserController {
     public void logout(HttpServletRequest httpServletRequest) {
         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
     }
+
     @PostMapping("/report/post")
     public BaseResponse<Boolean> reportPost(ReportUserRequest reportUserRequest, HttpServletRequest request) {
         return ResultUtils.success(userService.reportUser(reportUserRequest, request));
     }
+
     @PostMapping("/upload")
-    public BaseResponse<String> upload(MultipartFile multipartFile){
-        return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile,"test/"));
+    public BaseResponse<String> upload(MultipartFile multipartFile) {
+        return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile, "test/"));
+    }
+
+    @PostMapping("/matchuser/bytags")
+    public BaseResponse<List<MatchUserVo>> matchUserByTags(@RequestParam("true") List<String> tagList, HttpServletRequest request) {
+        return ResultUtils.success(userService.matchUserByTags(tagList, request));
+
+    }
+
+    @GetMapping("/super/match")
+    public BaseResponse<MatchUserVo> superMatchUser(HttpServletRequest request) {
+        return ResultUtils.success(userService.superMatchUser(request));
     }
 }

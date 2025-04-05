@@ -10,15 +10,16 @@ import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.UserMapper;
-import com.zkm.forum.model.dto.post.ReportPostRequest;
 import com.zkm.forum.model.dto.user.ReportUserRequest;
 import com.zkm.forum.model.dto.user.UserQueryRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
-import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
+import com.zkm.forum.model.vo.user.MatchUserVo;
 import com.zkm.forum.service.UserService;
+import com.zkm.forum.utils.AlgorithmUtils;
 import com.zkm.forum.utils.MailUtils;
+import kotlin.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 
@@ -230,6 +232,89 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             return result;
         }
+    }
+
+    // todo 可以引入异步rabbitmq，避免用户体验感较差
+    @Override
+    public List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request) {
+        if (tags.size() > 3) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "最多选3个标签");
+        }
+        User loginUser = this.getLoginUser(request);
+        if (loginUser.getMatchCount() == 0) {
+            throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "匹配次数已用完");
+        }
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.select("id", "tags");
+        userQueryWrapper.last("LIMIT 500");
+        List<User> userList = this.list(userQueryWrapper);
+        List<MatchUserVo> matchUserVos = new ArrayList<>();
+        for (int i = 0; i < userList.size(); i++) {
+            // todo  可以使用set类型进行存储，这样可以过滤重复的标签，但是要注意，使用不同的序列化工具可能会报错
+            List<String> tagList = JSONUtil.toList(userList.get(i).getTags(), String.class);
+            for (String tag : tags) {
+                if (!tagList.contains(tag)) {
+                    break;
+                } else {
+                    if (matchUserVos.size() <= 1) {
+                        matchUserVos.add(getMatchUserVo(userList.get(i)));
+                    } else {
+                        // todo 可以换成异步避免等太久(先返回再减？)，弹到其他页面先减再返回，避免并发错误
+                        synchronized (String.valueOf(loginUser.getId()).intern()) {
+                            UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+                            userUpdateWrapper.eq("id", loginUser.getId());
+                            userUpdateWrapper.setSql(true, "matchCount=matchCount-1");
+                            boolean result = this.update(userUpdateWrapper);
+                            // todo 如果没减成功可通过mq进行再减，添加用户匹配到的人
+                        }
+                        List<Long> matchUserIdList = matchUserVos.stream().map(MatchUserVo::getId).toList();
+                        List<MatchUserVo> matchUserVoList = this.listByIds(matchUserIdList).stream().map(this::getMatchUserVo).toList();
+                        return matchUserVoList;
+                    }
+
+                }
+            }
+
+        }
+        throw new BusinessException(ErrorCode.OPERATION_ERROR, "没有符合条件的用户");
+
+//        return List.of();
+    }
+
+    @Override
+    public MatchUserVo superMatchUser(HttpServletRequest request) {
+        User loginUser = this.getLoginUser(request);
+        if (loginUser.getSuperMatchCount() < 1) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "超级匹配");
+        }
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.select("id", "tags");
+        List<User> userList = this.list(userQueryWrapper);
+        Map<Long, List<User>> map = userList.stream().collect(Collectors.groupingBy(User::getId));
+        List<Pair<User, Long>> pairs = new ArrayList<>();
+        for (User user : userList) {
+            int i = AlgorithmUtils.minDistance(user.getTags(), loginUser.getTags());
+            pairs.add(new Pair<User, Long>(user, (long) i));
+        }
+        // todo 如果 list 很大，排序操作可能会消耗较多时间。在这种情况下，可以考虑优化数据结构或使用并行流（list.parallelStream()）来提高性能。
+        Pair<User, Long> pair = pairs.stream().sorted((a, b) -> (int) (a.getSecond() - b.getSecond())).limit(1).toList().get(0);
+        synchronized (String.valueOf(loginUser.getId()).intern()) {
+            UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+            userUpdateWrapper.eq("id", loginUser.getId());
+            userUpdateWrapper.setSql(true, "superMatchCount=superMatchCount-1");
+            boolean result = this.update(userUpdateWrapper);
+            // todo 如果没减成功可通过mq进行再减，添加用户匹配到的人
+        }
+        return this.getMatchUserVo(this.getById(pair.getFirst().getId()));
+
+
+    }
+
+    private MatchUserVo getMatchUserVo(User user) {
+        MatchUserVo matchUserVo = new MatchUserVo();
+        BeanUtils.copyProperties(user, matchUserVo);
+        matchUserVo.setTags(JSONUtil.toList(user.getTags(), String.class));
+        return matchUserVo;
     }
 
 

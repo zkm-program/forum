@@ -2,14 +2,15 @@ package com.zkm.forum.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zkm.forum.model.dto.post.ReportPostRequest;
 import com.zkm.forum.model.dto.user.ReportUserRequest;
 import com.zkm.forum.model.dto.user.UserQueryRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
+import com.zkm.forum.model.vo.user.MatchUserVo;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @author 张凯铭
@@ -34,4 +35,8 @@ public interface UserService extends IService<User> {
     Boolean updateForAdmin(int matchCount, String userRole, String userQqEmail);
 
     Boolean reportUser(ReportUserRequest reportUserRequest, HttpServletRequest request);
+
+    List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request);
+
+    MatchUserVo superMatchUser(HttpServletRequest request);
 }
