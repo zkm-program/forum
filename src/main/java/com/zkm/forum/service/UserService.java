@@ -8,6 +8,7 @@ import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
+import org.redisson.api.RBitSet;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -45,4 +46,6 @@ public interface UserService extends IService<User> {
 
     List<LoginUserVO> getOwnCircleDistance(HttpServletRequest request, double distance);
     Boolean addUserSignIn(Long userId);
+    Map<Long, Boolean> getUserThisWeekSign(Long userId);
 }
+

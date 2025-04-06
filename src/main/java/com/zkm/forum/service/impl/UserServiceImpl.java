@@ -42,8 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
-import static com.zkm.forum.constant.RedisConstant.USER_GEO;
-import static com.zkm.forum.constant.RedisConstant.getRedisUserSignin;
+import static com.zkm.forum.constant.RedisConstant.*;
 import static org.springframework.data.elasticsearch.annotations.DateFormat.date;
 
 /**
@@ -374,6 +373,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.OPERATION_ERROR,"请勿重复签到");
         }
     }
+
+    @Override
+    public Map<Long, Boolean> getUserThisWeekSign(Long userId) {
+        LocalDate date = LocalDate.now();
+        int weekOfYear = date.get(WeekFields.ISO.weekOfYear());
+        String key = String.format("%s:%s:%s:%s", USER_SIGNIN, date.getYear(), weekOfYear, userId);
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        Map<Long, Boolean> userSign = new HashMap<>();
+        for(int i=0;i<=7;i++){
+            userSign.put((long) i,bitSet.get((long) i));
+        }
+        return userSign;
+    }s
 
     private MatchUserVo getMatchUserVo(User user) {
         MatchUserVo matchUserVo = new MatchUserVo();

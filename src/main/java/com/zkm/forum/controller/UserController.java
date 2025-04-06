@@ -15,6 +15,7 @@ import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.UploadStrategy;
 import com.zkm.forum.strategy.context.UploadStrategyContext;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBitSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -213,14 +214,22 @@ public class UserController {
     public BaseResponse<List<LoginUserVO>> getOwnCircleDistance(HttpServletRequest request, @RequestParam("true") double distance) {
         return ResultUtils.success(userService.getOwnCircleDistance(request, distance));
     }
-@GetMapping("/signin")
+
+    @GetMapping("/signin")
     public BaseResponse<Boolean> addUserSignIn(HttpServletRequest request) {
-    User loginUser = userService.getLoginUser(request);
-    Boolean result = userService.addUserSignIn(loginUser.getId());
-    if(result){
-        return ResultUtils.success(result);
-    }else{
-        return ResultUtils.error(ErrorCode.OPERATION_ERROR,"签到失败");
+        User loginUser = userService.getLoginUser(request);
+        Boolean result = userService.addUserSignIn(loginUser.getId());
+        if (result) {
+            return ResultUtils.success(result);
+        } else {
+            return ResultUtils.error(ErrorCode.OPERATION_ERROR, "签到失败");
+        }
     }
-}
+
+    @PostMapping("/getuserthisweeksign")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Map<Long, Boolean>> getUserThisWeekSign(Long userId) {
+       return ResultUtils.success( userService.getUserThisWeekSign(userId));
+
+    }
 }
