@@ -11,6 +11,7 @@ import com.zkm.forum.model.vo.user.MatchUserVo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 张凯铭
@@ -39,4 +40,8 @@ public interface UserService extends IService<User> {
     List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request);
 
     MatchUserVo superMatchUser(HttpServletRequest request);
+
+    Map<Long, String> getOwnWithOtherDistance(HttpServletRequest request);
+
+    List<LoginUserVO> getOwnCircleDistance(HttpServletRequest request, double distance);
 }

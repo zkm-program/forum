@@ -8,4 +8,5 @@ public interface RedisConstant {
     String USER_RECOMMEND = "user:recommned";
     String PRE_CACHE_POST_LOGIN = "pre:cachec:post_login";
     String PRE_CACHE_POST_LOGOUT = "pre:cachec:post_logout";
+    String USER_GEO="user:geo";
 }

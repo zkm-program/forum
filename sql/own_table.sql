@@ -16,6 +16,8 @@ create table if not exists user
     reportResults   VARCHAR(256)          default '' comment "被举报原因",
     reportUserId    bigint       not null comment "举报用户id",
     superMatchCount int                   default '1' comment "用户超级匹配次数",
+    longitude       decimal(10, 6)        default 0 comment '经度',
+    dimension       decimal(10, 6)        default 0 comment '维度',
     index idx_userQqEmail (userQqEmail),
     CONSTRAINT uniIdx_userQqEmail UNIQUE (userQqEmail)
 

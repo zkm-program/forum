@@ -22,6 +22,10 @@ import com.zkm.forum.utils.MailUtils;
 import kotlin.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.geo.*;
+import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -34,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
+import static com.zkm.forum.constant.RedisConstant.USER_GEO;
 
 /**
  * @author 张凯铭
@@ -49,6 +54,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 //    UserService userService;
     private HashMap<String, Long> codeWithTime = new HashMap<>();
     private static final String SALT = "Masami";
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
 
     @Override
@@ -308,6 +315,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return this.getMatchUserVo(this.getById(pair.getFirst().getId()));
 
 
+    }
+
+    @Override
+    public Map<Long, String> getOwnWithOtherDistance(HttpServletRequest request) {
+        HashMap<Long, String> map = new HashMap<>();
+        List<User> userList = this.list();
+        User loginUser = this.getLoginUser(request);
+        for (User user : userList) {
+            Distance distance = stringRedisTemplate.opsForGeo().distance(USER_GEO, String.valueOf(loginUser.getId()), String.valueOf(user.getId()), RedisGeoCommands.DistanceUnit.METERS);
+            assert distance != null;
+            map.put(user.getId(), distance.getValue() + distance.getUnit());
+        }
+        return map;
+    }
+
+    @Override
+    public List<LoginUserVO> getOwnCircleDistance(HttpServletRequest request, double distance) {
+        User loginUser = this.getLoginUser(request);
+        List<Long> userIdList = new ArrayList<>();
+        Distance geoRadius = new Distance(distance, RedisGeoCommands.DistanceUnit.METERS);
+        Circle circle = new Circle(new Point(loginUser.getLongitude(), loginUser.getDimension()), geoRadius);
+        RedisGeoCommands.GeoRadiusCommandArgs geoRadiusCommandArgs = RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs().includeCoordinates();
+        GeoResults<RedisGeoCommands.GeoLocation<String>> results = stringRedisTemplate.opsForGeo().radius(USER_GEO, circle, geoRadiusCommandArgs);
+        for (GeoResult<RedisGeoCommands.GeoLocation<String>> result : results) {
+            if (!result.getContent().getName().equals("1")) {
+                userIdList.add(Long.valueOf(result.getContent().getName()));
+            }
+        }
+
+        ;
+
+//        return this.listByIds(userIdList).stream().map(user -> objToVo(user)).toList();
+        return this.listByIds(userIdList).stream().map(UserServiceImpl::objToVo).toList();
     }
 
     private MatchUserVo getMatchUserVo(User user) {

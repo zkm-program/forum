@@ -45,4 +45,9 @@ public class LoginUserVO implements Serializable {
     private String gender;
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 登录用户和某个位置的距离
+     */
+    private double distance;
 }

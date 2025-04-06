@@ -82,6 +82,16 @@ public class User implements Serializable {
 
     private String reportResults;
     private Long reportUserId;
+
+    /**
+     * 经度
+     */
+    private double longitude;
+
+    /**
+     * 维度
+     */
+    private double dimension;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

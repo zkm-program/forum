@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/user")
 @RestController
@@ -201,5 +202,15 @@ public class UserController {
     @GetMapping("/super/match")
     public BaseResponse<MatchUserVo> superMatchUser(HttpServletRequest request) {
         return ResultUtils.success(userService.superMatchUser(request));
+    }
+
+    @GetMapping("/getown/distance")
+    public BaseResponse<Map<Long, String>> getOwnWithOtherDistance(HttpServletRequest request) {
+        return ResultUtils.success(userService.getOwnWithOtherDistance(request));
+    }
+
+    @PostMapping("/get/circle")
+    public BaseResponse<List<LoginUserVO>> getOwnCircleDistance(HttpServletRequest request, @RequestParam("true") double distance) {
+        return ResultUtils.success(userService.getOwnCircleDistance(request,distance));
     }
 }
