@@ -338,6 +338,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Circle circle = new Circle(new Point(loginUser.getLongitude(), loginUser.getDimension()), geoRadius);
         RedisGeoCommands.GeoRadiusCommandArgs geoRadiusCommandArgs = RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs().includeCoordinates();
         GeoResults<RedisGeoCommands.GeoLocation<String>> results = stringRedisTemplate.opsForGeo().radius(USER_GEO, circle, geoRadiusCommandArgs);
+        assert results != null;
         for (GeoResult<RedisGeoCommands.GeoLocation<String>> result : results) {
             if (!result.getContent().getName().equals("1")) {
                 userIdList.add(Long.valueOf(result.getContent().getName()));
