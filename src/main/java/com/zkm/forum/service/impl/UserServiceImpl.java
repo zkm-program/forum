@@ -21,6 +21,8 @@ import com.zkm.forum.utils.AlgorithmUtils;
 import com.zkm.forum.utils.MailUtils;
 import kotlin.Pair;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBitSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.*;
@@ -31,6 +33,8 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -39,6 +43,8 @@ import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 import static com.zkm.forum.constant.RedisConstant.USER_GEO;
+import static com.zkm.forum.constant.RedisConstant.getRedisUserSignin;
+import static org.springframework.data.elasticsearch.annotations.DateFormat.date;
 
 /**
  * @author 张凯铭
@@ -57,6 +63,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Resource
+    private RedissonClient redissonClient;
 
     @Override
     public Long userRegister(String userPassword, String checkPassword, String userQqEmail, String userCode, String userName, String gender) {
@@ -349,6 +357,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 //        return this.listByIds(userIdList).stream().map(user -> objToVo(user)).toList();
         return this.listByIds(userIdList).stream().map(UserServiceImpl::objToVo).toList();
+    }
+
+    @Override
+    public Boolean addUserSignIn(Long userId) {
+        LocalDate date = LocalDate.now();
+        // 获取今天是这一周的第几天（1=星期一，7=星期日）
+        int dayOfWeek = date.getDayOfWeek().getValue();
+        // 获取今天是这一年的第几周（按照ISO标准，周一为一周的第一天）
+        int weekOfYear = date.get(WeekFields.ISO.weekOfYear());
+        String key = getRedisUserSignin(date.getYear(), weekOfYear, userId);
+        RBitSet bitSet = redissonClient.getBitSet(key);
+        if (!bitSet.get(dayOfWeek)) {
+           return bitSet.set(dayOfWeek, true);
+        }else{
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,"请勿重复签到");
+        }
     }
 
     private MatchUserVo getMatchUserVo(User user) {

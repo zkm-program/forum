@@ -211,6 +211,16 @@ public class UserController {
 
     @PostMapping("/get/circle")
     public BaseResponse<List<LoginUserVO>> getOwnCircleDistance(HttpServletRequest request, @RequestParam("true") double distance) {
-        return ResultUtils.success(userService.getOwnCircleDistance(request,distance));
+        return ResultUtils.success(userService.getOwnCircleDistance(request, distance));
     }
+@GetMapping("/signin")
+    public BaseResponse<Boolean> addUserSignIn(HttpServletRequest request) {
+    User loginUser = userService.getLoginUser(request);
+    Boolean result = userService.addUserSignIn(loginUser.getId());
+    if(result){
+        return ResultUtils.success(result);
+    }else{
+        return ResultUtils.error(ErrorCode.OPERATION_ERROR,"签到失败");
+    }
+}
 }

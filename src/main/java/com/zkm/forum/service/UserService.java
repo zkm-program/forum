@@ -44,4 +44,5 @@ public interface UserService extends IService<User> {
     Map<Long, String> getOwnWithOtherDistance(HttpServletRequest request);
 
     List<LoginUserVO> getOwnCircleDistance(HttpServletRequest request, double distance);
+    Boolean addUserSignIn(Long userId);
 }
