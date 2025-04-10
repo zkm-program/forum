@@ -28,7 +28,7 @@ public class User implements Serializable {
      * 用户姓名
      */
     private String userName;
-
+    private Long fitnessId;
     /**
      * 用户标签,json数组里面都是字符串形式
      */

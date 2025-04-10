@@ -385,7 +385,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userSign.put((long) i,bitSet.get((long) i));
         }
         return userSign;
-    }s
+    }
 
     private MatchUserVo getMatchUserVo(User user) {
         MatchUserVo matchUserVo = new MatchUserVo();
