@@ -13,6 +13,9 @@ public interface CommonConstant {
      * 降序
      */
     String SORT_ORDER_DESC = " descend";
+    /**
+     * 关键字在前端加粗显示
+     */
     String PRE_TAG = "<mark>";
 
     String POST_TAG = "</mark>";

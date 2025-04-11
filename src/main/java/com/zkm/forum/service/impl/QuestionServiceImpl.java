@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.exception.BusinessException;
@@ -45,6 +46,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     UserService userService;
     @Resource
     PostService postService;
+    @Resource
+    private Cache<String,String> LOCAL_CACHE;
 
     @Override
     public Boolean saveQuestion(SaveQuestionRequest saveQuestionRequest, HttpServletRequest request) {
@@ -102,7 +105,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
                 questionListVo.setTags(JSONUtil.toList(record.getTags(), String.class));
                 return questionListVo;
             }).toList();
-            BeanUtils.copyProperties(page,questionListVoPage);
+            BeanUtils.copyProperties(page, questionListVoPage);
             questionListVoPage.setRecords(QuestionListVoRecords);
 //            questionListVoPage.setTotal(page.getTotal());
 //            questionListVoPage.setCurrent(page.getCurrent());
@@ -115,21 +118,26 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Override
     public List<PostVo> getQuestionAnswer(Long questionId) {
-        if(questionId==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请选择有效的问题");
+        if (questionId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请选择有效的问题");
         }
         Question question = this.getById(questionId);
-        if(question==null){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"问题不存在");
+        if (question == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "问题不存在");
         }
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
-        postQueryWrapper.eq("questionId",questionId);
+        postQueryWrapper.eq("questionId", questionId);
         List<Post> postList = postService.list(postQueryWrapper);
         List<PostVo> postVos = new ArrayList<>();
-        for(PostVo postVo:postVos){
-            postList.stream().map()
+        for (PostVo postVo : postVos) {
+            postVos = postList.stream().map(post -> {
+                post.setContent(StringUtils.substring(post.getContent(),0,15));
+                BeanUtils.copyProperties(post, postVo);
+                postVo.setTags(JSONUtil.toList(post.getTags(), String.class));
+                return postVo;
+            }).toList();
         }
-        return List.of();
+        return postVos;
     }
 }
 
