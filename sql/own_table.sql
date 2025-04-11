@@ -109,3 +109,20 @@ create table if not exists question
     questionCount int          default 0                 not null comment '回答个数',
     index idx_userId (userId)
 ) comment '问题' collate = utf8mb4_unicode_ci;
+
+create table question_cocern
+(
+    id         bigint auto_increment comment 'id'
+        primary key,
+    questionId bigint                             not null comment '问题 id',
+    userId     bigint                             not null comment '关注这个问题用户 id',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+)
+    comment '问题关注';
+
+create index idx_questionId
+    on question_cocern (questionId);
+
+create index idx_userId
+    on question_cocern (userId);

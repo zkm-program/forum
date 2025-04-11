@@ -42,16 +42,12 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     public Integer doPostFavour(PostFavourRequest postFavourRequest, HttpServletRequest request) {
         User loginuser = userService.getLoginUser(request);
         Long postId = postFavourRequest.getPostId();
-        Long userId = postFavourRequest.getUserId();
+        Long userId = loginuser.getId();
         Post post = postService.getById(postId);
         if (post == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该帖子不存在");
         }
-        if (!Objects.equals(loginuser.getUserRole(), UserConstant.ADMIN_ROLE)) {
-            if (!Objects.equals(userId, loginuser.getId())) {
-                throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
-            }
-        }
+
         PostFavourService postFavourService = (PostFavourService) AopContext.currentProxy();
         synchronized (String.valueOf(userId).intern()) {
             return postFavourService.doPostFavourInner(userId, postId);

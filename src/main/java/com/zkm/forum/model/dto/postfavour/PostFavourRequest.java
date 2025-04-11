@@ -8,6 +8,4 @@ import javax.validation.constraints.NotNull;
 public class PostFavourRequest {
     @NotNull(message = "请选择帖子")
     private Long postId;
-    @NotNull(message = "请先登录")
-    private Long userId;
 }
