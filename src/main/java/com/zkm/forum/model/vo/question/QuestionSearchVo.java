@@ -1,5 +1,9 @@
 package com.zkm.forum.model.vo.question;
 
+import lombok.Data;
+
+import java.util.List;
+@Data
 public class QuestionSearchVo {
 
     private Long questionId;
@@ -8,9 +12,13 @@ public class QuestionSearchVo {
      */
     private String question;
     /**
+     * 作者名字
+     */
+    private String authorName;
+    /**
      * 标签列表（json 数组）
      */
-    private String tags;
+    private List<String> tag;
     /**
      * 关注数
      */

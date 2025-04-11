@@ -4,13 +4,15 @@ import com.baomidou.mybatisplus.annotation.*;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * 问题
+ *
  * @TableName question
  */
-@TableName(value ="question")
+@TableName(value = "question")
 @Data
 public class Question implements Serializable {
     /**
@@ -32,7 +34,7 @@ public class Question implements Serializable {
     /**
      * 关注数
      */
-    private Integer concernNum;
+    private int concernNum;
 
     /**
      * 创建用户 id
@@ -84,6 +86,11 @@ public class Question implements Serializable {
      * 举报用户id
      */
     private Long reportUserId;
+
+    /**
+     * 回答个数
+     */
+    private int questionCount;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -104,6 +104,7 @@ public class PostMysqlPostSearchImpl implements PostSearchStrategy {
                         CompletableFuture.runAsync(() -> {
                             User author = userService.getById(post.getUserId());
                             LOCAL_CACHE.put(USERID_USERNAME + author.getId(), author.getUserName());
+                            postSearchVo.setAuthorName(author.getUserName());
                         });
                     }
                     return postSearchVo;

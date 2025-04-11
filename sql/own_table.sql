@@ -106,5 +106,6 @@ create table if not exists question
     viewCount     int          DEFAULT 0                 not null comment '浏览量',
     reportResults VARCHAR(256) default '' comment "被举报原因",
     reportUserId  bigint                                 not null comment "举报用户id",
+    questionCount int          default 0                 not null comment '回答个数',
     index idx_userId (userId)
 ) comment '问题' collate = utf8mb4_unicode_ci;

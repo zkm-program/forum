@@ -16,4 +16,6 @@ public interface CommonConstant {
     String PRE_TAG = "<mark>";
 
     String POST_TAG = "</mark>";
+
+    String QUESTION_TAG = "</mark>";
 }
