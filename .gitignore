@@ -2,3 +2,6 @@
 *.list
 .idea/
 target/
+/coverage-error.log
+/src/test/
+/src/main/resources/1.png
