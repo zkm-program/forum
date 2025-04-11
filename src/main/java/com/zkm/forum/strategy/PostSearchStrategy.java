@@ -4,6 +4,6 @@ import com.zkm.forum.model.vo.post.PostSearchVo;
 
 import java.util.List;
 
-public interface SearchStrategy {
+public interface PostSearchStrategy {
     List<PostSearchVo> searchPost(String keyWords);
 }

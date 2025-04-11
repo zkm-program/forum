@@ -2,7 +2,7 @@ package com.zkm.forum.model.enums;
 
 import lombok.Getter;
 
-public enum SearchModeEnum {
+public enum PostSearchModeEnum {
     MYSQL("mysql","postMysqlSearchImpl"),
     ELASTICSEARCH("elasticsearch","postElasticSearchImpl");
     @Getter
@@ -10,14 +10,14 @@ public enum SearchModeEnum {
     @Getter
     private String message;
 
-    SearchModeEnum(String mode,String message) {
+    PostSearchModeEnum(String mode, String message) {
         this.mode = mode;
         this.message=message;
     }
     public static String getMessageByMode(String mode){
-        for (SearchModeEnum searchModeEnum : SearchModeEnum.values()) {
-            if (searchModeEnum.getMode().equals(mode)){
-                return searchModeEnum.getMessage();
+        for (PostSearchModeEnum postSearchModeEnum : PostSearchModeEnum.values()) {
+            if (postSearchModeEnum.getMode().equals(mode)){
+                return postSearchModeEnum.getMessage();
             }
         }
         return null;

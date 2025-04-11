@@ -60,6 +60,7 @@ create table if not exists post
     viewCount        int          DEFAULT 0                                        not null comment '浏览量',
     reportResults    VARCHAR(256) default '' comment "被举报原因",
     reportUserId     bigint                                                        not null comment "举报用户id",
+    questionId       bigint       default 0                                        not null comment '问题id',
     index idx_userId (userId)
 ) comment '帖子' collate = utf8mb4_unicode_ci;
 
@@ -87,3 +88,23 @@ create table if not exists post_thumb
     index idx_userId (userId)
 ) comment '帖子点赞';
 
+
+
+create table if not exists question
+(
+    id            bigint auto_increment comment 'id' primary key,
+    question      varchar(200)                           null comment '问题',
+    tags          varchar(1024)                          null comment '标签列表（json 数组）',
+    favourNum     int          default 0                 not null comment '收藏数',
+    userId        bigint                                 not null comment '创建用户 id',
+    createTime    datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_top        tinyint                                NOT NULL DEFAULT 0 COMMENT '是否置顶 0否 1是',
+    is_featured   tinyint                                NOT NULL DEFAULT 0 COMMENT '是否推荐 0否 1是',
+    isDelete      tinyint      default 0                 not null comment '是否删除',
+    isReported    TINYINT      default 0 comment "0是没被举报，1是被举报了",
+    viewCount     int          DEFAULT 0                 not null comment '浏览量',
+    reportResults VARCHAR(256) default '' comment "被举报原因",
+    reportUserId  bigint                                 not null comment "举报用户id",
+    index idx_userId (userId)
+) comment '问题' collate = utf8mb4_unicode_ci;

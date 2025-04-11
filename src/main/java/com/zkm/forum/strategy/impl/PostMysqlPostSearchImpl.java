@@ -5,31 +5,25 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.mapper.PostMapper;
-import com.zkm.forum.mapper.UserMapper;
 import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.service.UserService;
-import com.zkm.forum.strategy.SearchStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zkm.forum.strategy.PostSearchStrategy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.time.Duration;
 import java.util.ArrayList;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 
 @Service("postMysqlSearchImpl")
-public class PostMysqlSearchImpl implements SearchStrategy {
+public class PostMysqlPostSearchImpl implements PostSearchStrategy {
 
     @Resource
     PostMapper postMapper;

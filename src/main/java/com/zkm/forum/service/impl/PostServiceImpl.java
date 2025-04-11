@@ -80,10 +80,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Override
     public Boolean addPost(AddPostRequest addPostRequest, HttpServletRequest httpServletRequest) {
-        Long id = addPostRequest.getId();
+        Long id = addPostRequest.getPostId();
         String title = addPostRequest.getTitle();
         String content = addPostRequest.getContent();
-        String password = addPostRequest.getPassword();
         Integer status = addPostRequest.getStatus();
         List<String> tags = addPostRequest.getTags();
         if (title.length() > 20) {
@@ -92,16 +91,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         if (content.length() > 2000) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "内容不能超过2000字");
         }
-        if (status == 1 && (password.length() < 6 || password.length() > 12)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码必须大于6小于12");
-        }
         Post post = new Post();
         BeanUtils.copyProperties(addPostRequest, post);
         String tagStr = JSONUtil.toJsonStr(tags);
         post.setTags(tagStr);
         if (id != 0) {
+            Post updatePost = this.getById(id);
             User loginuser = userService.getLoginUser(httpServletRequest);
-            if (!loginuser.getId().equals(addPostRequest.getUserId()) || !loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
+            if (!loginuser.getId().equals(updatePost.getUserId()) || !loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
             }
         }
@@ -125,7 +122,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Override
     public List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest) {
-        return searchStrategyContext.excuteSearchStrategy(postSearchRequest.getKeyWords());
+        return searchStrategyContext.postExcuteSearchStrategy(postSearchRequest.getKeyWords());
     }
 
     @Override
