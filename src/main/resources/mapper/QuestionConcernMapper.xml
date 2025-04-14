@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zkm.forum.mapper.QuestionCocernMapper">
+<mapper namespace="com.zkm.forum.mapper.QuestionConcernMapper">
 
-    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.QuestionCocern">
+    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.QuestionConcern">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="questionId" column="questionId" jdbcType="BIGINT"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>

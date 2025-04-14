@@ -12,10 +12,8 @@ import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
 import com.zkm.forum.service.UserService;
-import com.zkm.forum.strategy.UploadStrategy;
 import com.zkm.forum.strategy.context.UploadStrategyContext;
 import org.apache.commons.lang3.StringUtils;
-import org.redisson.api.RBitSet;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,30 +38,8 @@ public class UserController {
      */
     @PostMapping("/register")
     public BaseResponse<Long> register(@RequestBody UserRegisterRequest userRegisterRequest) {
-        if (userRegisterRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册信息有误，请稍后重试");
-        }
-        String userPassword = userRegisterRequest.getUserPassword();
-        String userName = userRegisterRequest.getUserName();
-        String userQqEmail = userRegisterRequest.getUserQqEmail();
-        String checkPassword = userRegisterRequest.getCheckPassword();
-        String userCode = userRegisterRequest.getUserCode();
-        String gender = userRegisterRequest.getGender();
 
-        if (userName.length() > 12 || userName.isEmpty()) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请填写用户昵称且长度不能超过12");
-        }
-        if (gender == null || gender.isEmpty()) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请填写性别");
-        }
-
-        if (userPassword == null || userPassword.isEmpty()) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码不能为空");
-        }
-        if (userPassword.length() < 6 || userPassword.length() > 12) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码位数必须为6到12位");
-        }
-        Long id = userService.userRegister(userPassword, checkPassword, userQqEmail, userCode, userName, gender);
+        Long id = userService.userRegister(userRegisterRequest);
         if (id == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册失败请稍后重试");
         }

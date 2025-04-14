@@ -41,6 +41,7 @@ public class AiPictureUtils {
     }
 
     private class PictureWebSocketListener extends WebSocketListener {
+        private final StringBuilder fullAnswer = new StringBuilder();
         private final String description;
         private final String pictureUrl;
         private final CompletableFuture<String> resultFuture = new CompletableFuture<>();
@@ -100,6 +101,7 @@ public class AiPictureUtils {
             RoleContent textContent = new RoleContent();
             textContent.role = "user";
             textContent.content = "【强制指令】作为营养分析AI，你必须严格按以下模板返回数据：\n" + "||卡路里||数值kcal/100g||\n" + "||蛋白质||数值g/100g||\n" + "||脂肪||数值g/100g||\n" + "||碳水化合物||数值g/100g||\n" + "规则：\n" + "1. 使用||作为分隔符\n" + "2. 仅返回这4行数据\n" + "3. 数值保留1位小数\n" + "4. 无法检测时用NA表示\n" + "5. 不要任何解释性文字\n" + "示例：\n" + "||卡路里||350.5kcal/100g||\n" + "||蛋白质||12.0g/100g||\n" + "||脂肪||8.5g/100g||\n" + "||碳水化合物||45.2g/100g||";
+//            textContent.content="分析图片中的食物名字，直接回答，不需要解释";
             textContent.content_type = "text";
             text.add(JSON.toJSON(textContent));
 
@@ -123,13 +125,14 @@ public class AiPictureUtils {
                     return;
                 }
 
-                StringBuilder answer = new StringBuilder();
+                // 拼接所有片段
                 for (Text content : response.payload.choices.text) {
-                    answer.append(content.content);
+                    fullAnswer.append(content.content);
                 }
 
+                // 只有status=2时才最终完成
                 if (response.header.status == 2) {
-                    resultFuture.complete(answer.toString());
+                    resultFuture.complete(fullAnswer.toString());
                     webSocket.close(1000, "");
                 }
             } catch (Exception e) {

@@ -12,10 +12,12 @@ import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.UserMapper;
 import com.zkm.forum.model.dto.user.ReportUserRequest;
 import com.zkm.forum.model.dto.user.UserQueryRequest;
+import com.zkm.forum.model.dto.user.UserRegisterRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
+import com.zkm.forum.service.InvitationService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.utils.AlgorithmUtils;
 import com.zkm.forum.utils.MailUtils;
@@ -43,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 import static com.zkm.forum.constant.RedisConstant.*;
-import static org.springframework.data.elasticsearch.annotations.DateFormat.date;
 
 /**
  * @author 张凯铭
@@ -61,12 +62,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final String SALT = "Masami";
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private InvitationService invitationService;
 
     @Resource
     private RedissonClient redissonClient;
 
     @Override
-    public Long userRegister(String userPassword, String checkPassword, String userQqEmail, String userCode, String userName, String gender) {
+    public Long userRegister(UserRegisterRequest userRegisterRequest) {
+        if (userRegisterRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册信息有误，请稍后重试");
+        }
+        String userPassword = userRegisterRequest.getUserPassword();
+        String userName = userRegisterRequest.getUserName();
+        String userQqEmail = userRegisterRequest.getUserQqEmail();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        String userCode = userRegisterRequest.getUserCode();
+        String gender = userRegisterRequest.getGender();
+        Long inviterId = userRegisterRequest.getInviterId();
+        Long inviteeId = userRegisterRequest.getInviteeId();
+        
+
+        if (userName.length() > 12 || userName.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请填写用户昵称且长度不能超过12");
+        }
+        if (gender == null || gender.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请填写性别");
+        }
+
+        if (userPassword == null || userPassword.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码不能为空");
+        }
+        if (userPassword.length() < 6 || userPassword.length() > 12) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码位数必须为6到12位");
+        }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         QueryWrapper<User> userQueryWrapper = queryWrapper.eq("userQqEmail", userQqEmail);
         long count = this.count(userQueryWrapper);
@@ -91,6 +120,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         boolean saveResult = this.save(user);
         if (!saveResult) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册失败，请稍后再试");
+        }
+        if(inviteeId!=null&&inviterId!=null){
+            Boolean result = invitationService.processInvitation(inviteeId, inviterId);
+            if(!result){
+                throw new BusinessException(ErrorCode.OPERATION_ERROR,"邀请注册失败,可以自己注册,之后向管理员反应");
+            }
         }
         return user.getId();
     }

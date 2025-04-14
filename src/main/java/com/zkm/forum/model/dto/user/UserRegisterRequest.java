@@ -1,9 +1,10 @@
 package com.zkm.forum.model.dto.user;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.io.Serializable;
-@Getter
+
+@Data
 public class UserRegisterRequest implements Serializable {
 
     private String userPassword;
@@ -15,4 +16,14 @@ public class UserRegisterRequest implements Serializable {
      */
     private String userCode;
     private String gender;
+    
+    /**
+     * 邀请人ID
+     */
+    private Long inviterId;
+
+    /**
+     * 被邀请人ID
+     */
+    private Long inviteeId;
 }

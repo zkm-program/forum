@@ -9,6 +9,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.exception.BusinessException;
+import com.zkm.forum.mapper.QuestionMapper;
 import com.zkm.forum.model.dto.post.AddPostRequest;
 import com.zkm.forum.model.dto.question.QuestionListRequest;
 import com.zkm.forum.model.dto.question.SaveQuestionRequest;
@@ -20,7 +21,6 @@ import com.zkm.forum.model.vo.question.QuestionListVo;
 import com.zkm.forum.model.vo.question.QuestionSearchVo;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.service.QuestionService;
-import com.zkm.forum.mapper.QuestionMapper;
 import com.zkm.forum.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 张凯铭

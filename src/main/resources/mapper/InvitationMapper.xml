@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkm.forum.mapper.InvitationMapper">
+
+    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Invitation">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="inviterId" column="inviterId" jdbcType="BIGINT"/>
+            <result property="inviteeId" column="inviteeId" jdbcType="BIGINT"/>
+            <result property="registerTime" column="registerTime" jdbcType="TIMESTAMP"/>
+            <result property="rewardStatus" column="rewardStatus" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,inviterId,inviteeId,
+        registerTime,status,rewardStatus
+    </sql>
+</mapper>

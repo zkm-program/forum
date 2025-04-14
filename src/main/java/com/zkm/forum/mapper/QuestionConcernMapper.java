@@ -1,6 +1,6 @@
 package com.zkm.forum.mapper;
 
-import com.zkm.forum.model.entity.QuestionCocern;
+import com.zkm.forum.model.entity.QuestionConcern;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2025-04-11 20:07:48
 * @Entity com.zkm.forum.model.entity.QuestionCocern
 */
-public interface QuestionCocernMapper extends BaseMapper<QuestionCocern> {
+public interface QuestionConcernMapper extends BaseMapper<QuestionConcern> {
 
 }
 

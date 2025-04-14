@@ -51,6 +51,12 @@ public class QuestionController {
     public BaseResponse<Page<QuestionListVo>> listQuestion(QuestionListRequest questionListRequest) {
         return ResultUtils.success(questionService.listQuestion(questionListRequest));
     }
+
+    /**
+     * 返回完整版类似知乎
+     * @param questionId
+     * @return
+     */
     @ApiOperation("用户查看问题答案列表")
     @GetMapping("/getQuestionAnswer/{questionId}")
     public BaseResponse<List<PostVo>> getQuestionAnswer(Long questionId) {
