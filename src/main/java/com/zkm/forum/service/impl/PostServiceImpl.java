@@ -2,6 +2,7 @@ package com.zkm.forum.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,7 @@ import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.enums.UserRoleEnum;
 import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.model.vo.post.PostVo;
+import com.zkm.forum.rabbitmq.reuqest.FollowUserRequest;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.mapper.PostMapper;
 import com.zkm.forum.service.UserService;
@@ -27,6 +29,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.*;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +55,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.zkm.forum.constant.RabbitMqConstant.FOLLOW_EXCHANGE;
+import static com.zkm.forum.constant.RabbitMqConstant.FOLLOW_USER_ROUTINGKEY;
 import static com.zkm.forum.constant.RedisConstant.*;
 
 /**
@@ -70,6 +77,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     private StringRedisTemplate strngredisTemplate;
     @Resource
     private Cache<String, String> LOCAL_CACHE;
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
     //加上这个会报循环依赖错误
 //    @Resource
@@ -83,7 +92,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         Long id = addPostRequest.getPostId();
         String title = addPostRequest.getTitle();
         String content = addPostRequest.getContent();
-        Integer status = addPostRequest.getStatus();
+        User loginuser = userService.getLoginUser(httpServletRequest);
         List<String> tags = addPostRequest.getTags();
         if (title.length() > 20) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "标题禁止超过20字");
@@ -97,12 +106,21 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         post.setTags(tagStr);
         if (id != 0) {
             Post updatePost = this.getById(id);
-            User loginuser = userService.getLoginUser(httpServletRequest);
             if (!loginuser.getId().equals(updatePost.getUserId()) || !loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
             }
         }
-        return this.saveOrUpdate(post);
+        boolean result = this.saveOrUpdate(post);
+        if (result&&id==0) {
+            FollowUserRequest followUserRequest = new FollowUserRequest();
+            followUserRequest.setArticleName(title);
+            followUserRequest.setUserId(loginuser.getId());
+            followUserRequest.setUserName(loginuser.getUserName());
+            rabbitTemplate.convertAndSend(FOLLOW_EXCHANGE,FOLLOW_USER_ROUTINGKEY, new Message(JSON.toJSONBytes(followUserRequest), new MessageProperties()));
+            return result;
+        } else {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "发布失败请稍后再试");
+        }
     }
 
     @Override
