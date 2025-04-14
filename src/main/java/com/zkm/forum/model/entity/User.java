@@ -92,6 +92,10 @@ public class User implements Serializable {
      * 维度
      */
     private double dimension;
+    /**
+     * 被关注数
+     */
+    private int followerCount;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

@@ -18,6 +18,7 @@ create table if not exists user
     superMatchCount int                   default '1' comment "用户超级匹配次数",
     longitude       decimal(10, 6)        default 0 comment '经度',
     dimension       decimal(10, 6)        default 0 comment '维度',
+    followerCount   int                   default 0 not null comment '被关注数',
     index idx_userQqEmail (userQqEmail),
     CONSTRAINT uniIdx_userQqEmail UNIQUE (userQqEmail)
 
@@ -126,3 +127,17 @@ create index idx_questionId
 
 create index idx_userId
     on question_cocern (userId);
+
+
+
+CREATE TABLE user_follow
+(
+    id          bigint   NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    user_id     bigint   NOT NULL COMMENT '被关注用户ID',
+    follower_id bigint   NOT NULL COMMENT '关注者用户ID',
+    create_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '关注时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_follower (user_id, follower_id) COMMENT '用户与关注者唯一索引',
+    KEY idx_follower (follower_id) COMMENT '关注者查询优化'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户关注关系表';

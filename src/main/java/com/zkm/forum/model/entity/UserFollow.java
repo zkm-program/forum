@@ -1,4 +1,4 @@
-package generator.domain;
+package com.zkm.forum.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -9,37 +9,32 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 问题关注
- * @TableName question_concern
+ * 用户关注关系表
+ * @TableName user_follow
  */
-@TableName(value ="question_concern")
+@TableName(value ="user_follow")
 @Data
-public class QuestionConcern implements Serializable {
+public class UserFollow implements Serializable {
     /**
-     * id
+     * 主键ID
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 问题 id
-     */
-    private Long questionId;
-
-    /**
-     * 关注这个问题用户 id
+     * 被关注用户ID
      */
     private Long userId;
 
     /**
-     * 创建时间
+     * 关注者用户ID
      */
-    private Date createTime;
+    private Long followerId;
 
     /**
-     * 更新时间
+     * 关注时间
      */
-    private Date updateTime;
+    private Date createTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

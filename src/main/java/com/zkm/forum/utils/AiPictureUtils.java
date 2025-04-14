@@ -27,7 +27,7 @@ public class AiPictureUtils {
     private static final String HOST_URL = "https://spark-api.cn-huabei-1.xf-yun.com/v2.1/image";
     private static final String appId = " ";
     private static final String apiSecret = " ";
-    private static final String apiKey = " ";
+    private static final String apiKey = "";
 
     public String analyzeImage(String description, String pictureUrl) throws Exception {
         String authUrl = getAuthUrl(HOST_URL, apiKey, apiSecret);
