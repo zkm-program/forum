@@ -5,3 +5,5 @@ target/
 /coverage-error.log
 /src/test/
 /src/main/resources/1.png
+/src/main/java/com/zkm/forum/utils/AiPictureUtils.java
+/src/main/java/com/zkm/forum/utils/AIUtils.java
