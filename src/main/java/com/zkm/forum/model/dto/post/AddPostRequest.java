@@ -28,5 +28,9 @@ public class AddPostRequest implements Serializable {
      * 原文链接
      */
     private String original_url;
+    /**
+     * 创作者id
+     */
+    private Long userId;
 
 }

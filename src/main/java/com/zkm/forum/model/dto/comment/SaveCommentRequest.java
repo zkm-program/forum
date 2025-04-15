@@ -29,4 +29,9 @@ public class SaveCommentRequest {
      */
     private Integer isReview;
 
+    /**
+     * 发表评论用户id
+     */
+    private Long userId;
+
 }

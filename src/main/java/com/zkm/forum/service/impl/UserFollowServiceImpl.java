@@ -8,6 +8,7 @@ import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.UserMapper;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.entity.UserFollow;
+import com.zkm.forum.model.vo.userFollow.ListUserFollowVo;
 import com.zkm.forum.service.UserFollowService;
 import com.zkm.forum.mapper.UserFollowMapper;
 import com.zkm.forum.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,12 +33,12 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
 
 
     @Override
-    public Integer doFollowUser(Long followerId, HttpServletRequest request) {
-        if (followerId == null) {
+    public Integer doFollowUser(Long userId, HttpServletRequest request) {
+        if (userId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请选择关注的用户");
         }
         User loginUser = userService.getLoginUser(request);
-        Long userId = loginUser.getId();
+        Long followerId = loginUser.getId();
         UserFollowService userFollowService = (UserFollowService) AopContext.currentProxy();
         synchronized (String.valueOf(userId).intern()) {
             return userFollowService.doFollowUserInner(followerId, userId);
@@ -67,6 +69,32 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
             return result ? 1 : 0;
         }
 
+    }
+
+    @Override
+    public List<ListUserFollowVo> listUserFollowVo(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        QueryWrapper<UserFollow> userFollowQueryWrapper = new QueryWrapper<>();
+        userFollowQueryWrapper.select("userId");
+        userFollowQueryWrapper.eq("followerId", loginUser.getId());
+        List<UserFollow> userFollowList = this.list(userFollowQueryWrapper);
+        List<Long> userIdList = userFollowList.stream().map(UserFollow::getUserId).toList();
+
+        return convertToVo(userIdList);
+    }
+
+    private List<ListUserFollowVo> convertToVo(List<Long> userIdList) {
+        List<User> userList = userService.listByIds(userIdList);
+        List<ListUserFollowVo> listUserFollowVos = new ArrayList<>();
+        for (User user : userList) {
+            ListUserFollowVo userFollowVo = new ListUserFollowVo();
+            userFollowVo.setUserId(user.getId());
+            userFollowVo.setUserName(user.getUserName());
+            userFollowVo.setUserAvatar(user.getUserAvatar());
+            userFollowVo.setIntroduction(user.getIntroduction());
+            listUserFollowVos.add(userFollowVo);
+        }
+        return listUserFollowVos;
     }
 }
 

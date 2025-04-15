@@ -47,10 +47,7 @@ public class Comment implements Serializable {
      */
     private Long parentId;
 
-    /**
-     * 评论类型 1.文章 2.留言 3.关于我 4.友链 5.说说
-     */
-    private Integer type;
+
 
 
     /**

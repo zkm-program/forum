@@ -52,6 +52,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
     private UserService userService;
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    //下方注入会导致循环依赖
 //    @Resource
 //    private CommentService commentService;
 
@@ -62,6 +63,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Long replyUserId = saveCommentRequest.getReplyUserId();
         Long parentId = saveCommentRequest.getParentId();
         Integer isReview = saveCommentRequest.getIsReview();
+        Long userId = saveCommentRequest.getUserId();
         Post post = postService.getById(postId);
         User loginUser = userService.getLoginUser(request);
         if (post == null) {
@@ -72,6 +74,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         comment.setPostId(postId);
         comment.setParentId(parentId);
         comment.setReplyUserId(replyUserId);
+        comment.setUserId(userId);
         comment.setIsReview(isReview);
         boolean result = this.save(comment);
         if (!result) {
@@ -107,7 +110,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Long postId = request.getPostId();
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
         commentQueryWrapper.eq("postId", postId).isNull("parentId");
-        commentQueryWrapper.orderBy(true,true,"createTime");
+        commentQueryWrapper.orderBy(true, true, "createTime");
         Page<Comment> page = this.page(new Page<>(current, pageSize), commentQueryWrapper);
 
         List<Comment> commentList = page.getRecords();
@@ -116,20 +119,19 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         }
         List<Long> authorIdList = commentList.stream().map(comment -> comment.getUserId()).toList();
         Map<Long, User> userMap = userService.listByIds(authorIdList).stream().collect(Collectors.toMap(User::getId, Function.identity()));
-        List<CommentVo> commentVoList =  commentList.stream().map(comment -> convertToVo(comment,userMap)).toList();
+        List<CommentVo> commentVoList = commentList.stream().map(comment -> convertToVo(comment, userMap)).toList();
 
-        Page<CommentVo> commentVoPage = new Page<>(page.getCurrent(),page.getSize(),page.getTotal());
+        Page<CommentVo> commentVoPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         commentVoPage.setRecords(commentVoList);
         return commentVoPage;
     }
 
     @Override
     public Page<CommentVo> listChildrenComment(ListCommentRequest request) {
-        Long commentId = request.getCommentId();
         Long parentId = request.getParentId();
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-        commentQueryWrapper.eq(!Objects.isNull(parentId), "parentId", commentId);
-        commentQueryWrapper.orderBy(true,true,"createTime");
+        commentQueryWrapper.eq(!Objects.isNull(parentId), "parentId", parentId);
+        commentQueryWrapper.orderBy(true, true, "createTime");
         Page<Comment> page = this.page(new Page<>(request.getCurrent(), request.getPageSize()), commentQueryWrapper);
         List<Comment> comments = page.getRecords();
         if (comments == null) {
@@ -138,16 +140,11 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         List<Long> authorList = comments.stream().map(Comment::getUserId).toList();
         Map<Long, User> userMap = userService.listByIds(authorList).stream().collect(Collectors.toMap(User::getId, Function.identity()));
         List<CommentVo> commentVoList = comments.stream().map(comment -> convertToVo(comment, userMap)).toList();
-         Page<CommentVo> pageCommentVo= new Page<>(page.getCurrent(),page.getSize(),page.getTotal());
-         pageCommentVo.setRecords(commentVoList);
-         return pageCommentVo;
+        Page<CommentVo> pageCommentVo = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
+        pageCommentVo.setRecords(commentVoList);
+        return pageCommentVo;
 
     }
-
-
-
-
-
 
 
     private CommentVo convertToVo(Comment comment, Map<Long, User> userMap) {
@@ -179,17 +176,49 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Long postId = comment.getPostId();
 
         Long replyUserId = comment.getReplyUserId();
+        /**
+         * 父评论id
+         */
         Long parentId = comment.getParentId();
         // 情况1：用户自己回复自己，不通知
         if (Objects.equals(replyUserId, loginUser.getId())) {
             return;
         }
-        // 情况3：回复的用户不是父评论作者且不是自己，发送通知
-        if (!Objects.equals(replyUserId, parentId) && !Objects.equals(replyUserId, loginUser.getId())) {
+
+
+//        {
+//            "commentContent": "什么时候见面",
+//                "isReview": 0,
+//                "parentId": null,
+//                "postId": 1,
+//                "replyUserId": null,
+//                "userId": 1902558628941598722
+//        }
+        //回复的是父评论作者，给父评论作者发通知,否则就给文章作者发通知
+        // todo 增加连接跳转评论区
+        if ((replyUserId == null && parentId == null) || Objects.equals(this.getById(parentId).getUserId(), replyUserId)) {
+            Long emailReplyUserId = null;
+            if (Objects.nonNull(parentId)) {
+                emailReplyUserId = replyUserId;
+            } else {
+                Post replyPost = postService.getById(postId);
+                emailReplyUserId = replyPost.getUserId();
+            }
+            User replyUser = userService.getById(emailReplyUserId);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("content", "用户" + "【" + loginUser.getUserName() + "】" + "评论了你,点击此处跳转");
+            EmailRequest emailRequest = EmailRequest.builder()
+                    .commentMap(map)
+                    .email(replyUser.getUserQqEmail())
+                    .template("common.html")
+                    .subject(COMMENT_MENTION).build();
+            rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(emailRequest), new MessageProperties()));
+        } else {
+            // 情况3：回复的用户不是父评论作者且不是自己，发送通知
             //构造邮件内容
             Map<String, Object> map = new HashMap<>();
             // todo 增加连接跳转评论区
-            map.put("content", "你的好友" + loginUser.getUserName() + "在评论区@了你");
+            map.put("content", "你的好友" + "【" + loginUser.getUserName() + "】" + "在评论区@了你");
             User replyUser = userService.getById(replyUserId);
             //构造邮件dto
             EmailRequest emailRequest = EmailRequest.builder().email(replyUser.getUserQqEmail())
@@ -199,25 +228,6 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
                     .build();
             rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(emailRequest), new MessageProperties()));
         }
-        //回复的是父评论作者，给父评论作者发通知,否则就给文章作者发通知
-        Long emailReplyUserId = null;
-        if (Objects.nonNull(parentId)) {
-            emailReplyUserId = parentId;
-        } else {
-            Post replyPost = postService.getById(postId);
-            emailReplyUserId = replyPost.getUserId();
-        }
-        User replyUser = userService.getById(emailReplyUserId);
-        HashMap<String, Object> map = new HashMap<>();
-        // todo 增加连接跳转评论区
-        map.put("content", loginUser.getUserName() + "评论了你,点击此处跳转");
-        EmailRequest emailRequest = EmailRequest.builder()
-                .commentMap(map)
-                .email(replyUser.getUserQqEmail())
-                .template("common.html")
-                .subject(COMMENT_MENTION).build();
-        rabbitTemplate.convertAndSend(EMAIL_EXCHANGE, "*", new Message(JSON.toJSONBytes(emailRequest), new MessageProperties()));
-
     }
 
 }

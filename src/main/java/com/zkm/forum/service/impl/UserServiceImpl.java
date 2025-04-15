@@ -15,6 +15,7 @@ import com.zkm.forum.model.dto.user.UserQueryRequest;
 import com.zkm.forum.model.dto.user.UserRegisterRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
 import com.zkm.forum.model.entity.User;
+import com.zkm.forum.model.vo.user.KnowUserVo;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
 import com.zkm.forum.service.InvitationService;
@@ -420,6 +421,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userSign.put((long) i,bitSet.get((long) i));
         }
         return userSign;
+    }
+
+    @Override
+    public KnowUserVo getKnowUserVo(Long userId) {
+        User user = this.getById(userId);
+        KnowUserVo knowUserVo = new KnowUserVo();
+        knowUserVo.setUserName(user.getUserName());
+        knowUserVo.setUserRole(user.getUserRole());
+        knowUserVo.setCreateTime(user.getCreateTime());
+        knowUserVo.setUserAvatar(user.getUserAvatar());
+        knowUserVo.setGender(user.getGender());
+        knowUserVo.setFollowerCount(user.getFollowerCount());
+        return knowUserVo;
     }
 
     private MatchUserVo getMatchUserVo(User user) {

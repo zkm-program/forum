@@ -1,28 +1,35 @@
-create table if not exists user
+-- auto-generated definition
+create table user
 (
-    id              bigint auto_increment comment 'id' primary key,
-    userName        varchar(256) not null comment '用户姓名',
-    isReported      TINYINT               default 0 comment "0是没被举报，1是被举报了",
-    tags            varchar(1024)         default null comment '用户标签,json数组里面都是字符串形式',
-    userQqEmail     varchar(256) not null comment '用户邮箱',
-    userPassword    varchar(256) not null comment '用户密码',
-    matchCount      int          not null default 1 comment '用户匹配次数',
-    userRole        varchar(256) not null default 'user' comment '用户角色',
-    createTime      datetime              default CURRENT_TIMESTAMP not null comment '用户创建时间',
-    updateTime      datetime              default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '用户更新时间',
-    isDelete        tinyint      not null default 0 comment '是否删除',
-    userAvatar      varchar(1024)         default null comment '用户头像',
-    gender          varchar(256) not null comment '用户性别',
-    reportResults   VARCHAR(256)          default '' comment "被举报原因",
-    reportUserId    bigint       not null comment "举报用户id",
-    superMatchCount int                   default '1' comment "用户超级匹配次数",
-    longitude       decimal(10, 6)        default 0 comment '经度',
-    dimension       decimal(10, 6)        default 0 comment '维度',
-    followerCount   int                   default 0 not null comment '被关注数',
-    index idx_userQqEmail (userQqEmail),
-    CONSTRAINT uniIdx_userQqEmail UNIQUE (userQqEmail)
+    id              bigint auto_increment comment 'id'
+        primary key,
+    userName        varchar(256)                             not null comment '用户姓名',
+    tags            varchar(1024)                            null,
+    userPassword    varchar(256)                             not null comment '用户密码',
+    matchCount      int            default 1                 not null comment '用户匹配次数',
+    userRole        varchar(256)   default 'user'            not null comment '用户角色',
+    createTime      datetime       default CURRENT_TIMESTAMP not null comment '用户创建时间',
+    updateTime      datetime       default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '用户更新时间',
+    isDelete        tinyint        default 0                 not null comment '是否删除',
+    userAvatar      varchar(1024)                            null,
+    gender          varchar(256)                             not null comment '用户性别',
+    userQqEmail     varchar(256)                             not null comment '用户QQ邮箱',
+    isReported      tinyint        default 0                 null comment '0是没被举报，1是被举报了',
+    reportUserId    bigint                                   not null comment '举报用户id',
+    reportResults   varchar(256)   default ''                null comment '被举报原因',
+    superMatchCount int            default 1                 null comment '用户超级匹配次数',
+    longitude       decimal(10, 6) default 0.000000          null comment '经度',
+    dimension       decimal(10, 6) default 0.000000          null comment '维度',
+    fitnessId       bigint                                   null comment '健身id',
+    followerCount   int            default 0                 not null comment '被关注数',
+    introduction    varchar(256)   default ''                not null comment '用户简介',
+    constraint uniIdx_userQqEmail
+        unique (userQqEmail)
+)
+    comment '用户表' collate = utf8mb4_unicode_ci;
 
-) comment '用户表' collate = utf8mb4_unicode_ci;
+create index idx_userQqEmail
+    on user (userQqEmail);
 
 
 

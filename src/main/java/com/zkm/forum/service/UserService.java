@@ -7,6 +7,7 @@ import com.zkm.forum.model.dto.user.UserQueryRequest;
 import com.zkm.forum.model.dto.user.UserRegisterRequest;
 import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
 import com.zkm.forum.model.entity.User;
+import com.zkm.forum.model.vo.user.KnowUserVo;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
 
@@ -47,5 +48,6 @@ public interface UserService extends IService<User> {
     List<LoginUserVO> getOwnCircleDistance(HttpServletRequest request, double distance);
     Boolean addUserSignIn(Long userId);
     Map<Long, Boolean> getUserThisWeekSign(Long userId);
+    KnowUserVo getKnowUserVo(Long userId);
 }
 

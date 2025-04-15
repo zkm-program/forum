@@ -104,14 +104,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         BeanUtils.copyProperties(addPostRequest, post);
         String tagStr = JSONUtil.toJsonStr(tags);
         post.setTags(tagStr);
-        if (id != 0) {
+        if (id != null) {
             Post updatePost = this.getById(id);
             if (!loginuser.getId().equals(updatePost.getUserId()) || !loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
             }
         }
         boolean result = this.saveOrUpdate(post);
-        if (result&&id==0) {
+        if (result&&id==null) {
             FollowUserRequest followUserRequest = new FollowUserRequest();
             followUserRequest.setArticleName(title);
             followUserRequest.setUserId(loginuser.getId());

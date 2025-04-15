@@ -6,10 +6,7 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class ListCommentRequest extends PageRequest {
-    /**
-     * 文章id
-     */
-    private Long commentId;
+
     /**
      * 发表评论用户Id
      */

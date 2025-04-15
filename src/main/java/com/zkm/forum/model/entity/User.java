@@ -28,6 +28,9 @@ public class User implements Serializable {
      * 用户姓名
      */
     private String userName;
+    /**
+     * 健身模块主键
+     */
     private Long fitnessId;
     /**
      * 用户标签,json数组里面都是字符串形式
@@ -96,6 +99,10 @@ public class User implements Serializable {
      * 被关注数
      */
     private int followerCount;
+    /**
+     * 用户介绍
+     */
+    private String introduction;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

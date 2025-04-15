@@ -9,10 +9,13 @@ import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.user.*;
 import com.zkm.forum.model.entity.User;
+import com.zkm.forum.model.vo.user.KnowUserVo;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.context.UploadStrategyContext;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
+@Api(tags = "用户模块")
 @RequestMapping("/user")
 @RestController
 public class UserController {
@@ -36,6 +40,7 @@ public class UserController {
      * @param userRegisterRequest
      * @return
      */
+    @ApiOperation("用户注册")
     @PostMapping("/register")
     public BaseResponse<Long> register(@RequestBody UserRegisterRequest userRegisterRequest) {
 
@@ -54,6 +59,7 @@ public class UserController {
      * @param request
      * @return
      */
+    @ApiOperation("用户登录")
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> login(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
 
@@ -74,6 +80,7 @@ public class UserController {
      *
      * @param userQqEmail
      */
+    @ApiOperation("发送验证码")
     @PostMapping("/sendcode")
     public void sendCode(String userQqEmail) {
         if (userQqEmail == null || userQqEmail.isEmpty()) {
@@ -88,6 +95,7 @@ public class UserController {
      * @param userQueryRequest
      * @return
      */
+    @ApiOperation("管理员:获取用户信息")
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
@@ -104,6 +112,7 @@ public class UserController {
      * @param userQqEmail
      * @return
      */
+    @ApiOperation("管理员通过邮箱获取用户信息")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/get")
     public BaseResponse<User> getUserByEmail(String userQqEmail) {
@@ -121,6 +130,7 @@ public class UserController {
      * @param httpServletRequest
      * @return
      */
+    @ApiOperation("用户修改基本信息")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
     @PostMapping("/updatemy")
     public BaseResponse<Boolean> userUpdateMy(@RequestBody UserUpdateMyRequest userUpdateMyRequest, HttpServletRequest httpServletRequest) {
@@ -141,6 +151,7 @@ public class UserController {
      * @param updateForAdminRequest
      * @return
      */
+    @ApiOperation("管理员修改基本信息")
     @PostMapping("/updateForAdmin")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateForAdmin(@RequestBody UpdateForAdminRequest updateForAdminRequest) {
@@ -155,42 +166,50 @@ public class UserController {
         return ResultUtils.success(userService.updateForAdmin(matchCount, userRole, userQqEmail));
     }
 
+    @ApiOperation("用户退出登录")
     @PostMapping("/logout")
     public void logout(HttpServletRequest httpServletRequest) {
         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
     }
 
+    @ApiOperation("举报用户")
     @PostMapping("/report/post")
-    public BaseResponse<Boolean> reportPost(ReportUserRequest reportUserRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> reportUser(ReportUserRequest reportUserRequest, HttpServletRequest request) {
         return ResultUtils.success(userService.reportUser(reportUserRequest, request));
     }
 
+    @ApiOperation("上传图片")
     @PostMapping("/upload")
     public BaseResponse<String> upload(MultipartFile multipartFile) {
         return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile, "test/"));
     }
 
+    @ApiOperation("基础根据标签匹配用户")
     @PostMapping("/matchuser/bytags")
     public BaseResponse<List<MatchUserVo>> matchUserByTags(@RequestParam("true") List<String> tagList, HttpServletRequest request) {
         return ResultUtils.success(userService.matchUserByTags(tagList, request));
 
     }
 
+    @ApiOperation("超级根据标签匹配用户")
     @GetMapping("/super/match")
     public BaseResponse<MatchUserVo> superMatchUser(HttpServletRequest request) {
         return ResultUtils.success(userService.superMatchUser(request));
     }
 
+    @ApiOperation("获得自己与所有用户之间的距离")
     @GetMapping("/getown/distance")
     public BaseResponse<Map<Long, String>> getOwnWithOtherDistance(HttpServletRequest request) {
         return ResultUtils.success(userService.getOwnWithOtherDistance(request));
     }
 
+    @ApiOperation("获得距离自己1500米的用户信息")
     @PostMapping("/get/circle")
     public BaseResponse<List<LoginUserVO>> getOwnCircleDistance(HttpServletRequest request, @RequestParam("true") double distance) {
         return ResultUtils.success(userService.getOwnCircleDistance(request, distance));
     }
 
+    @ApiOperation("用户签到")
     @GetMapping("/signin")
     public BaseResponse<Boolean> addUserSignIn(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
@@ -201,11 +220,18 @@ public class UserController {
             return ResultUtils.error(ErrorCode.OPERATION_ERROR, "签到失败");
         }
     }
-
+    @ApiOperation("获得用户签到情况")
     @PostMapping("/getuserthisweeksign")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Map<Long, Boolean>> getUserThisWeekSign(Long userId) {
-       return ResultUtils.success( userService.getUserThisWeekSign(userId));
+        return ResultUtils.success(userService.getUserThisWeekSign(userId));
+
+    }
+
+    @ApiOperation("产看用户基本信息详情页")
+    @GetMapping("/getKnowUserVo/{userId}")
+    public BaseResponse<KnowUserVo> getKnowUserVo(@PathVariable("userId") Long userId) {
+        return ResultUtils.success(userService.getKnowUserVo(userId));
 
     }
 }

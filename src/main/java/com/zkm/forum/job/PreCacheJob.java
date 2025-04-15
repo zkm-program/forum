@@ -26,9 +26,10 @@ public class PreCacheJob {
     @Resource
     private PostService postService;
     @Resource
-    private Cache<String,String> LOCAL_CACHE;
+    private Cache<String, String> LOCAL_CACHE;
 
-    @Scheduled(cron = "0 31 0 * * *")
+    //    @Scheduled(cron = "0 31 0 * * *")
+    @Scheduled(fixedRate = 60 * 1000 * 5)
     public void doCacheRecommendPost() {
         LocalDateTime yesterdayStart = LocalDateTime.now().minusDays(1).withHour(0).withMinute(0).withSecond(0);
         LocalDateTime yesterdayEnd = yesterdayStart.plusDays(1);
@@ -42,19 +43,26 @@ public class PreCacheJob {
                 // 限制15条
                 .last("LIMIT 15");
         List<Post> preLoginPostList = postService.list(postLoginQueryWrapper);
-        stringRedisTemplate.opsForList().rightPush(PRE_CACHE_POST_LOGIN, JSONUtil.toJsonStr(postToPostVo(preLoginPostList)));
+        List<PostVo> postVos1 = postToPostVo(preLoginPostList);
+        for(PostVo postVo:postVos1){
+            stringRedisTemplate.opsForList().rightPush(PRE_CACHE_POST_LOGIN, JSONUtil.toJsonStr(postVo));
+        }
         QueryWrapper<Post> postLogoutQueryWrapper = new QueryWrapper<>();
         postLogoutQueryWrapper.orderByDesc("(thumbNum + favourNum)")
                 // 限制15条
                 .last("LIMIT 15");
         List<Post> preLogoutPostList = postService.list(postLogoutQueryWrapper);
-        stringRedisTemplate.opsForList().rightPush(PRE_CACHE_POST_LOGOUT, JSONUtil.toJsonStr(postToPostVo(preLogoutPostList)));
+        List<PostVo> postVos = postToPostVo(preLogoutPostList);
+        for(PostVo postVo:postVos){
+            stringRedisTemplate.opsForList().rightPush(PRE_CACHE_POST_LOGOUT, JSONUtil.toJsonStr(postVo));
+        }
+
     }
 
     private List<PostVo> postToPostVo(List<Post> postList) {
         return postList.stream().map(post -> PostVo.builder()
                 .title(post.getTitle())
-                .tags(JSONUtil.toList(post.getTags(),String.class))
+                .tags(JSONUtil.toList(post.getTags(), String.class))
                 .content(post.getContent())
                 .status(post.getStatus())
                 .id(post.getId())

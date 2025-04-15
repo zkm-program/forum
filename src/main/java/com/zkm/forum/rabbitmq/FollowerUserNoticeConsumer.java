@@ -41,6 +41,6 @@ public class FollowerUserNoticeConsumer {
         List<User> followerList = userService.listByIds(followerIdList);
         List<String> followerQqEmaillist = followerList.stream().map(User::getUserQqEmail).toList();
         Set<String> followerQqEmailset = new HashSet<>(followerQqEmaillist);
-        MailUtils.sendEmail(followerQqEmailset,"用户关注","您关注的用户"+userName+"发表了文章"+articleName);
+        MailUtils.sendEmail(followerQqEmailset,"用户关注","您关注的用户"+"【"+userName+"】"+"发表了文章题目："+articleName);
     }
 }
