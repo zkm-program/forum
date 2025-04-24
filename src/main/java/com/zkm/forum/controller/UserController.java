@@ -1,5 +1,6 @@
 package com.zkm.forum.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkm.forum.annotation.AuthCheck;
 import com.zkm.forum.common.BaseResponse;
@@ -17,6 +18,7 @@ import com.zkm.forum.strategy.context.UploadStrategyContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -184,11 +186,17 @@ public class UserController {
         return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile, "test/"));
     }
 
+    // todo 普通匹配和超级匹配加个elasticsearch
     @ApiOperation("基础根据标签匹配用户")
-    @PostMapping("/matchuser/bytags")
-    public BaseResponse<List<MatchUserVo>> matchUserByTags(@RequestParam("true") List<String> tagList, HttpServletRequest request) {
+    @GetMapping("/matchuser/bytags")
+    public BaseResponse<List<MatchUserVo>> matchUserByTags(@RequestParam(required = false) List<String> tagList, HttpServletRequest request) {
         return ResultUtils.success(userService.matchUserByTags(tagList, request));
 
+    }
+    @ApiOperation("修改自己的标签")
+    @GetMapping("/updateMyTas")
+    public BaseResponse<Boolean> updateMyTas(@RequestParam(required = false) List<String> tagList, HttpServletRequest request) {
+        return ResultUtils.success(userService.updateMyTas(tagList, request));
     }
 
     @ApiOperation("超级根据标签匹配用户")
@@ -220,6 +228,7 @@ public class UserController {
             return ResultUtils.error(ErrorCode.OPERATION_ERROR, "签到失败");
         }
     }
+
     @ApiOperation("获得用户签到情况")
     @PostMapping("/getuserthisweeksign")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -234,4 +243,15 @@ public class UserController {
         return ResultUtils.success(userService.getKnowUserVo(userId));
 
     }
+
+    @GetMapping("/current")
+    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        LoginUserVO loginUserVO = new LoginUserVO();
+        BeanUtils.copyProperties(loginUser, loginUserVO);
+        loginUserVO.setTagList(JSONUtil.toList(loginUser.getTags(), String.class));
+        return ResultUtils.success(loginUserVO);
+    }
+
+
 }

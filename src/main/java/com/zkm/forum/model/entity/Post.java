@@ -108,6 +108,8 @@ public class Post implements Serializable {
     private String original_url;
     private String reportResults;
     private Long reportUserId;
+    private String authorName;
+    private String authorAvatar;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

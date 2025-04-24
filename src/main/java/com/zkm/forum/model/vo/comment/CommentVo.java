@@ -7,6 +7,10 @@ import java.util.Date;
 @Data
 public class CommentVo {
     /**
+     * 评论主键
+     */
+    private Long id;
+    /**
      * 发表评论用户Id
      */
     private Long userId;

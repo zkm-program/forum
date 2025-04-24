@@ -235,15 +235,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public Boolean userUpdateMy(UserUpdateMyRequest userUpdateMyRequest) {
-        List<String> tagList = userUpdateMyRequest.getTags();
         String userName = userUpdateMyRequest.getUserName();
         String gender = userUpdateMyRequest.getGender();
         User user = new User();
         user.setId(userUpdateMyRequest.getId());
         user.setUserName(userName);
         user.setGender(gender);
-        String tags = JSONUtil.toJsonStr(tagList);
-        user.setTags(tags);
         return this.updateById(user);
     }
 
@@ -284,7 +281,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
-    // todo 可以引入异步rabbitmq，避免用户体验感较差
+    // todo 可以引入异步rabbitmq，避免用户体验感较差，引入热缓存技术,建表用户匹配到的人表。
     @Override
     public List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request) {
         if (tags.size() > 3) {
@@ -319,6 +316,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         }
                         List<Long> matchUserIdList = matchUserVos.stream().map(MatchUserVo::getId).toList();
                         List<MatchUserVo> matchUserVoList = this.listByIds(matchUserIdList).stream().map(this::getMatchUserVo).toList();
+                        for(MatchUserVo matchUserVo:matchUserVoList){
+                            matchUserVo.setTags(tags);
+                        }
                         return matchUserVoList;
                     }
 
@@ -434,6 +434,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         knowUserVo.setGender(user.getGender());
         knowUserVo.setFollowerCount(user.getFollowerCount());
         return knowUserVo;
+    }
+
+    @Override
+    public Boolean updateMyTas(List<String> tags,HttpServletRequest request) {
+        if(tags.isEmpty()){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请填写标签");
+        }
+        User loginUser = this.getLoginUser(request);
+        UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+        userUpdateWrapper.eq("id",loginUser.getId());
+        userUpdateWrapper.set("tags",JSONUtil.toJsonStr(tags));
+        boolean result = this.update(userUpdateWrapper);
+        if(!result){
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,"修改失败");
+        }
+        return result;
     }
 
     private MatchUserVo getMatchUserVo(User user) {

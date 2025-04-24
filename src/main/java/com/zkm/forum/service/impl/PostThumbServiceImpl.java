@@ -68,7 +68,7 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
             if (flag) {
                 result = postService
                         .update()
-                        .eq("postId", postId)
+                        .eq("id", postId)
                         .setSql("thumbNum=thumbNum+1")
                         .update();
                 return result ? 1 : 0;

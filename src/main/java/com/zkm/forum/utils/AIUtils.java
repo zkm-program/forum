@@ -25,19 +25,27 @@ public class AIUtils {
         List<SparkMessage> messages = new ArrayList<>();
         if (isNeedTemplate) {
             // AI 生成问题的预设条件
-            String predefinedInformation = "你是一个营养师，，请严格按以下步骤执行：\n" +
-                    "1. 假设用户每天不运动，根据用户信息计算基础代谢率（BMR）\n" +
+            String predefinedInformation = "你是一个营养师，请严格按以下步骤执行：\n" +
                     "2. 假设用户每天不运动，根据用户的目标(如每周增肌0.5g)计算每日推荐摄入卡路里（BMR-500kcal）\n" +
-                    "3. 按以下格式返回，注意【【【【把返回的结果分成了三组，仅包含数字和单位，不要任何额外文字：\n" +
+                    "3. 根据用户的目标计算每日推荐摄入的蛋白质、碳水化合物和脂肪的量\n" +
+                    "4. 按以下格式返回，注意【【【【把返回的结果分成了四组，仅包含数字和单位，不要任何额外文字：\n" +
                     "【【【【\n" +
-                    "BMR:[计算结果]卡路里\n" +
+                    "推荐摄入:[计算结果]卡路里\n" +
                     "【【【【\n" +
-                    "推荐摄入:[计算结果]卡路里\n"+
-                    "期望输出\n"+
-                    "【【【【\n"+
-                    "BMR:555卡路里"+"\n"+
-                    "【【【【\n"+
-                    "推荐摄入:658卡路里";
+                    "蛋白质:[计算结果]克\n" +
+                    "【【【【\n" +
+                    "碳水化合物:[计算结果]克\n" +
+                    "【【【【\n" +
+                    "脂肪:[计算结果]克\n" +
+                    "期望输出\n" +
+                    "【【【【\n" +
+                    "推荐摄入:658卡路里\n" +
+                    "【【【【\n" +
+                    "蛋白质:100克\n" +
+                    "【【【【\n" +
+                    "碳水化合物:200克\n" +
+                    "【【【【\n" +
+                    "脂肪:50克";
             messages.add(SparkMessage.systemContent(predefinedInformation + "\n" + "----------------------------------"));
         }
         messages.add(SparkMessage.userContent(content));
@@ -58,15 +66,13 @@ public class AIUtils {
             return responseContent;
         }
         log.info("星火 AI 返回的结果 {}", responseContent);
-        AtomicInteger atomicInteger = new AtomicInteger(1);
-        while (responseContent.split("【【【【").length < 3) {
-            responseContent = sparkClient.chatSync(sparkRequest).getContent().trim();
-            if (atomicInteger.incrementAndGet() >= 4) {
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "星火 AI 生成失败");
-            }
-        }
+//        AtomicInteger atomicInteger = new AtomicInteger(1);
+//        while (responseContent.split("【【【【").length < 5) {
+//            responseContent = sparkClient.chatSync(sparkRequest).getContent().trim();
+//            if (atomicInteger.incrementAndGet() >= 4) {
+//                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "星火 AI 生成失败");
+//            }
+//        }
         return responseContent;
     }
 }
-
-

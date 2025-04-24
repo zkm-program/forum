@@ -11,4 +11,5 @@ public class MatchUserVo {
     private String userQqEmail;
     private String userAvatar;
     private String gender;
+    private String introduction;
 }

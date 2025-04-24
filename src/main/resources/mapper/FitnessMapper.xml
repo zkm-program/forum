@@ -2,11 +2,11 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.zkm.forum.mapper.FitnessMapper">
+<mapper namespace="generator.mapper.FitnessMapper">
 
-    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Fitness">
+    <resultMap id="BaseResultMap" type="generator.domain.Fitness">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <id property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="age" column="age" jdbcType="INTEGER"/>
             <result property="gender" column="gender" jdbcType="VARCHAR"/>
             <result property="height" column="height" jdbcType="DECIMAL"/>
@@ -25,8 +25,10 @@
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
             <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="BMR" column="BMR" jdbcType="DECIMAL"/>
-            <result property="getKcal" column="getKcal" jdbcType="DECIMAL"/>
+            <result property="calorieTarget" column="calorieTarget" jdbcType="DECIMAL"/>
+            <result property="proteinTarget" column="proteinTarget" jdbcType="DECIMAL"/>
+            <result property="carbohydrateTarget" column="carbohydrateTarget" jdbcType="DECIMAL"/>
+            <result property="fatTarget" column="fatTarget" jdbcType="DECIMAL"/>
             <result property="type" column="type" jdbcType="TINYINT"/>
     </resultMap>
 
@@ -37,7 +39,8 @@
         protein,carbohydrate,fat,
         foodAdvice,sportAdvice,sport,
         createTime,updateTime,isDelete,
-        userAvatar,status,BMR,
-        getKcal,type
+        userAvatar,status,calorieTarget,
+        proteinTarget,carbohydrateTarget,fatTarget,
+        type
     </sql>
 </mapper>

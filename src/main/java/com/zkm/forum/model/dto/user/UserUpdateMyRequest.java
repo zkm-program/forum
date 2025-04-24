@@ -17,10 +17,7 @@ public class UserUpdateMyRequest implements Serializable {
      */
     private String userName;
 
-    /**
-     * 用户标签,json数组里面都是字符串形式
-     */
-    private List<String> tags;
+
 
 
 

@@ -49,5 +49,6 @@ public interface UserService extends IService<User> {
     Boolean addUserSignIn(Long userId);
     Map<Long, Boolean> getUserThisWeekSign(Long userId);
     KnowUserVo getKnowUserVo(Long userId);
+    Boolean updateMyTas(List<String> tags,HttpServletRequest request);
 }
 

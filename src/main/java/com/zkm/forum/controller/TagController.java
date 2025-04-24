@@ -41,9 +41,10 @@ public class TagController {
         }
         return ResultUtils.success(tagService.updateTagsDelete(updateTagsDeleteRequest));
     }
-    @ApiOperation("管理员:查看已有的标签")
+    // todo 下面这个接口可以加个缓存
+    @ApiOperation("查看已有的标签")
     @GetMapping("/listTagsForAdminVo")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+//    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
    public BaseResponse<List<ListTagsForAdminVo>> listTagsForAdminVo(){
         return ResultUtils.success(tagService.listTagsForAdminVo());
    }

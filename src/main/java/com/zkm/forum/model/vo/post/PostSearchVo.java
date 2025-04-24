@@ -19,6 +19,6 @@ public class PostSearchVo {
     private Integer favourNum;
     private Integer type;
     private Double viewCount;
-    private List<String> tag;
+    private List<String> tags;
     private String authorName;
 }

@@ -18,7 +18,6 @@ public class AddPostRequest implements Serializable {
     private String article_abstract;
     @NotBlank(message = "文章标签不能为空")
     private List<String> tags;
-    @NotBlank(message = "文章状态不能为空")
     private Integer status;
     @NotBlank(message = "文章类型不能为空")
     private Integer type;

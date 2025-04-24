@@ -35,4 +35,8 @@ public class PostVo implements Serializable {
     private Integer is_top;
     private Integer is_featured;
     private String original_url;
+    /**
+     * 用户头像
+     */
+    private String userAvatar;
 }

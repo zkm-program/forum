@@ -117,16 +117,10 @@ public class Fitness implements Serializable {
      * 0-分析中，1-已完成，2-分析失败
      */
     private Integer status;
-
-    /**
-     * 用户每天不动的基础代谢
-     */
-    private BigDecimal BMR;
-
-    /**
-     * 用户为了到达目标需要每天摄入多少卡路里
-     */
-    private BigDecimal getKcal;
+    private BigDecimal calorieTarget;
+    private BigDecimal proteinTarget;
+    private BigDecimal carbohydrateTarget;
+    private BigDecimal fatTarget;
 
     /**
      * 0-文字ai，1-图片ai

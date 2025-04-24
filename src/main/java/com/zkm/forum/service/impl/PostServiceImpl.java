@@ -110,6 +110,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "无权限");
             }
         }
+        post.setUserId(loginuser.getId());
+        post.setAuthorName(loginuser.getUserName());
         boolean result = this.saveOrUpdate(post);
         if (result&&id==null) {
             FollowUserRequest followUserRequest = new FollowUserRequest();
@@ -283,8 +285,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             boolQueryBuilder.filter(QueryBuilders.termQuery("userName", userName));
         }
         if (StringUtils.isNotBlank(keyWords)) {
-            boolQueryBuilder.should(QueryBuilders.matchQuery("title", title));
-            boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
+//            boolQueryBuilder.should(QueryBuilders.matchQuery("title", keyWords));
+            boolQueryBuilder.should(QueryBuilders.matchQuery("content", keyWords));
             boolQueryBuilder.minimumShouldMatch(1);
         }
         if (StringUtils.isNotBlank(title)) {
@@ -295,7 +297,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
             boolQueryBuilder.minimumShouldMatch(1);
         }
-        if (!tags.isEmpty()) {
+        if (tags!=null) {
             for (String tag : tags) {
                 boolQueryBuilder.filter(QueryBuilders.termQuery("tags", tag));
             }
@@ -313,10 +315,13 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             sortBuilder = SortBuilders.fieldSort(sortField);
             sortBuilder.order(CommonConstant.SORT_ORDER_ASC.equals(sortOrder) ? SortOrder.ASC : SortOrder.DESC);
         }
-        PageRequest pageRequest = PageRequest.of(current, pageSize);
+        PageRequest pageRequest = PageRequest.of(current - 1, pageSize); // 将current转换为页码（用户传入的current是1-based）
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder).withPageable(pageRequest).withSorts(sortBuilder).build();
+//        String queryDsl = Objects.requireNonNull(searchQuery.getQuery()).toString();
+//        System.out.println("Elasticsearch Query DSL:\n" + queryDsl);
         SearchHits<PostEsDTO> searchHits = elasticsearchTemplate.search(searchQuery, PostEsDTO.class);
         Page<PostSearchVo> page = new Page<>();
+
         page.setTotal(searchHits.getTotalHits());
         List<Post> resourceList = new ArrayList<>();
         if (searchHits.hasSearchHits()) {
@@ -341,7 +346,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         for (Post post : resourceList) {
             PostSearchVo postSearchVo = new PostSearchVo();
             BeanUtils.copyProperties(post, postSearchVo);
-            postSearchVo.setTag(JSONUtil.toList(post.getTags(), String.class));
+            postSearchVo.setTags(JSONUtil.toList(post.getTags(), String.class));
             postSearchVos.add(postSearchVo);
         }
 

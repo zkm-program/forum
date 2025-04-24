@@ -95,7 +95,7 @@ public class PostMysqlPostSearchImpl implements PostSearchStrategy {
                     postSearchVo.setThumbNum(post.getThumbNum());
 
                     postSearchVo.setId(post.getId());
-                    postSearchVo.setTag(list);
+                    postSearchVo.setTags(list);
                     postSearchVo.setType(post.getType());
                     String ifPresent = LOCAL_CACHE.getIfPresent(USERID_USERNAME + post.getUserId());
                     if (ifPresent != null) {

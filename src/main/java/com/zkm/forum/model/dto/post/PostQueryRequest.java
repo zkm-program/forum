@@ -9,11 +9,17 @@ import java.util.List;
 
 @Data
 public class PostQueryRequest extends PageRequest {
+    /**
+     * 关键字搜索
+     */
     private String keyWords;
     private Long id;
     private String title;
     private List<String> tags;
     private List<String> orTags;
+    /**
+     * 根据文章内容进行搜索
+     */
     private String content;
     private String userName;
     private Integer thumbNum;

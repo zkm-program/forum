@@ -74,6 +74,10 @@ public class PreCacheJob {
                 .is_featured(post.getIs_featured())
                 .createTime(post.getCreateTime())
                 .updateTime(post.getUpdateTime())
-                .article_abstract(post.getArticle_abstract()).build()).toList();
+                .article_abstract(post.getArticle_abstract())
+                .userAvatar(post.getAuthorAvatar())
+                .authorName(post.getAuthorName())
+                .build()).toList();
+
     }
 }
