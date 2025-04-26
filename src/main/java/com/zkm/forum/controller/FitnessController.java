@@ -5,9 +5,9 @@ import com.zkm.forum.common.ResultUtils;
 import com.zkm.forum.model.dto.aixinghuo.AiXinghuoPictureRequest;
 import com.zkm.forum.model.dto.fitness.SaveOrUpdateMessageRequest;
 import com.zkm.forum.model.entity.User;
-import com.zkm.forum.model.vo.fitness.AnalysePictureVo;
-import com.zkm.forum.model.vo.fitness.AnalyseUserVo;
+
 import com.zkm.forum.model.vo.fitness.GetUserInfoVo;
+import com.zkm.forum.model.vo.fitnessImage.AnalysePictureVo;
 import com.zkm.forum.service.FitnessService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.context.UploadStrategyContext;
@@ -39,15 +39,21 @@ public class FitnessController {
 
     @ApiOperation("根据目标分析自己每日摄入多少卡路里")
     @GetMapping("/ai/analyseUser")
-    public BaseResponse<AnalyseUserVo> analyseUser(HttpServletRequest request) {
+    public BaseResponse<Long> analyseUser(HttpServletRequest request) {
         return ResultUtils.success(fitnessService.analyseUser(request));
     }
 
     @ApiOperation("根据图片分析卡路里脂肪蛋白质碳水含量")
     @PostMapping("/analysePicture")
-    public BaseResponse<AnalysePictureVo> analysePicture(@RequestBody AiXinghuoPictureRequest request, HttpServletRequest userRequest) {
+    public BaseResponse<Long> analysePicture(@RequestBody AiXinghuoPictureRequest request, HttpServletRequest userRequest) {
         return ResultUtils.success(fitnessService.analysePicture(request,userRequest));
     }
+//    public BaseResponse<AnalysePictureVo> analysePicture(@RequestBody AiXinghuoPictureRequest request, HttpServletRequest userRequest) {
+//        return ResultUtils.success(fitnessService.analysePicture(request,userRequest));
+//    }
+//    public BaseResponse<AnalysePictureVo> analysePicture(@RequestBody AiXinghuoPictureRequest request, HttpServletRequest userRequest) {
+//        return ResultUtils.success(fitnessService.analysePicture(request,userRequest));
+//    }
 
     @ApiOperation("获得用户基本信息")
     @GetMapping("/getUserInfo")

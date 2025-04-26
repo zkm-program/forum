@@ -8,4 +8,5 @@ public class AiXinghuoPictureRequest {
     private String description;
     private String pictureUrl;
     private String foodName;
+    private Long fitnessId;
 }

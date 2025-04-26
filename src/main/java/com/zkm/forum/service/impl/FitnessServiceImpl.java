@@ -1,6 +1,5 @@
 package com.zkm.forum.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.exception.BusinessException;
@@ -10,20 +9,24 @@ import com.zkm.forum.model.dto.fitness.SaveOrUpdateMessageRequest;
 import com.zkm.forum.model.entity.Fitness;
 import com.zkm.forum.model.entity.FitnessImage;
 import com.zkm.forum.model.entity.User;
-import com.zkm.forum.model.vo.fitness.AnalysePictureVo;
+import com.zkm.forum.model.vo.fitnessImage.AnalysePictureVo;
 import com.zkm.forum.model.vo.fitness.AnalyseUserVo;
 import com.zkm.forum.model.vo.fitness.GetUserInfoVo;
+import com.zkm.forum.service.FitnessImageService;
 import com.zkm.forum.service.FitnessService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.utils.AIUtils;
 import com.zkm.forum.utils.AiPictureUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+
+import static com.zkm.forum.constant.RabbitMqConstant.*;
 
 /**
  * @author 张凯铭
@@ -38,8 +41,9 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
     @Resource
     private AIUtils aiUtils;
     @Resource
-    FitnessMapper fitnessMapper;
-
+    private FitnessImageService fitnessImageService;
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
     AiPictureUtils aiPictureUtils = new AiPictureUtils();
 
@@ -82,59 +86,89 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         return fitness.getId();
     }
 
+//    @Override
+//    public AnalyseUserVo analyseUser(HttpServletRequest request) {
+//        User loginUser = userService.getLoginUser(request);
+//        Fitness fitness = this.getById(loginUser.getFitnessId());
+//        StringBuilder stringBuilder = new StringBuilder();
+//        stringBuilder.append("用户基本信息").append("\n");
+//        stringBuilder.append("性别:" + fitness.getGender()).append("\n");
+//        stringBuilder.append("年龄:" + fitness.getAge() + "岁").append("\n");
+//        stringBuilder.append("身高:" + fitness.getHeight() + "cm").append("\n");
+//        stringBuilder.append("体重:" + fitness.getWeight() + "kg").append("\n");
+//        stringBuilder.append("目标:" + fitness.getTarget()).append("\n");
+//        String s = aiUtils.sendMsgToXingHuo(true, stringBuilder.toString());
+//        String[] split = s.split("【【【【");
+//
+//        // 提取数字部分并存入 fitness 对象
+//        fitness.setCalorieTarget(extractNumber(split[1]));
+//        fitness.setProteinTarget(extractNumber(split[2]));
+//        fitness.setCarbohydrateTarget(extractNumber(split[3]));
+//        fitness.setFatTarget(extractNumber(split[4]));
+//
+//        AnalyseUserVo analyseUserVo = new AnalyseUserVo();
+//        analyseUserVo.setCalorieTarget(extractNumber(split[1]));
+//        analyseUserVo.setProteinTarget(extractNumber(split[2]));
+//        analyseUserVo.setCarbohydrateTarget(extractNumber(split[3]));
+//        analyseUserVo.setFatTarget(extractNumber(split[4]));
+//        this.update().eq("id", loginUser.getFitnessId()).update(fitness);
+//        return analyseUserVo;
+//    }
+
+
     @Override
-    public AnalyseUserVo analyseUser(HttpServletRequest request) {
+    public Long analyseUser(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Fitness fitness = this.getById(loginUser.getFitnessId());
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("用户基本信息").append("\n");
-        stringBuilder.append("性别:" + fitness.getGender()).append("\n");
-        stringBuilder.append("年龄:" + fitness.getAge() + "岁").append("\n");
-        stringBuilder.append("身高:" + fitness.getHeight() + "cm").append("\n");
-        stringBuilder.append("体重:" + fitness.getWeight() + "kg").append("\n");
-        stringBuilder.append("目标:" + fitness.getTarget()).append("\n");
-        String s = aiUtils.sendMsgToXingHuo(true, stringBuilder.toString());
-        String[] split = s.split("【【【【");
-
-        // 提取数字部分并存入 fitness 对象
-        fitness.setCalorieTarget(extractNumber(split[1]));
-        fitness.setProteinTarget(extractNumber(split[2]));
-        fitness.setCarbohydrateTarget(extractNumber(split[3]));
-        fitness.setFatTarget(extractNumber(split[4]));
-
-        AnalyseUserVo analyseUserVo = new AnalyseUserVo();
-        analyseUserVo.setCalorieTarget(extractNumber(split[1]));
-        analyseUserVo.setProteinTarget(extractNumber(split[2]));
-        analyseUserVo.setCarbohydrateTarget(extractNumber(split[3]));
-        analyseUserVo.setFatTarget(extractNumber(split[4]));
-        this.update().eq("id", loginUser.getFitnessId()).update(fitness);
-        return analyseUserVo;
+        fitness.setStatus(0);
+        boolean result = this.updateById(fitness);
+        if (!result) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改fitness状态失败");
+        }
+        rabbitTemplate.convertAndSend(ANALYSE_USER_EXCHANGE, ANALYSE_USER_ROUTINGKEY, String.valueOf(loginUser.getFitnessId()));
+        return fitness.getId();
     }
 
 
+//    @Override
+//    public AnalysePictureVo analysePicture(AiXinghuoPictureRequest request,HttpServletRequest userRequest) {
+//        try {
+//            System.out.println(request.getPictureUrl());
+//            String s = aiPictureUtils.analyzeImage(request.getDescription(), request.getPictureUrl());
+//            String[] split = s.split("【【【【");
+//            AnalysePictureVo analysePictureVo = new AnalysePictureVo();
+//            User loginUser = userService.getLoginUser(userRequest);
+//            analysePictureVo.setFitnessId(loginUser.getFitnessId());
+//            analysePictureVo.setPictureUrl(request.getPictureUrl());
+//            analysePictureVo.setFoodName(request.getFoodName());
+//            analysePictureVo.setCalorie(extractNumber(split[1]));
+//            analysePictureVo.setProtein(extractNumber(split[2]));
+//            analysePictureVo.setCarbohydrate(extractNumber(split[3]));
+//            analysePictureVo.setFat(extractNumber(split[4]));
+//            return  analysePictureVo;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            log.error(e.getMessage());
+//            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统繁忙，请稍后再试");
+//        }
+//
+//    }
 
     @Override
-    public AnalysePictureVo analysePicture(AiXinghuoPictureRequest request,HttpServletRequest userRequest) {
-        try {
-            System.out.println(request.getPictureUrl());
-            String s = aiPictureUtils.analyzeImage(request.getDescription(), request.getPictureUrl());
-            String[] split = s.split("【【【【");
-            AnalysePictureVo analysePictureVo = new AnalysePictureVo();
-            User loginUser = userService.getLoginUser(userRequest);
-            analysePictureVo.setFitnessId(loginUser.getFitnessId());
-            analysePictureVo.setPictureUrl(request.getPictureUrl());
-            analysePictureVo.setFoodName(request.getFoodName());
-            analysePictureVo.setCalorie(extractNumber(split[1]));
-            analysePictureVo.setProtein(extractNumber(split[2]));
-            analysePictureVo.setCarbohydrate(extractNumber(split[3]));
-            analysePictureVo.setFat(extractNumber(split[4]));
-            return  analysePictureVo;
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统繁忙，请稍后再试");
+    public Long analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest) {
+        FitnessImage fitnessImage = new FitnessImage();
+        fitnessImage.setDescription(request.getDescription());
+        fitnessImage.setPictureUrl(request.getPictureUrl());
+        fitnessImage.setType(0);
+        fitnessImage.setFitnessId(request.getFitnessId());
+        fitnessImage.setFoodName(request.getFoodName());
+        fitnessImage.setCount(1);
+        boolean save = fitnessImageService.save(fitnessImage);
+        if (!save) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "操作失败请稍后再试");
         }
-
+        rabbitTemplate.convertAndSend(AI_PICTURE_EXCHANGE, AI_PICTURE_ROUTINGKEY, String.valueOf(fitnessImage.getId()));
+        return fitnessImage.getId();
     }
 
     @Override

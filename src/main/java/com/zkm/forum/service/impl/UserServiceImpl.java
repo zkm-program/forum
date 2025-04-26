@@ -241,6 +241,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setId(userUpdateMyRequest.getId());
         user.setUserName(userName);
         user.setGender(gender);
+        user.setIntroduction(userUpdateMyRequest.getIntroduction());
         return this.updateById(user);
     }
 

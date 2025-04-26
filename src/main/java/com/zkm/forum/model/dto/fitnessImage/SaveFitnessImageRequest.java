@@ -1,11 +1,15 @@
-package com.zkm.forum.model.vo.fitness;
+package com.zkm.forum.model.dto.fitnessImage;
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 @Data
-public class AnalysePictureVo {
+public class SaveFitnessImageRequest {
+
+
+    private int count;
     /**
      * fitness主键
      */
@@ -46,9 +50,9 @@ public class AnalysePictureVo {
      */
     private Date createTime;
 
-
-
-
-
+    /**
+     * 0-没有吃，1-吃掉它
+     */
+    private Integer status;
 
 }

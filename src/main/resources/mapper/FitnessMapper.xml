@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="generator.mapper.FitnessMapper">
+<mapper namespace="com.zkm.forum.mapper.FitnessMapper">
 
-    <resultMap id="BaseResultMap" type="generator.domain.Fitness">
+    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Fitness">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <id property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="age" column="age" jdbcType="INTEGER"/>

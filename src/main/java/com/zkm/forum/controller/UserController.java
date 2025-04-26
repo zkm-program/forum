@@ -142,8 +142,6 @@ public class UserController {
                 throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "没有权限修改信息");
             }
         }
-
-
         return ResultUtils.success(userService.userUpdateMy(userUpdateMyRequest));
     }
 
@@ -182,8 +180,10 @@ public class UserController {
 
     @ApiOperation("上传图片")
     @PostMapping("/upload")
-    public BaseResponse<String> upload(MultipartFile multipartFile) {
-        return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile, "test/"));
+    public BaseResponse<String> upload(MultipartFile multipartFile,HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        String path="avator/"+loginUser.getId()+"/";
+        return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile, path));
     }
 
     // todo 普通匹配和超级匹配加个elasticsearch

@@ -1,26 +1,15 @@
-package com.zkm.forum.model.entity;
+package com.zkm.forum.model.vo.fitnessImage;
 
-import com.baomidou.mybatisplus.annotation.*;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Date;
 import lombok.Data;
 
-/**
- * 食品图片表
- * @TableName fitness_image
- */
-@TableName(value ="fitness_image")
+import java.math.BigDecimal;
+import java.util.Date;
 @Data
-public class FitnessImage implements Serializable {
+public class AnalysePictureVo {
     /**
-     * id
+     * fitnessImage主键
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
-
-    private int count;
     /**
      * fitness主键
      */
@@ -60,13 +49,7 @@ public class FitnessImage implements Serializable {
      * 用户创建时间
      */
     private Date createTime;
-
-    /**
-     * 是否删除
-     */
-    @TableLogic
-    private Integer isDelete;
-
+    private Integer count;
     /**
      * 0-没有吃，1-吃掉它
      */
@@ -76,13 +59,8 @@ public class FitnessImage implements Serializable {
      * 0-等待中，1-分析中，2-分析成功
      */
     private Integer type;
-
-
     /**
      * 图片描述
      */
     private String description;
-
-    @TableField(exist = false)
-    private static final long serialVersionUID = 1L;
 }

@@ -50,4 +50,15 @@ public class LoginUserVO implements Serializable {
      * 登录用户和某个位置的距离
      */
     private double distance;
+    private int matchCount;
+
+    private int superMatchCount;
+    /**
+     * 被关注数
+     */
+    private int followerCount;
+    /**
+     * 用户介绍
+     */
+    private String introduction;
 }

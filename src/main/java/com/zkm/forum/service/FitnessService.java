@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.zkm.forum.model.dto.aixinghuo.AiXinghuoPictureRequest;
 import com.zkm.forum.model.dto.fitness.SaveOrUpdateMessageRequest;
 import com.zkm.forum.model.entity.Fitness;
-import com.zkm.forum.model.vo.fitness.AnalysePictureVo;
+import com.zkm.forum.model.vo.fitnessImage.AnalysePictureVo;
 import com.zkm.forum.model.vo.fitness.AnalyseUserVo;
 import com.zkm.forum.model.vo.fitness.GetUserInfoVo;
 
@@ -18,8 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 public interface FitnessService extends IService<Fitness> {
     Long saveOrUpdateMessage(SaveOrUpdateMessageRequest saveOrUpdateMessageRequest, HttpServletRequest request);
 
-    AnalyseUserVo analyseUser(HttpServletRequest request);
+    Long analyseUser(HttpServletRequest request);
 
-    AnalysePictureVo analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest);
+    //    AnalysePictureVo analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest);
+    Long analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest);
+//    AnalysePictureVo analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest);
+
     GetUserInfoVo getUserInfo(HttpServletRequest request);
 }
