@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zkm.forum.mapper.FitnessAnalyseMapper">
+
+    <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.FitnessAnalyse">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="fitnessId" column="fitnessId" jdbcType="BIGINT"/>
+        <result property="fitnessImageId" column="fitnessImageId" jdbcType="BIGINT"/>
+        <result property="calorie" column="calorie" jdbcType="DECIMAL"/>
+        <result property="protein" column="protein" jdbcType="DECIMAL"/>
+        <result property="carbohydrate" column="carbohydrate" jdbcType="DECIMAL"/>
+        <result property="fat" column="fat" jdbcType="DECIMAL"/>
+        <result property="time" column="time" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="targetComplete" column="targetComplete" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userId,fitnessId,
+        fitnessImageId,calorie,protein,
+        carbohydrate,fat,time,
+        status
+    </sql>
+</mapper>

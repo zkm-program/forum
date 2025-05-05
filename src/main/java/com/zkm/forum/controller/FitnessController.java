@@ -33,7 +33,6 @@ public class FitnessController {
     @ApiOperation("新增或修改基本信息")
     @PostMapping("/saveOrUpdate")
     public BaseResponse<Long> saveOrUpdateMessage(@RequestBody SaveOrUpdateMessageRequest saveOrUpdateMessageRequest, HttpServletRequest request) {
-        System.out.println(fitnessService.saveOrUpdateMessage(saveOrUpdateMessageRequest, request));
         return ResultUtils.success(fitnessService.saveOrUpdateMessage(saveOrUpdateMessageRequest, request));
     }
 

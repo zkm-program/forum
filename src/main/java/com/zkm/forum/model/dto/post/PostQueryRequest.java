@@ -13,6 +13,9 @@ public class PostQueryRequest extends PageRequest {
      * 关键字搜索
      */
     private String keyWords;
+    /**
+     * 帖子主键
+     */
     private Long id;
     private String title;
     private List<String> tags;

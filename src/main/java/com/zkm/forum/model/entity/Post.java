@@ -8,27 +8,21 @@ import java.util.Date;
 
 /**
  * 帖子
- *
  * @TableName post
  */
-@TableName(value = "post")
+@TableName(value ="post")
 @Data
 public class Post implements Serializable {
     /**
      * id
      */
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 标题
      */
     private String title;
-
-    /**
-     * 0-没有，1-被举报
-     */
-    private int isReported;
 
     /**
      * 内容
@@ -46,15 +40,9 @@ public class Post implements Serializable {
     private Integer thumbNum;
 
     /**
-     * 收藏数
-     */
-    private Integer favourNum;
-
-    /**
      * 创建用户 id
      */
     private Long userId;
-    private Double viewCount;
 
     /**
      * 创建时间
@@ -106,10 +94,52 @@ public class Post implements Serializable {
      * 原文链接
      */
     private String original_url;
+
+    /**
+     * 浏览量
+     */
+    private Integer viewCount;
+
+    /**
+     * 0是没被举报，1是被举报了
+     */
+    private Integer isReported;
+
+    /**
+     * 被举报原因
+     */
     private String reportResults;
+
+    /**
+     * 举报用户id
+     */
     private Long reportUserId;
+
+    /**
+     * 问题id
+     */
+    private Long questionId;
+
+    /**
+     * 文章评论数
+     */
+    private Integer commentCount;
+
+    /**
+     * 收藏数
+     */
+    private Integer favourNum;
+
+    /**
+     * 作者姓名
+     */
     private String authorName;
+
+    /**
+     * 作者头像
+     */
     private String authorAvatar;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

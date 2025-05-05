@@ -9,10 +9,7 @@ import com.zkm.forum.service.PostFavourService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +34,7 @@ public class PostFavourController {
      * @return
      */
     @ApiOperation("查看收藏的帖子")
-    @PostMapping("/listMyPostFavour")
+    @GetMapping("/listMyPostFavour")
     BaseResponse<List<ListMyPostFavourVo>> listMyPostFavourVo(HttpServletRequest request){
         return ResultUtils.success(postFavourService.listMyPostFavourVo(request));
     }

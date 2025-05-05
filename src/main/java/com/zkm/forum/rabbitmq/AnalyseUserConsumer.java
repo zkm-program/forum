@@ -67,6 +67,8 @@ public class AnalyseUserConsumer {
             channel.basicNack(deliveryTag, false, false);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片状态更新失败");
         }
+        // todo 这样ack对吗？
+        channel.basicAck(deliveryTag, false);
     }
 
     private BigDecimal extractNumber(String input) {

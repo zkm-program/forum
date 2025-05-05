@@ -16,4 +16,5 @@ public class GetUserInfoVo {
     private BigDecimal proteinTarget;
     private BigDecimal carbohydrateTarget;
     private BigDecimal fatTarget;
+    private int status;
 }

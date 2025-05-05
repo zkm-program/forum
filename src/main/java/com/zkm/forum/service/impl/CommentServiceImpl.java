@@ -24,6 +24,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +57,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 //    @Resource
 //    private CommentService commentService;
 
+
     @Override
     public Boolean saveComment(SaveCommentRequest saveCommentRequest, HttpServletRequest request) {
         Long postId = saveCommentRequest.getPostId();
@@ -80,7 +82,13 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "发布失败，请稍后再试");
         }
-        CompletableFuture.runAsync(() -> notice(loginUser, comment));
+        CompletableFuture.runAsync(() -> {
+            notice(loginUser, comment);
+            boolean update = postService.update().eq("id", postId).setSql("commentNum = commentNum + 1").update();
+            if(!update){
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "评论数增加失败");
+            }
+        });
         return result;
     }
 

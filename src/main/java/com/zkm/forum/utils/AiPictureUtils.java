@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class AiPictureUtils {
-    private static final String HOST_URL = "https://spark-api.cn-huabei-1.xf-yun.com/v2.1/image";
+    private static final String HOST_URL = " ";
     private static final String appId = " ";
     private static final String apiSecret = " ";
-    private static final String apiKey = "";
+    private static final String apiKey = " ";
 
     public String analyzeImage(String description, String pictureUrl) throws Exception {
         String authUrl = getAuthUrl(HOST_URL, apiKey, apiSecret);
@@ -100,7 +100,26 @@ public class AiPictureUtils {
             // 添加描述和问题
             RoleContent textContent = new RoleContent();
             textContent.role = "user";
-            textContent.content = "【强制指令】作为营养分析AI，你必须严格按以下模板返回数据：\n" + "||卡路里||数值kcal/100g||\n" + "||蛋白质||数值g/100g||\n" + "||脂肪||数值g/100g||\n" + "||碳水化合物||数值g/100g||\n" + "规则：\n" + "1. 使用||作为分隔符\n" + "2. 仅返回这4行数据\n" + "3. 数值保留1位小数\n" + "4. 无法检测时用NA表示\n" + "5. 不要任何解释性文字\n" + "示例：\n" + "||卡路里||350.5kcal/100g||\n" + "||蛋白质||12.0g/100g||\n" + "||脂肪||8.5g/100g||\n" + "||碳水化合物||45.2g/100g||";
+            textContent.content = "【强制指令】作为营养分析AI，通过分析图片中的食物或者配料表按照格式返回结果,下方是是图片描述:\n"
+                    + description + "\n"
+                    + "按以下格式返回，注意【【【【把返回的结果分成了四组，仅包含数字和单位，不要任何额外文字：\n" +
+                    "【【【【\n" +
+                    "卡路里:[计算结果]卡路里\n" +
+                    "【【【【\n" +
+                    "蛋白质:[计算结果]克\n" +
+                    "【【【【\n" +
+                    "碳水化合物:[计算结果]克\n" +
+                    "【【【【\n" +
+                    "脂肪:[计算结果]克\n" +
+                    "期望输出\n" +
+                    "【【【【\n" +
+                    "卡路里:658卡路里\n" +
+                    "【【【【\n" +
+                    "蛋白质:100克\n" +
+                    "【【【【\n" +
+                    "碳水化合物:200克\n" +
+                    "【【【【\n" +
+                    "脂肪:50克";
 //            textContent.content="分析图片中的食物名字，直接回答，不需要解释";
             textContent.content_type = "text";
             text.add(JSON.toJSON(textContent));
@@ -146,11 +165,28 @@ public class AiPictureUtils {
         }
 
         private byte[] readFile(String path) throws IOException {
-            return Files.readAllBytes(Paths.get(path));
+            if (path.startsWith("http://") || path.startsWith("https://")) {
+                // 如果是远程 URL，调用下载方法
+                return downloadImageFromUrl(path);
+            } else {
+                // 否则按本地文件路径处理
+                return Files.readAllBytes(Paths.get(path));
+            }
+        }
+
+        // 新增方法：从远程 URL 下载图片
+        private byte[] downloadImageFromUrl(String imageUrl) throws IOException {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(imageUrl).build();
+            try (Response response = client.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Failed to download image from URL: " + imageUrl);
+                }
+                return Objects.requireNonNull(response.body()).bytes();
+            }
         }
     }
 
-    // ... getAuthUrl() 和其他辅助方法 ...
     // 鉴权方法
     public static String getAuthUrl(String hostUrl, String apiKey, String apiSecret) throws Exception {
         URL url = new URL(hostUrl);

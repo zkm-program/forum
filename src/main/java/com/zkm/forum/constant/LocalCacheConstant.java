@@ -5,6 +5,7 @@ public interface LocalCacheConstant {
      * 每个用户的姓名
      */
     String USERID_USERNAME="user:name";
+    String USERID_USERAVATAR="user:avatar";
     /**
      * 每个帖子的收藏量
      */

@@ -68,15 +68,15 @@ public class PreCacheJob {
                 .id(post.getId())
                 .thumbNum(post.getThumbNum())
                 .favourNum(post.getFavourNum())
-                .authorName(LOCAL_CACHE.getIfPresent(USERID_USERNAME))
                 .original_url(post.getOriginal_url())
                 .is_top(post.getIs_top())
                 .is_featured(post.getIs_featured())
                 .createTime(post.getCreateTime())
                 .updateTime(post.getUpdateTime())
                 .article_abstract(post.getArticle_abstract())
-                .userAvatar(post.getAuthorAvatar())
+                .authorAvatar(post.getAuthorAvatar())
                 .authorName(post.getAuthorName())
+                .commentCount(post.getCommentCount())
                 .build()).toList();
 
     }

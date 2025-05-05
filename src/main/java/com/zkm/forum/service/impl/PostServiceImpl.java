@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.exception.BusinessException;
@@ -104,6 +105,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         BeanUtils.copyProperties(addPostRequest, post);
         String tagStr = JSONUtil.toJsonStr(tags);
         post.setTags(tagStr);
+        if(content.length()>15){
+            post.setArticle_abstract(content.substring(0, 15));
+        }
         if (id != null) {
             Post updatePost = this.getById(id);
             if (!loginuser.getId().equals(updatePost.getUserId()) || !loginuser.getUserRole().equals(UserRoleEnum.ADMIN.getValue())) {
@@ -112,13 +116,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         }
         post.setUserId(loginuser.getId());
         post.setAuthorName(loginuser.getUserName());
+        post.setAuthorAvatar(loginuser.getUserAvatar());
         boolean result = this.saveOrUpdate(post);
-        if (result&&id==null) {
+        if (result && id == null) {
             FollowUserRequest followUserRequest = new FollowUserRequest();
             followUserRequest.setArticleName(title);
             followUserRequest.setUserId(loginuser.getId());
             followUserRequest.setUserName(loginuser.getUserName());
-            rabbitTemplate.convertAndSend(FOLLOW_EXCHANGE,FOLLOW_USER_ROUTINGKEY, new Message(JSON.toJSONBytes(followUserRequest), new MessageProperties()));
+            rabbitTemplate.convertAndSend(FOLLOW_EXCHANGE, FOLLOW_USER_ROUTINGKEY, new Message(JSON.toJSONBytes(followUserRequest), new MessageProperties()));
             return result;
         } else {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "发布失败请稍后再试");
@@ -145,17 +150,28 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         return searchStrategyContext.postExcuteSearchStrategy(postSearchRequest.getKeyWords());
     }
 
+    // todo hot-key实现，当前缓存内容存的地方是内存，需要把缓存内容移到redis中，而不是内存。
     @Override
     public PostVo getPostById(Long id, HttpServletRequest httpServletRequest) {
         if (id == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该文章不存在");
         }
         PostVo postVo = new PostVo();
+//        String key = "post_detail_" + id;
+//        if (JdHotKeyStore.isHotKey(key)) {
+//            Object postDetail = JdHotKeyStore.get(key);
+//            if (postDetail != null) {
+//                BeanUtils.copyProperties(postDetail, postVo);
+//                return postVo;
+//            }
+//        }
         Post post = this.getById(id);
         BeanUtils.copyProperties(post, postVo);
         postVo.setTags(JSONUtil.toList(JSONUtil.parseArray(post.getTags()), String.class));
         updatePostViewCount(id);
+//        JdHotKeyStore.smartSet(key, postVo);
         User loginuser = userService.getLoginUser(httpServletRequest);
+        post.setUserId(loginuser.getId());
         CompletableFuture.runAsync(() -> {
             try {
                 Long loginUserId = loginuser.getId();
@@ -203,7 +219,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         try {
             Set<String> readPostIds = strngredisTemplate.opsForSet().members(readKey).stream().map(obj -> JSONUtil.toJsonStr(obj)).collect(Collectors.toSet());
             Long expire = strngredisTemplate.getExpire(userCommendKey, TimeUnit.SECONDS);
-            if (expire < 60) {
+            if (expire < 200) {
                 postCommendVoForRedis = getPostCommendVoForRedis(userCommendKey, tags.get(0), readPostIds);
                 return postCommendVoForRedis;
             }
@@ -211,8 +227,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             log.error(e.getMessage());
         }
         List<PostVo> postVos = new ArrayList<>();
-        List<String> range = strngredisTemplate.opsForList().range(userCommendKey, 0, -1).stream().map(obj -> JSONUtil.toJsonStr(obj)) // 直接转换（因配置了JSON序列化）
-                .collect(Collectors.toList());
+        List<String> range = Objects.requireNonNull(strngredisTemplate.opsForList().range(userCommendKey, 0, -1)).stream().map(JSONUtil::toJsonStr) // 直接转换（因配置了JSON序列化）
+                .toList();
         postVos = range.stream().map(obj -> JSONUtil.toBean(obj, PostVo.class)).collect(Collectors.toList());
         return postVos;
 //        return redisUtils.getList(userCommendKey, PostVo.class);
@@ -223,8 +239,18 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     public Page<Post> listPostForAdmin(PostQueryRequest postQueryRequest) {
         int current = postQueryRequest.getCurrent();
         int pageSize = postQueryRequest.getPageSize();
+        Long id = postQueryRequest.getId();
+        String key = "post_detail_" + id;
+        if (JdHotKeyStore.isHotKey(key)) {
+            Object cachePostAdmin = JdHotKeyStore.get(key);
+            if (cachePostAdmin != null) {
+                return JSONUtil.toBean(JSONUtil.toJsonStr(cachePostAdmin), Page.class);
+            }
+        }
         Page<Post> postPage = new Page<>(current, pageSize);
-        return this.page(postPage, getQuerWrapper(postQueryRequest));
+        Page<Post> page = this.page(postPage, getQuerWrapper(postQueryRequest));
+        JdHotKeyStore.smartSet(key, page);
+        return page;
     }
 
     @Override
@@ -297,7 +323,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             boolQueryBuilder.should(QueryBuilders.matchQuery("content", content));
             boolQueryBuilder.minimumShouldMatch(1);
         }
-        if (tags!=null) {
+        if (tags != null) {
             for (String tag : tags) {
                 boolQueryBuilder.filter(QueryBuilders.termQuery("tags", tag));
             }
@@ -355,13 +381,33 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     }
 
 
+    // todo 存在问题:存到redis中的数据类型的属性和postVo的属性不一致
     private List<PostVo> getPostCommendVoForRedis(String userCommendKey, String tag, Set<String> readPostIds) {
 
         List<PostVo> recommendPostVolist = null;
         QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
         postQueryWrapper.apply("JSON_CONTAINS(tags, {0})", "\"" + tag.replace("\"", "\\\"") + "\"").notIn(!readPostIds.isEmpty(), "id", readPostIds).last("LIMIT 3");
         List<Post> recommendPostList = this.list(postQueryWrapper);
-        recommendPostVolist = recommendPostList.stream().map(recommendPost -> PostVo.builder().is_featured(recommendPost.getIs_featured()).is_top(recommendPost.getIs_top()).original_url(recommendPost.getOriginal_url()).createTime(recommendPost.getCreateTime()).favourNum(recommendPost.getFavourNum()).content(recommendPost.getContent()).tags(JSONUtil.toList(JSONUtil.parseArray(recommendPost.getTags()), String.class)).status(recommendPost.getStatus()).thumbNum(recommendPost.getThumbNum()).title(recommendPost.getTitle()).id(recommendPost.getId()).build()).toList();
+        recommendPostVolist = recommendPostList.stream().map(recommendPost -> PostVo.builder()
+                .is_featured(recommendPost.getIs_featured())
+                .is_top(recommendPost.getIs_top())
+                .original_url(recommendPost.getOriginal_url())
+                .createTime(recommendPost.getCreateTime())
+                .favourNum(recommendPost.getFavourNum())
+                .content(recommendPost.getContent())
+                .tags(JSONUtil.toList(JSONUtil.parseArray(recommendPost.getTags()), String.class))
+                .status(recommendPost.getStatus())
+                .thumbNum(recommendPost.getThumbNum())
+                .title(recommendPost.getTitle())
+                .id(recommendPost.getId())
+                .authorAvatar(recommendPost.getAuthorAvatar())
+                .authorName(recommendPost.getAuthorName())
+                .updateTime(recommendPost.getUpdateTime())
+                .article_abstract(recommendPost.getArticle_abstract())
+                .commentCount(recommendPost.getCommentCount())
+                .userId(recommendPost.getUserId()).build())
+
+                .toList();
         recommendPostVolist.forEach(postVo -> strngredisTemplate.opsForList().rightPush(userCommendKey, JSONUtil.toJsonStr(postVo)));
         strngredisTemplate.expire(userCommendKey, 5, TimeUnit.MINUTES);
 

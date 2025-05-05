@@ -101,7 +101,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
         User loginUser = userService.getLoginUser(request);
         QueryWrapper<PostFavour> postFavourQueryWrapper = new QueryWrapper<>();
         postFavourQueryWrapper.select("postId");
-        postFavourQueryWrapper.eq("postId",loginUser.getId());
+        postFavourQueryWrapper.eq("userId",loginUser.getId());
         List<PostFavour> postFavourlist = this.list(postFavourQueryWrapper);
         List<Long> postIdList = postFavourlist.stream().map(PostFavour::getPostId).toList();
         List<ListMyPostFavourVo> listMyPostFavourVos = postService.listByIds(postIdList).stream().map(this::postToListMyPostFavourVo).toList();
@@ -109,10 +109,13 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     }
     private ListMyPostFavourVo postToListMyPostFavourVo(Post post){
         ListMyPostFavourVo listMyPostFavourVo = new ListMyPostFavourVo();
-        listMyPostFavourVo.setPostId(post.getId());
+        listMyPostFavourVo.setId(post.getId());
         listMyPostFavourVo.setTitle(post.getTitle());
         listMyPostFavourVo.setTags(JSONUtil.toList(post.getTags(),String.class));
         listMyPostFavourVo.setFavourNum(post.getFavourNum());
+        listMyPostFavourVo.setAuthorAvatar(post.getAuthorAvatar());
+        listMyPostFavourVo.setAuthorName(post.getAuthorName());
+        listMyPostFavourVo.setThumbNum(post.getThumbNum());
         return listMyPostFavourVo;
     }
 

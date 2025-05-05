@@ -26,4 +26,8 @@ public class UserRegisterRequest implements Serializable {
      * 被邀请人ID
      */
     private Long inviteeId;
+    /**
+     * 用户头像
+     */
+//    private String userAvatar;
 }

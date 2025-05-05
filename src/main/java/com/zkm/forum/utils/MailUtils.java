@@ -20,6 +20,7 @@ import java.util.Set;
  * @Description: 邮件工具类
  * @date 2023/7/22 14:15
  */
+// todo 一个邮箱发邮件吃力，我可以多个邮箱【网易，qq，电信】发邮件
 @Log4j2
 public class MailUtils {
 

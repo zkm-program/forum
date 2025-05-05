@@ -1,7 +1,10 @@
 package com.zkm.forum.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.zkm.forum.common.ErrorCode;
+import com.zkm.forum.constant.JdHotKeyConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.FitnessMapper;
 import com.zkm.forum.model.dto.aixinghuo.AiXinghuoPictureRequest;
@@ -17,6 +20,7 @@ import com.zkm.forum.service.FitnessService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.utils.AIUtils;
 import com.zkm.forum.utils.AiPictureUtils;
+import com.zkm.forum.utils.RedisLimiterUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 
 import static com.zkm.forum.constant.RabbitMqConstant.*;
+import static com.zkm.forum.constant.JdHotKeyConstant.*;
 
 /**
  * @author 张凯铭
@@ -44,7 +49,8 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
     private FitnessImageService fitnessImageService;
     @Resource
     private RabbitTemplate rabbitTemplate;
-
+    @Resource
+    private RedisLimiterUtils redisLimiterUtils;
     AiPictureUtils aiPictureUtils = new AiPictureUtils();
 
     @Override
@@ -65,10 +71,13 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         // todo 前端传过来的最好是固定样式的如下类型【每周减脂0.5g】
         fitness.setTarget(saveOrUpdateMessageRequest.getTarget());
         fitness.setUserAvatar(loginUser.getUserAvatar());
-        boolean result = this.saveOrUpdate(fitness);
+        // todo 一次请求却插入两次
+        boolean result = this.save(fitness);
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "操作失败，稍后再试");
         }
+        loginUser.setFitnessId(fitness.getId());
+        userService.updateById(loginUser);
 // 新增时重新查询确保ID正确
 //        if (!flag) {
 //            Fitness savedFitness = this.getById(fitness.getId());
@@ -121,6 +130,7 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         User loginUser = userService.getLoginUser(request);
         Fitness fitness = this.getById(loginUser.getFitnessId());
         fitness.setStatus(0);
+        redisLimiterUtils.doRateLimit("analseUser"+loginUser.getId());
         boolean result = this.updateById(fitness);
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改fitness状态失败");
@@ -163,6 +173,8 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         fitnessImage.setFitnessId(request.getFitnessId());
         fitnessImage.setFoodName(request.getFoodName());
         fitnessImage.setCount(1);
+        User loginUser = userService.getLoginUser(userRequest);
+        redisLimiterUtils.doRateLimit("analysePicture"+loginUser.getId());
         boolean save = fitnessImageService.save(fitnessImage);
         if (!save) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "操作失败请稍后再试");
@@ -175,6 +187,16 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
     public GetUserInfoVo getUserInfo(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         Fitness fitness = new Fitness();
+        if(loginUser.getFitnessId()==null){
+            throw new BusinessException(ErrorCode.OPERATION_ERROR,"点击右下角加号，完善个人信息");
+        }
+        String key= FITNESS_USER_INFO +loginUser.getId();
+        if(JdHotKeyStore.isHotKey(key)){
+            Object object = JdHotKeyStore.get(key);
+            if(object!=null){
+                return JSONUtil.toBean(JSONUtil.toJsonStr(object), GetUserInfoVo.class);
+            }
+        }
         if (ObjectUtils.isNotEmpty(loginUser.getFitnessId())) {
             fitness = this.getById(loginUser.getFitnessId());
         }
@@ -188,7 +210,9 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
             getUserInfoVo.setProteinTarget(fitness.getProteinTarget());
             getUserInfoVo.setCarbohydrateTarget(fitness.getCarbohydrateTarget());
             getUserInfoVo.setFatTarget(fitness.getFatTarget());
+            getUserInfoVo.setStatus(fitness.getStatus());
         }
+        JdHotKeyStore.smartSet(key, getUserInfoVo);
         return getUserInfoVo;
     }
 

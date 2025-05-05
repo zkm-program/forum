@@ -8,7 +8,10 @@ import java.util.List;
 @Data
 public class ListMyPostFavourVo {
 
-    private Long postId;
+    /**
+     * 文章主键
+     */
+    private Long id;
     /**
      * 标题
      */
@@ -21,5 +24,8 @@ public class ListMyPostFavourVo {
      * 收藏数
      */
     private Integer favourNum;
+    private String authorAvatar;
+    private String authorName;
+    private int thumbNum;
 
 }

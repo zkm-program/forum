@@ -21,6 +21,7 @@ public class UserFollowController {
     @Resource
     private UserFollowService userFollowService;
 
+    // todo 关注已经关注过的用户提示：已经关注了该用户
     @ApiOperation("关注某个用户")
     @GetMapping("/user/{followerId}")
     public BaseResponse<Integer> doFollowUser(@PathVariable("followerId") Long followerId, HttpServletRequest request) {

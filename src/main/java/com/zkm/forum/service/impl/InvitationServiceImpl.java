@@ -27,7 +27,7 @@ public class InvitationServiceImpl extends ServiceImpl<InvitationMapper, Invitat
 //    UserService userService;
     @Override
     public String getInviteLink(User loginUser) {
-        return "https://localhost:8101/api/user/register?inviterId=" + loginUser.getId();
+        return "http://localhost:3000/user/regist?inviterId=" + loginUser.getId();
     }
 
     @Override

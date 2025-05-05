@@ -12,4 +12,7 @@ public interface RabbitMqConstant {
     String ANALYSE_USER_QUEUE = "analyse:user:queue";
     String ANALYSE_USER_EXCHANGE = "analyse:user:exchange";
     String ANALYSE_USER_ROUTINGKEY = "analyse:user:routingkey";
+    String Match_USER_BYTAGS_EXCHANGE = "match:user:bytags:exchange";
+    String Match_USER_BYTAGS_QUEUE = "match:user:bytags:queue";
+    String Match_USER_BYTAGS_ROUTINGKEY = "match:user:bytags:routingkey";
 }

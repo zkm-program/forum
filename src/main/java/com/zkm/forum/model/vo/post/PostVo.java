@@ -20,7 +20,11 @@ import java.util.List;
 public class PostVo implements Serializable {
 
 
+    /**
+     * 帖子主键
+     */
     private Long id;
+    private Long userId;
     private String title;
     private Double viewCount;
     private String content;
@@ -28,6 +32,7 @@ public class PostVo implements Serializable {
     private Integer thumbNum;
     private Integer favourNum;
     private String authorName;
+    private String authorAvatar;
     private Date createTime;
     private Date updateTime;
     private Integer status;
@@ -35,8 +40,5 @@ public class PostVo implements Serializable {
     private Integer is_top;
     private Integer is_featured;
     private String original_url;
-    /**
-     * 用户头像
-     */
-    private String userAvatar;
+    private int commentCount;
 }

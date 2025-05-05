@@ -23,7 +23,7 @@ import java.util.Map;
 public interface UserService extends IService<User> {
     Long userRegister(UserRegisterRequest userRegisterRequest);
 
-    void sendCode(String userQqEmail);
+    Boolean sendCode(String userQqEmail);
 
     User getLoginUser(HttpServletRequest request);
 

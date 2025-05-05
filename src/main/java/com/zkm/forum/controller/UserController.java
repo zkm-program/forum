@@ -83,12 +83,12 @@ public class UserController {
      * @param userQqEmail
      */
     @ApiOperation("发送验证码")
-    @PostMapping("/sendcode")
-    public void sendCode(String userQqEmail) {
+    @GetMapping("/sendcode/{userQqEmail}")
+    public BaseResponse<Boolean> sendCode(@PathVariable("userQqEmail") String userQqEmail) {
         if (userQqEmail == null || userQqEmail.isEmpty()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "qq邮箱不能为空");
         }
-        userService.sendCode(userQqEmail);
+      return ResultUtils.success(userService.sendCode(userQqEmail));
     }
 
     /**
@@ -168,8 +168,9 @@ public class UserController {
 
     @ApiOperation("用户退出登录")
     @PostMapping("/logout")
-    public void logout(HttpServletRequest httpServletRequest) {
+    public BaseResponse<Boolean> logout(HttpServletRequest httpServletRequest) {
         httpServletRequest.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+        return ResultUtils.success(true);
     }
 
     @ApiOperation("举报用户")
@@ -182,7 +183,7 @@ public class UserController {
     @PostMapping("/upload")
     public BaseResponse<String> upload(MultipartFile multipartFile,HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
-        String path="avator/"+loginUser.getId()+"/";
+        String path="avatar/"+loginUser.getId()+"/";
         return ResultUtils.success(uploadStrategyContext.executeUploadStrategy(multipartFile, path));
     }
 

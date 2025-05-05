@@ -5,6 +5,9 @@ import lombok.Data;
 import java.util.List;
 @Data
 public class MatchUserVo {
+    /**
+     * 匹配到的用户主键
+     */
     private Long id;
     private String userName;
     private List<String> tags;

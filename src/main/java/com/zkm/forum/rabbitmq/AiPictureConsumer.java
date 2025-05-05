@@ -21,6 +21,9 @@ import java.math.BigDecimal;
 
 import static com.zkm.forum.constant.RabbitMqConstant.AI_PICTURE_QUEUE;
 
+
+
+// todo 如果队列传过来的消息，我消费者没有ack，这时候消息会在队列中堆积占用资源，需要优化。还有什么重试机制【消费者和生产者】
 @Slf4j
 @Component
 public class AiPictureConsumer {
@@ -48,18 +51,26 @@ public class AiPictureConsumer {
             channel.basicNack(deliveryTag, false, false);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片状态更新失败");
         }
-        String s = aiPictureUtils.analyzeImage(fitnessImage.getDescription(), fitnessImage.getPictureUrl());
-        String[] split = s.split("【【【【");
-        fitnessImage.setCalorie(extractNumber(split[1]));
-        fitnessImage.setProtein(extractNumber(split[2]));
-        fitnessImage.setCarbohydrate(extractNumber(split[3]));
-        fitnessImage.setFat(extractNumber(split[4]));
-        fitnessImage.setType(2);
-        boolean result = fitnessImageService.updateById(fitnessImage);
-        if(!result){
-            channel.basicNack(deliveryTag, false, false);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片状态更新失败");
+        try{
+            String s = aiPictureUtils.analyzeImage(fitnessImage.getDescription(), fitnessImage.getPictureUrl());
+            String[] split = s.split("【【【【");
+            fitnessImage.setCalorie(extractNumber(split[1]));
+            fitnessImage.setProtein(extractNumber(split[2]));
+            fitnessImage.setCarbohydrate(extractNumber(split[3]));
+            fitnessImage.setFat(extractNumber(split[4]));
+            fitnessImage.setType(2);
+            boolean result = fitnessImageService.updateById(fitnessImage);
+            if(!result){
+                channel.basicNack(deliveryTag, false, false);
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片状态更新失败");
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+            e.printStackTrace();
         }
+
+        // todo 这样ack对吗？
+        channel.basicAck(deliveryTag, false);
     }
     // 方法：提取字符串中的数字部分
     private BigDecimal extractNumber(String input) {

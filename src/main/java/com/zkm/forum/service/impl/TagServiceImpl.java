@@ -1,7 +1,9 @@
 package com.zkm.forum.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.TagMapper;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.zkm.forum.constant.JdHotKeyConstant.PUBLIC_TAGS;
 
 /**
  * @author 张凯铭
@@ -54,6 +58,13 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
 
     @Override
     public List<ListTagsForAdminVo> listTagsForAdminVo() {
+        String key=PUBLIC_TAGS;
+        if(JdHotKeyStore.isHotKey(key)){
+            Object object = JdHotKeyStore.get(key);
+            if(object!=null){
+                return JSONUtil.toList(JSONUtil.toJsonStr(object), ListTagsForAdminVo.class);
+            }
+        }
         QueryWrapper<Tag> parentQueryWrapper = new QueryWrapper<>();
         parentQueryWrapper.eq("isParent",1);
         List<Tag> parentTagList = this.list(parentQueryWrapper);
@@ -75,7 +86,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         for(ListTagsForAdminVo listParentTagsForAdminVo:listParentTagsForAdminVos){
             listParentTagsForAdminVo.setList(listChildrenTagsForAdminVos.stream().filter(listChildrenTagsForAdminVo->listChildrenTagsForAdminVo.getParentTagName().equals(listParentTagsForAdminVo.getTageName())).toList());
         }
-
+        JdHotKeyStore.smartSet(key,listParentTagsForAdminVos);
         return listParentTagsForAdminVos;
     }
 

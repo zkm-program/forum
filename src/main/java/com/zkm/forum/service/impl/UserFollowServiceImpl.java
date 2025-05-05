@@ -89,8 +89,8 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
         for (User user : userList) {
             ListUserFollowVo userFollowVo = new ListUserFollowVo();
             userFollowVo.setUserId(user.getId());
-            userFollowVo.setUserName(user.getUserName());
-            userFollowVo.setUserAvatar(user.getUserAvatar());
+            userFollowVo.setAuthorName(user.getUserName());
+            userFollowVo.setAuthorAvatar(user.getUserAvatar());
             userFollowVo.setIntroduction(user.getIntroduction());
             listUserFollowVos.add(userFollowVo);
         }

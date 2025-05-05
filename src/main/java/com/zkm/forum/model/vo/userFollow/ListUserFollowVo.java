@@ -11,11 +11,11 @@ public class ListUserFollowVo {
     /**
      * 用户姓名
      */
-    private String userName;
+    private String authorName;
     /**
      * 用户头像
      */
-    private String userAvatar;
+    private String authorAvatar;
     /**
      * 用户介绍
      */
