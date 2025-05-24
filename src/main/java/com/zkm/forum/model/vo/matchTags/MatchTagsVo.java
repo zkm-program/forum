@@ -1,28 +1,22 @@
-package com.zkm.forum.model.entity;
+package com.zkm.forum.model.vo.matchTags;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 标签匹配结果历史记录
- * @TableName match_tags
- */
-@TableName(value ="match_tags")
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MatchTags implements Serializable {
+public class MatchTagsVo {
     /**
      * id
      */
@@ -47,7 +41,7 @@ public class MatchTags implements Serializable {
     /**
      * 被匹配到的用户标签
      */
-    private String tags;
+    private List<String> tags;
 
     /**
      * 创建时间
@@ -91,4 +85,5 @@ public class MatchTags implements Serializable {
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
 }

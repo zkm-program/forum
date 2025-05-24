@@ -4,14 +4,20 @@ package com.zkm.forum.strategy.impl;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.constant.CommonConstant;
+import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.PostMapper;
+import com.zkm.forum.model.dto.post.PostSearchRequest;
 import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.post.PostSearchVo;
+import com.zkm.forum.service.PostService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.strategy.PostSearchStrategy;
+import com.zkm.forum.utils.CounterUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -19,6 +25,7 @@ import java.util.ArrayList;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
 
@@ -31,10 +38,12 @@ public class PostMysqlPostSearchImpl implements PostSearchStrategy {
     UserService userService;
     @Resource
     private Cache<String, String> LOCAL_CACHE;
-
-
+    // todo 需要修改成分页
     @Override
-    public List<PostSearchVo> searchPost(String keyWords) {
+    public List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest) {
+        String keyWords = postSearchRequest.getKeyWords();
+        int current = postSearchRequest.getCurrent();
+        int pageSize = postSearchRequest.getPageSize();
         if (keyWords.isBlank()) {
             return new ArrayList<>();
         }
@@ -44,10 +53,17 @@ public class PostMysqlPostSearchImpl implements PostSearchStrategy {
                 .like("content", keyWords).or()
                 //只要标签【Json字符串】中包含搜索词，就会被返回
                 .apply("JSON_CONTAINS(tags, {0})", "\"" + keyWords.replace("\"", "\\\"") + "\"");
+
+
+                //只要标签【Json字符串】中包含搜索词，就会被返回
+
 //        postSearchVoQueryWrapper.like("title", keyWords)
 //                .or()
 //                .like("content", keyWords);
-        List<Post> posts = postMapper.selectList(postSearchVoQueryWrapper);
+        // 分页查询无法实现
+        Page<Post> pagePost = postMapper.selectPage(new Page<>(current,pageSize), postSearchVoQueryWrapper);
+        List<Post> posts = pagePost.getRecords();
+//        List<Post> posts = postMapper.selectList(postSearchVoQueryWrapper);
         return posts.stream().map(post -> {
                     PostSearchVo postSearchVo = new PostSearchVo();
                     boolean lowerCase = true;
@@ -113,4 +129,8 @@ public class PostMysqlPostSearchImpl implements PostSearchStrategy {
 
         ).toList();
     }
+
+
+
+
 }

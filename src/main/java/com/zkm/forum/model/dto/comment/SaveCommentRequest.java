@@ -33,5 +33,9 @@ public class SaveCommentRequest {
      * 发表评论用户id
      */
     private Long userId;
+    /**
+     * 最顶层的评论id
+     */
+    private Long topCommentId;
 
 }

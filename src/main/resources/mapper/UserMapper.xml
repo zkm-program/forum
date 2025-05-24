@@ -5,27 +5,30 @@
 <mapper namespace="com.zkm.forum.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.User">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userName" column="userName" jdbcType="VARCHAR"/>
-            <result property="tags" column="tags" jdbcType="VARCHAR"/>
-            <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
-            <result property="matchCount" column="matchCount" jdbcType="INTEGER"/>
-            <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
-            <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
-            <result property="gender" column="gender" jdbcType="VARCHAR"/>
-            <result property="userQqEmail" column="userQqEmail" jdbcType="VARCHAR"/>
-            <result property="isReported" column="isReported" jdbcType="TINYINT"/>
-            <result property="reportUserId" column="reportUserId" jdbcType="BIGINT"/>
-            <result property="reportResults" column="reportResults" jdbcType="VARCHAR"/>
-            <result property="superMatchCount" column="superMatchCount" jdbcType="INTEGER"/>
-            <result property="longitude" column="longitude" jdbcType="DECIMAL"/>
-            <result property="dimension" column="dimension" jdbcType="DECIMAL"/>
-            <result property="fitnessId" column="fitnessId" jdbcType="BIGINT"/>
-            <result property="followerCount" column="followerCount" jdbcType="INTEGER"/>
-            <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userName" column="userName" jdbcType="VARCHAR"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+        <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
+        <result property="matchCount" column="matchCount" jdbcType="INTEGER"/>
+        <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="userQqEmail" column="userQqEmail" jdbcType="VARCHAR"/>
+        <result property="isReported" column="isReported" jdbcType="TINYINT"/>
+        <result property="reportUserId" column="reportUserId" jdbcType="BIGINT"/>
+        <result property="reportResults" column="reportResults" jdbcType="VARCHAR"/>
+        <result property="superMatchCount" column="superMatchCount" jdbcType="INTEGER"/>
+        <result property="longitude" column="longitude" jdbcType="DECIMAL"/>
+        <result property="dimension" column="dimension" jdbcType="DECIMAL"/>
+        <result property="fitnessId" column="fitnessId" jdbcType="BIGINT"/>
+        <result property="followerCount" column="followerCount" jdbcType="INTEGER"/>
+        <result property="introduction" column="introduction" jdbcType="VARCHAR"/>
+        <result property="analyseUserCount" column="analyseUserCount" jdbcType="INTEGER"/>
+        <result property="analysePictureCount" column="analysePictureCount" jdbcType="INTEGER"/>
+        <result property="thumbnailAvatarUrl" column="thumbnailAvatarUrl" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">

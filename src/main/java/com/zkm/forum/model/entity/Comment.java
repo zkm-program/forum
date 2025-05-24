@@ -64,6 +64,14 @@ public class Comment implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+    /**
+     * 是否有子评论，0-没有，1-有
+     */
+    private int hasChildComment;
+    /**
+     * 最顶层的评论id
+     */
+    private Long topCommentId;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

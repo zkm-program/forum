@@ -1,9 +1,11 @@
 package com.zkm.forum.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.CommentMapper;
@@ -36,6 +38,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.zkm.forum.constant.JdHotKeyConstant.CHILD_COMMENT;
+import static com.zkm.forum.constant.JdHotKeyConstant.PARENT_COMMENT;
 import static com.zkm.forum.constant.MentionConstant.COMMENT_MENTION;
 import static com.zkm.forum.constant.RabbitMqConstant.EMAIL_EXCHANGE;
 
@@ -66,12 +70,19 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         Long parentId = saveCommentRequest.getParentId();
         Integer isReview = saveCommentRequest.getIsReview();
         Long userId = saveCommentRequest.getUserId();
+        Long topCommentId = saveCommentRequest.getTopCommentId();
         Post post = postService.getById(postId);
         User loginUser = userService.getLoginUser(request);
+
         if (post == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "找不到评论的帖子");
         }
         Comment comment = new Comment();
+        if(topCommentId!=null){
+            comment.setTopCommentId(topCommentId);
+        }else{
+            comment.setTopCommentId(parentId);
+        }
         comment.setCommentContent(commentContent);
         comment.setPostId(postId);
         comment.setParentId(parentId);
@@ -116,6 +127,16 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         int current = request.getCurrent();
         int pageSize = request.getPageSize();
         Long postId = request.getPostId();
+        String key = PARENT_COMMENT + postId+current;
+        if (JdHotKeyStore.isHotKey(key)) {
+            Object object = JdHotKeyStore.get(key);
+            if (object != null) {
+                // 修改：将 Object 转换为 Page<CommentVo> 类型
+                Page<CommentVo> cachedPage = (Page<CommentVo>) object;
+//                return new Page<>(current, pageSize, cachedPage.getTotal()).setRecords(cachedPage.getRecords());
+                return cachedPage;
+            }
+        }
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
         commentQueryWrapper.eq("postId", postId).isNull("parentId");
         commentQueryWrapper.orderBy(true, true, "createTime");
@@ -131,16 +152,26 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
 
         Page<CommentVo> commentVoPage = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         commentVoPage.setRecords(commentVoList);
+        JdHotKeyStore.smartSet(key, commentVoPage);
         return commentVoPage;
     }
 
     @Override
     public Page<CommentVo> listChildrenComment(ListCommentRequest request) {
+        int current = request.getCurrent();
         Long parentId = request.getParentId();
+        String key=CHILD_COMMENT+parentId+current;
+        if(JdHotKeyStore.isHotKey(key)){
+            Object object = JdHotKeyStore.get(key);
+            if(object!=null){
+                Page<CommentVo> cachedPage = (Page<CommentVo>) object;
+                return cachedPage;
+            }
+        }
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
-        commentQueryWrapper.eq(!Objects.isNull(parentId), "parentId", parentId);
+        commentQueryWrapper.eq(!Objects.isNull(parentId), "topCommentId", parentId);
         commentQueryWrapper.orderBy(true, true, "createTime");
-        Page<Comment> page = this.page(new Page<>(request.getCurrent(), request.getPageSize()), commentQueryWrapper);
+        Page<Comment> page = this.page(new Page<>(current, 3), commentQueryWrapper);
         List<Comment> comments = page.getRecords();
         if (comments == null) {
             return new Page<>();
@@ -150,6 +181,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
         List<CommentVo> commentVoList = comments.stream().map(comment -> convertToVo(comment, userMap)).toList();
         Page<CommentVo> pageCommentVo = new Page<>(page.getCurrent(), page.getSize(), page.getTotal());
         pageCommentVo.setRecords(commentVoList);
+        JdHotKeyStore.smartSet(key, pageCommentVo);
         return pageCommentVo;
 
     }

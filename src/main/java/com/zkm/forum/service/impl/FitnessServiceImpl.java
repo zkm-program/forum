@@ -1,34 +1,49 @@
 package com.zkm.forum.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
+import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.model.ciModel.persistence.CIObject;
+import com.qcloud.cos.model.ciModel.persistence.ProcessResults;
 import com.zkm.forum.common.ErrorCode;
+import com.zkm.forum.config.properties.CosConfigProperties;
 import com.zkm.forum.constant.JdHotKeyConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.mapper.FitnessMapper;
 import com.zkm.forum.model.dto.aixinghuo.AiXinghuoPictureRequest;
 import com.zkm.forum.model.dto.fitness.SaveOrUpdateMessageRequest;
+import com.zkm.forum.model.dto.user.UploadCosWanXiangRequest;
 import com.zkm.forum.model.entity.Fitness;
 import com.zkm.forum.model.entity.FitnessImage;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.fitnessImage.AnalysePictureVo;
 import com.zkm.forum.model.vo.fitness.AnalyseUserVo;
 import com.zkm.forum.model.vo.fitness.GetUserInfoVo;
+import com.zkm.forum.rabbitmq.reuqest.AnalysePictureRequest;
 import com.zkm.forum.service.FitnessImageService;
 import com.zkm.forum.service.FitnessService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.utils.AIUtils;
 import com.zkm.forum.utils.AiPictureUtils;
+import com.zkm.forum.utils.CosUploadUtils;
 import com.zkm.forum.utils.RedisLimiterUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.math.BigDecimal;
+import java.util.List;
 
 import static com.zkm.forum.constant.RabbitMqConstant.*;
 import static com.zkm.forum.constant.JdHotKeyConstant.*;
@@ -51,8 +66,10 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
     private RabbitTemplate rabbitTemplate;
     @Resource
     private RedisLimiterUtils redisLimiterUtils;
-    AiPictureUtils aiPictureUtils = new AiPictureUtils();
-
+    @Resource
+    private CosUploadUtils cosUploadUtils;
+    @Resource
+    private CosConfigProperties cosConfigProperties;
     @Override
     @Transactional
     public Long saveOrUpdateMessage(SaveOrUpdateMessageRequest saveOrUpdateMessageRequest, HttpServletRequest request) {
@@ -130,6 +147,7 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         User loginUser = userService.getLoginUser(request);
         Fitness fitness = this.getById(loginUser.getFitnessId());
         fitness.setStatus(0);
+        // todo 不知道生效没
         redisLimiterUtils.doRateLimit("analseUser"+loginUser.getId());
         boolean result = this.updateById(fitness);
         if (!result) {
@@ -167,6 +185,7 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
     @Override
     public Long analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest) {
         FitnessImage fitnessImage = new FitnessImage();
+        fitnessImage.setFitnessId(request.getFitnessId());
         fitnessImage.setDescription(request.getDescription());
         fitnessImage.setPictureUrl(request.getPictureUrl());
         fitnessImage.setType(0);
@@ -177,9 +196,16 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         redisLimiterUtils.doRateLimit("analysePicture"+loginUser.getId());
         boolean save = fitnessImageService.save(fitnessImage);
         if (!save) {
+            fitnessImage.setType(3);
+            fitnessImageService.updateById(fitnessImage);
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "操作失败请稍后再试");
         }
-        rabbitTemplate.convertAndSend(AI_PICTURE_EXCHANGE, AI_PICTURE_ROUTINGKEY, String.valueOf(fitnessImage.getId()));
+        AnalysePictureRequest analysePictureRequest = new AnalysePictureRequest();
+        analysePictureRequest.setUser(loginUser);
+        analysePictureRequest.setFitnessImage(fitnessImage);
+
+        rabbitTemplate.convertAndSend(AI_PICTURE_EXCHANGE, AI_PICTURE_ROUTINGKEY, new Message(JSON.toJSONBytes(analysePictureRequest), new MessageProperties()));
+//        rabbitTemplate.convertAndSend(AI_PICTURE_EXCHANGE, AI_PICTURE_ROUTINGKEY, String.valueOf(fitnessImage.getId()));
         return fitnessImage.getId();
     }
 
@@ -214,6 +240,53 @@ public class FitnessServiceImpl extends ServiceImpl<FitnessMapper, Fitness>
         }
         JdHotKeyStore.smartSet(key, getUserInfoVo);
         return getUserInfoVo;
+    }
+
+    @Override
+    public String uploadCosWanXiang(UploadCosWanXiangRequest uploadCosWanXiangRequest) {
+        MultipartFile multipartFile = uploadCosWanXiangRequest.getMultipartFile();
+//        User loginUser = uploadCosWanXiangRequest.getLoginUser();
+        String path = uploadCosWanXiangRequest.getPath();
+        // 将 MultipartFile 转换为 File 对象
+        File file = null;
+        try {
+            file = FileUtil.file(multipartFile.getOriginalFilename());
+            multipartFile.transferTo(file);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件转换失败");
+        }
+
+        // 调用 CosUploadUtils 的 putPictureObject 方法
+        try {
+            PutObjectResult putObjectResult = cosUploadUtils.putPictureObject(path, file);
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
+            if (CollUtil.isNotEmpty(objectList)) {
+                CIObject compressedCiObject = objectList.get(0);
+                String fitnessImageThumbnail = cosConfigProperties.getUrl() + "/" + compressedCiObject.getKey();
+//                String fitnessImage = cosConfigProperties.getUrl() + "/" + path;
+//                loginUser.setThumbnailAvatarUrl(userAvatarThumbnail);
+//                loginUser.setUserAvatar(userAvatar);
+//                boolean result = this.updateById(loginUser);
+//                if (!result) {
+//                    throw new BusinessException(ErrorCode.OPERATION_ERROR, "头像修改失败");
+//                }
+                // 封装压缩图返回结果
+
+                return fitnessImageThumbnail;
+            }
+
+            // 封装原图返回结果
+//            loginUser.setUserAvatar(cosConfigProperties.getUrl() + "/" + path);
+//            boolean result = this.updateById(loginUser);
+//            if (!result) {
+//                throw new BusinessException(ErrorCode.OPERATION_ERROR, "头像修改失败");
+//            }
+            return cosConfigProperties.getUrl() + "/" + path;
+        } catch (Exception e) {
+            log.error("图片上传到对象存储失败", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
+        }
     }
 
     // 新增方法：提取字符串中的数字部分

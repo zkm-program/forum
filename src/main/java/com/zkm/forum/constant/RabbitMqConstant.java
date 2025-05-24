@@ -15,4 +15,7 @@ public interface RabbitMqConstant {
     String Match_USER_BYTAGS_EXCHANGE = "match:user:bytags:exchange";
     String Match_USER_BYTAGS_QUEUE = "match:user:bytags:queue";
     String Match_USER_BYTAGS_ROUTINGKEY = "match:user:bytags:routingkey";
+    String SUPER_MATCH_EXCHANGE = "super:match:exchange";
+    String SUPER_MATCH_QUEUE = "super:match:queue";
+    String SUPER_MATCH_ROUTINGKEY = "super:match:routingkey";
 }

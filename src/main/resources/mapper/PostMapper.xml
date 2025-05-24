@@ -5,31 +5,32 @@
 <mapper namespace="com.zkm.forum.mapper.PostMapper">
 
     <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Post">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="title" column="title" jdbcType="VARCHAR"/>
-            <result property="content" column="content" jdbcType="VARCHAR"/>
-            <result property="tags" column="tags" jdbcType="VARCHAR"/>
-            <result property="thumbNum" column="thumbNum" jdbcType="INTEGER"/>
-            <result property="userId" column="userId" jdbcType="BIGINT"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="article_abstract" column="article_abstract" jdbcType="VARCHAR"/>
-            <result property="is_top" column="is_top" jdbcType="TINYINT"/>
-            <result property="is_featured" column="is_featured" jdbcType="TINYINT"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
-            <result property="type" column="type" jdbcType="TINYINT"/>
-            <result property="password" column="password" jdbcType="VARCHAR"/>
-            <result property="original_url" column="original_url" jdbcType="VARCHAR"/>
-            <result property="viewCount" column="viewCount" jdbcType="INTEGER"/>
-            <result property="isReported" column="isReported" jdbcType="TINYINT"/>
-            <result property="reportResults" column="reportResults" jdbcType="VARCHAR"/>
-            <result property="reportUserId" column="reportUserId" jdbcType="BIGINT"/>
-            <result property="questionId" column="questionId" jdbcType="BIGINT"/>
-            <result property="commentCount" column="commentCount" jdbcType="INTEGER"/>
-            <result property="favourNum" column="favourNum" jdbcType="INTEGER"/>
-            <result property="authorName" column="authorName" jdbcType="VARCHAR"/>
-            <result property="authorAvatar" column="authorAvatar" jdbcType="VARCHAR"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="tags" column="tags" jdbcType="VARCHAR"/>
+        <result property="thumbNum" column="thumbNum" jdbcType="INTEGER"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="article_abstract" column="article_abstract" jdbcType="VARCHAR"/>
+        <result property="is_top" column="is_top" jdbcType="TINYINT"/>
+        <result property="is_featured" column="is_featured" jdbcType="TINYINT"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <result property="type" column="type" jdbcType="TINYINT"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="original_url" column="original_url" jdbcType="VARCHAR"/>
+        <result property="viewCount" column="viewCount" jdbcType="INTEGER"/>
+        <result property="isReported" column="isReported" jdbcType="TINYINT"/>
+        <result property="reportResults" column="reportResults" jdbcType="VARCHAR"/>
+        <result property="reportUserId" column="reportUserId" jdbcType="BIGINT"/>
+        <result property="questionId" column="questionId" jdbcType="BIGINT"/>
+        <result property="commentCount" column="commentCount" jdbcType="INTEGER"/>
+        <result property="favourNum" column="favourNum" jdbcType="INTEGER"/>
+        <result property="authorName" column="authorName" jdbcType="VARCHAR"/>
+        <result property="authorAvatar" column="authorAvatar" jdbcType="VARCHAR"/>
+        <result property="rewardStatus" column="rewardStatus" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">

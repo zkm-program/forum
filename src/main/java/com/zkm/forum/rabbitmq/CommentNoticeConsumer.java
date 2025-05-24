@@ -13,7 +13,7 @@ import java.util.Set;
 import static com.zkm.forum.constant.RabbitMqConstant.EMAIL_QUEUE;
 
 
-@Component
+//@Component
 @RabbitListener(queues = EMAIL_QUEUE)
 public class CommentNoticeConsumer {
 

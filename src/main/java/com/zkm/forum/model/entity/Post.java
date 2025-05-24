@@ -140,6 +140,11 @@ public class Post implements Serializable {
      */
     private String authorAvatar;
 
+    /**
+     * 奖励状态：0-未发放，1-已发放
+     */
+    private Integer rewardStatus;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

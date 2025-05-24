@@ -14,4 +14,8 @@ import java.util.List;
 public class MatchUserByTagsRequest {
     private List<String> tags;
     private User loginUser;
+    /**
+     * 标签匹配表主键
+     */
+    private Long matchTagsId;
 }

@@ -19,7 +19,7 @@ import java.util.*;
 
 import static com.zkm.forum.constant.RabbitMqConstant.Follow_QUEUE;
 
-@Component
+//@Component
 @RabbitListener(queues = Follow_QUEUE)
 public class FollowerUserNoticeConsumer {
     @Resource

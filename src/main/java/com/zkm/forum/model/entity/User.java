@@ -21,6 +21,10 @@ public class User implements Serializable {
     private Long id;
 
     /**
+     * 用户头像缩略图url
+     */
+    private String thumbnailAvatarUrl;
+    /**
      * 是否被举报
      */
     private int isReported;
@@ -103,6 +107,14 @@ public class User implements Serializable {
      * 用户介绍
      */
     private String introduction;
+    /**
+     * ai分析用户次数
+     */
+    private int analyseUserCount;
+    /**
+     * ai分析图片次数
+     */
+    private int analysePictureCount;
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

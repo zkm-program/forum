@@ -2,14 +2,13 @@ package com.zkm.forum.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.zkm.forum.model.dto.user.ReportUserRequest;
-import com.zkm.forum.model.dto.user.UserQueryRequest;
-import com.zkm.forum.model.dto.user.UserRegisterRequest;
-import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
+import com.zkm.forum.model.dto.user.*;
+import com.zkm.forum.model.entity.MatchTags;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.KnowUserVo;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -39,9 +38,9 @@ public interface UserService extends IService<User> {
 
     Boolean reportUser(ReportUserRequest reportUserRequest, HttpServletRequest request);
 
-    List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request);
+    List<MatchTags> matchUserByTags(List<String> tags, HttpServletRequest request);
 
-    MatchUserVo superMatchUser(HttpServletRequest request);
+    MatchTags superMatchUser(HttpServletRequest request);
 
     Map<Long, String> getOwnWithOtherDistance(HttpServletRequest request);
 
@@ -50,5 +49,8 @@ public interface UserService extends IService<User> {
     Map<Long, Boolean> getUserThisWeekSign(Long userId);
     KnowUserVo getKnowUserVo(Long userId);
     Boolean updateMyTas(List<String> tags,HttpServletRequest request);
+    String uploadCosWanXiang(UploadCosWanXiangRequest uploadCosWanXiangRequest);
+    Boolean getReward(User loginUser);
+    List<String> checkMyTags(HttpServletRequest request);
 }
 

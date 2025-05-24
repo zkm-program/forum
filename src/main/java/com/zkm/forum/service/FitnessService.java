@@ -3,6 +3,7 @@ package com.zkm.forum.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.zkm.forum.model.dto.aixinghuo.AiXinghuoPictureRequest;
 import com.zkm.forum.model.dto.fitness.SaveOrUpdateMessageRequest;
+import com.zkm.forum.model.dto.user.UploadCosWanXiangRequest;
 import com.zkm.forum.model.entity.Fitness;
 import com.zkm.forum.model.vo.fitnessImage.AnalysePictureVo;
 import com.zkm.forum.model.vo.fitness.AnalyseUserVo;
@@ -25,4 +26,5 @@ public interface FitnessService extends IService<Fitness> {
 //    AnalysePictureVo analysePicture(AiXinghuoPictureRequest request, HttpServletRequest userRequest);
 
     GetUserInfoVo getUserInfo(HttpServletRequest request);
+    String uploadCosWanXiang(UploadCosWanXiangRequest uploadCosWanXiangRequest);
 }

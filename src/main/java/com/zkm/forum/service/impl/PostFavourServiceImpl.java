@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,6 +104,9 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
         postFavourQueryWrapper.select("postId");
         postFavourQueryWrapper.eq("userId",loginUser.getId());
         List<PostFavour> postFavourlist = this.list(postFavourQueryWrapper);
+        if(postFavourlist.isEmpty()){
+            return new ArrayList<>();
+        }
         List<Long> postIdList = postFavourlist.stream().map(PostFavour::getPostId).toList();
         List<ListMyPostFavourVo> listMyPostFavourVos = postService.listByIds(postIdList).stream().map(this::postToListMyPostFavourVo).toList();
         return listMyPostFavourVos;

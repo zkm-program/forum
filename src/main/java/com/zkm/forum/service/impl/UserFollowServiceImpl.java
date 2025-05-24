@@ -66,7 +66,7 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "取消关注失败");
             }
             boolean result = userService.update().eq("id", userId).setSql("followerCount=followerCount-1").update();
-            return result ? 1 : 0;
+            return result ? -1 : 0;
         }
 
     }
@@ -78,8 +78,10 @@ public class UserFollowServiceImpl extends ServiceImpl<UserFollowMapper, UserFol
         userFollowQueryWrapper.select("userId");
         userFollowQueryWrapper.eq("followerId", loginUser.getId());
         List<UserFollow> userFollowList = this.list(userFollowQueryWrapper);
+        if (userFollowList.isEmpty()) {
+            return new ArrayList<>();
+        }
         List<Long> userIdList = userFollowList.stream().map(UserFollow::getUserId).toList();
-
         return convertToVo(userIdList);
     }
 

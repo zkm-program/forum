@@ -21,6 +21,9 @@ import java.math.BigDecimal;
 
 import static com.zkm.forum.constant.RabbitMqConstant.ANALYSE_USER_QUEUE;
 
+
+
+
 @Slf4j
 @Component
 public class AnalyseUserConsumer {

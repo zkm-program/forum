@@ -1,29 +1,41 @@
 package com.zkm.forum.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.qcloud.cos.model.PutObjectResult;
+import com.qcloud.cos.model.ciModel.persistence.CIObject;
+import com.qcloud.cos.model.ciModel.persistence.ProcessResults;
 import com.zkm.forum.common.ErrorCode;
+import com.zkm.forum.common.ResultUtils;
+import com.zkm.forum.config.properties.CosConfigProperties;
 import com.zkm.forum.constant.CommonConstant;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
+import com.zkm.forum.mapper.PostMapper;
 import com.zkm.forum.mapper.UserMapper;
-import com.zkm.forum.model.dto.user.ReportUserRequest;
-import com.zkm.forum.model.dto.user.UserQueryRequest;
-import com.zkm.forum.model.dto.user.UserRegisterRequest;
-import com.zkm.forum.model.dto.user.UserUpdateMyRequest;
+import com.zkm.forum.model.dto.user.*;
+import com.zkm.forum.model.entity.Invitation;
+import com.zkm.forum.model.entity.MatchTags;
+import com.zkm.forum.model.entity.Post;
 import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.user.KnowUserVo;
 import com.zkm.forum.model.vo.user.LoginUserVO;
 import com.zkm.forum.model.vo.user.MatchUserVo;
 import com.zkm.forum.rabbitmq.reuqest.MatchUserByTagsRequest;
 import com.zkm.forum.service.InvitationService;
+import com.zkm.forum.service.MatchTagsService;
+import com.zkm.forum.service.PostService;
 import com.zkm.forum.service.UserService;
 import com.zkm.forum.utils.AlgorithmUtils;
+import com.zkm.forum.utils.CosUploadUtils;
 import com.zkm.forum.utils.MailUtils;
+import com.zkm.forum.utils.MultiMailSender;
 import kotlin.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBitSet;
@@ -38,9 +50,11 @@ import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 import java.util.*;
@@ -51,8 +65,7 @@ import java.util.stream.Collectors;
 
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERAVATAR;
 import static com.zkm.forum.constant.LocalCacheConstant.USERID_USERNAME;
-import static com.zkm.forum.constant.RabbitMqConstant.Match_USER_BYTAGS_EXCHANGE;
-import static com.zkm.forum.constant.RabbitMqConstant.Match_USER_BYTAGS_ROUTINGKEY;
+import static com.zkm.forum.constant.RabbitMqConstant.*;
 import static com.zkm.forum.constant.RedisConstant.*;
 
 /**
@@ -78,6 +91,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private RedissonClient redissonClient;
     @Resource
     private RabbitTemplate rabbitTemplate;
+    @Resource
+    private MatchTagsService matchTagsService;
+    @Resource
+    private CosUploadUtils cosUploadUtils;
+    @Resource
+    private CosConfigProperties cosConfigProperties;
+    @Resource
+    private PostMapper postMapper;
+    @Resource
+    private MultiMailSender multiMailSender;
+
 
     @Override
     public Long userRegister(UserRegisterRequest userRegisterRequest) {
@@ -116,7 +140,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 //        if (count > 0) {
 //            throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱已经注册过");
 //        }
-        Long oldTime = codeWithTime.get(userQqEmail+userCode);
+        Long oldTime = codeWithTime.get(userQqEmail + userCode);
         long newTime = System.currentTimeMillis();
 
         if (oldTime == null || (newTime - oldTime) >= TimeUnit.MINUTES.toMillis(30)) {
@@ -136,11 +160,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!saveResult) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册失败，请稍后再试");
         }
-        inviteeId=user.getId();
-        if(inviteeId!=null&&inviterId!=null){
+        inviteeId = user.getId();
+        if (inviteeId != null && inviterId != null) {
             Boolean result = invitationService.processInvitation(inviteeId, inviterId);
-            if(!result){
-                throw new BusinessException(ErrorCode.OPERATION_ERROR,"邀请注册失败,可以自己注册,之后向管理员反应");
+            if (!result) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "邀请注册失败,可以自己注册,之后向管理员反应");
             }
         }
         return user.getId();
@@ -160,8 +184,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
         LOCAL_CACHE.put(USERID_USERNAME + user.getId(), user.getUserName());
-        if(user.getUserAvatar()!=null){
-            LOCAL_CACHE.put(USERID_USERAVATAR+user.getId(),user.getUserAvatar());
+        if (user.getUserAvatar() != null) {
+            LOCAL_CACHE.put(USERID_USERAVATAR + user.getId(), user.getUserAvatar());
         }
         return objToVo(user);
     }
@@ -172,9 +196,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Set<String> userQqSet = new HashSet<>();
         Random random = new Random();
         String code = String.valueOf(random.nextInt(8999) + 1000);// 0-9的随机数
-        codeWithTime.put(userQqEmail+code, System.currentTimeMillis());
+        codeWithTime.put(userQqEmail + code, System.currentTimeMillis());
         userQqSet.add(userQqEmail);
-        boolean condition = MailUtils.sendEmail(userQqSet, "商师守夜人验证码", "有效期为60秒，请勿将验证码泄露给他人" + code);
+//        boolean condition = MailUtils.sendEmail(userQqSet, "商师守夜人验证码", "有效期为60秒，请勿将验证码泄露给他人" + code);
+        boolean condition = multiMailSender.sendEmail(userQqSet, "商师守夜人验证码", "有效期为60秒，请勿将验证码泄露给他人" + code);
+
         if (!condition) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "出错了请稍等一会再尝试发送验证码");
         }
@@ -353,52 +379,120 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 ////        return List.of();
 //    }
 
-    @Override
+//    @Override
+//    public List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request) {
+//        if (tags.size() > 3) {
+//            throw new BusinessException(ErrorCode.OPERATION_ERROR, "最多选3个标签");
+//        }
+//        User loginUser = this.getLoginUser(request);
+//        if (loginUser.getMatchCount() == 0) {
+//            throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "匹配次数已用完");
+//        }
+//        MatchTags matchTags = new MatchTags();
+//        matchTags.setKind(0);
+//        matchTags.setStatus(0);
+//        matchTags.setUserId(loginUser.getId());
+//        boolean result = matchTagsService.save(matchTags);
+//        if(!result){
+//            throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改标签匹配状态失败");
+//        }
+//        MatchUserByTagsRequest matchUserByTagsRequest=MatchUserByTagsRequest.builder()
+//                        .loginUser(loginUser)
+//                        .tags(tags)
+//                .matchTagsId(matchTags.getId())
+//                                .build();
+//        rabbitTemplate.convertAndSend(Match_USER_BYTAGS_EXCHANGE, Match_USER_BYTAGS_ROUTINGKEY, new Message(JSON.toJSONBytes(matchUserByTagsRequest), new MessageProperties()));
+//
+//        throw new BusinessException(ErrorCode.OPERATION_ERROR, "没有符合条件的用户");
+//
+//    }
+//    public MatchUserVo superMatchUser(HttpServletRequest request) {
+//        User loginUser = this.getLoginUser(request);
+//        if (loginUser.getSuperMatchCount() < 1) {
+//            throw new BusinessException(ErrorCode.OPERATION_ERROR, "超级匹配");
+//        }
+//        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+//        userQueryWrapper.select("id", "tags");
+//        List<User> userList = this.list(userQueryWrapper);
+//        Map<Long, List<User>> map = userList.stream().collect(Collectors.groupingBy(User::getId));
+//        List<Pair<User, Long>> pairs = new ArrayList<>();
+//        for (User user : userList) {
+//            int i = AlgorithmUtils.minDistance(user.getTags(), loginUser.getTags());
+//            pairs.add(new Pair<User, Long>(user, (long) i));
+//        }
+//        // todo 如果 list 很大，排序操作可能会消耗较多时间。在这种情况下，可以考虑优化数据结构或使用并行流（list.parallelStream()）来提高性能。
+//        Pair<User, Long> pair = pairs.stream().sorted((a, b) -> (int) (a.getSecond() - b.getSecond())).limit(1).toList().get(0);
+//        synchronized (String.valueOf(loginUser.getId()).intern()) {
+//            UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
+//            userUpdateWrapper.eq("id", loginUser.getId());
+//            userUpdateWrapper.setSql(true, "superMatchCount=superMatchCount-1");
+//            boolean result = this.update(userUpdateWrapper);
+//            // todo 如果没减成功可通过mq进行再减，添加用户匹配到的人
+//        }
+//        return this.getMatchUserVo(this.getById(pair.getFirst().getId()));
+//
+//
+//    }
 
-    public List<MatchUserVo> matchUserByTags(List<String> tags, HttpServletRequest request) {
+
+    @Override
+    public List<MatchTags> matchUserByTags(List<String> tags, HttpServletRequest request) {
+        User loginUser = this.getLoginUser(request);
+        if (loginUser.getTags() == null) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "请先设置自己标签，再进行匹配");
+        }
+        if (tags == null) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "请选择标签进行匹配");
+        }
         if (tags.size() > 3) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "最多选3个标签");
         }
-        User loginUser = this.getLoginUser(request);
+
         if (loginUser.getMatchCount() == 0) {
             throw new BusinessException(ErrorCode.NOT_AUTH_ERROR, "匹配次数已用完");
         }
-        MatchUserByTagsRequest matchUserByTagsRequest=MatchUserByTagsRequest.builder()
-                        .loginUser(loginUser)
-                        .tags(tags)
-                                .build();
+        MatchTags matchTags = new MatchTags();
+        matchTags.setKind(0);
+        matchTags.setStatus(0);
+        matchTags.setUserId(loginUser.getId());
+        boolean result = matchTagsService.save(matchTags);
+        if (!result) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改标签匹配状态失败");
+        }
+        MatchUserByTagsRequest matchUserByTagsRequest = MatchUserByTagsRequest.builder()
+                .loginUser(loginUser)
+                .tags(tags)
+                .matchTagsId(matchTags.getId())
+                .build();
         rabbitTemplate.convertAndSend(Match_USER_BYTAGS_EXCHANGE, Match_USER_BYTAGS_ROUTINGKEY, new Message(JSON.toJSONBytes(matchUserByTagsRequest), new MessageProperties()));
-
-        throw new BusinessException(ErrorCode.OPERATION_ERROR, "没有符合条件的用户");
-
-//        return List.of();
+        List<MatchTags> list = new ArrayList<>();
+        list.add(matchTags);
+        return list;
     }
-    public MatchUserVo superMatchUser(HttpServletRequest request) {
+
+
+    // todo 要排除自己
+    public MatchTags superMatchUser(HttpServletRequest request) {
         User loginUser = this.getLoginUser(request);
+        if (loginUser.getTags() == null) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "请先设置自己标签，再进行匹配");
+        }
         if (loginUser.getSuperMatchCount() < 1) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "超级匹配");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "超级匹配次数不够");
         }
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.select("id", "tags");
-        List<User> userList = this.list(userQueryWrapper);
-        Map<Long, List<User>> map = userList.stream().collect(Collectors.groupingBy(User::getId));
-        List<Pair<User, Long>> pairs = new ArrayList<>();
-        for (User user : userList) {
-            int i = AlgorithmUtils.minDistance(user.getTags(), loginUser.getTags());
-            pairs.add(new Pair<User, Long>(user, (long) i));
+        MatchTags matchTags = new MatchTags();
+        matchTags.setKind(1);
+        matchTags.setStatus(0);
+        matchTags.setUserId(loginUser.getId());
+        matchTagsService.save(matchTags);
+        MatchUserByTagsRequest matchUserByTagsRequest = new MatchUserByTagsRequest();
+        matchUserByTagsRequest.setLoginUser(loginUser);
+        matchUserByTagsRequest.setMatchTagsId(matchTags.getId());
+        if (matchTags.getId() == null) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR);
         }
-        // todo 如果 list 很大，排序操作可能会消耗较多时间。在这种情况下，可以考虑优化数据结构或使用并行流（list.parallelStream()）来提高性能。
-        Pair<User, Long> pair = pairs.stream().sorted((a, b) -> (int) (a.getSecond() - b.getSecond())).limit(1).toList().get(0);
-        synchronized (String.valueOf(loginUser.getId()).intern()) {
-            UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
-            userUpdateWrapper.eq("id", loginUser.getId());
-            userUpdateWrapper.setSql(true, "superMatchCount=superMatchCount-1");
-            boolean result = this.update(userUpdateWrapper);
-            // todo 如果没减成功可通过mq进行再减，添加用户匹配到的人
-        }
-        return this.getMatchUserVo(this.getById(pair.getFirst().getId()));
-
-
+        rabbitTemplate.convertAndSend(SUPER_MATCH_EXCHANGE, SUPER_MATCH_ROUTINGKEY, new Message(JSON.toJSONBytes(matchUserByTagsRequest), new MessageProperties()));
+        return matchTags;
     }
 
     @Override
@@ -445,9 +539,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String key = getRedisUserSignin(date.getYear(), weekOfYear, userId);
         RBitSet bitSet = redissonClient.getBitSet(key);
         if (!bitSet.get(dayOfWeek)) {
-           return bitSet.set(dayOfWeek, true);
-        }else{
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,"请勿重复签到");
+            return bitSet.set(dayOfWeek, true);
+        } else {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "请勿重复签到");
         }
     }
 
@@ -458,8 +552,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String key = String.format("%s:%s:%s:%s", USER_SIGNIN, date.getYear(), weekOfYear, userId);
         RBitSet bitSet = redissonClient.getBitSet(key);
         Map<Long, Boolean> userSign = new HashMap<>();
-        for(int i=0;i<=7;i++){
-            userSign.put((long) i,bitSet.get((long) i));
+        for (int i = 0; i <= 7; i++) {
+            userSign.put((long) i, bitSet.get((long) i));
         }
         return userSign;
     }
@@ -478,19 +572,109 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Boolean updateMyTas(List<String> tags,HttpServletRequest request) {
-        if(tags.isEmpty()){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"请填写标签");
+    public Boolean updateMyTas(List<String> tags, HttpServletRequest request) {
+        if (tags.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请填写标签");
         }
         User loginUser = this.getLoginUser(request);
         UpdateWrapper<User> userUpdateWrapper = new UpdateWrapper<>();
-        userUpdateWrapper.eq("id",loginUser.getId());
-        userUpdateWrapper.set("tags",JSONUtil.toJsonStr(tags));
+        userUpdateWrapper.eq("id", loginUser.getId());
+        userUpdateWrapper.set("tags", JSONUtil.toJsonStr(tags));
         boolean result = this.update(userUpdateWrapper);
-        if(!result){
-            throw new BusinessException(ErrorCode.OPERATION_ERROR,"修改失败");
+        if (!result) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "修改失败");
         }
         return result;
+    }
+
+    @Override
+    public String uploadCosWanXiang(UploadCosWanXiangRequest uploadCosWanXiangRequest) {
+        MultipartFile multipartFile = uploadCosWanXiangRequest.getMultipartFile();
+        User loginUser = uploadCosWanXiangRequest.getLoginUser();
+        String path = uploadCosWanXiangRequest.getPath();
+        // 将 MultipartFile 转换为 File 对象
+        File file = null;
+        try {
+            file = FileUtil.file(multipartFile.getOriginalFilename());
+            multipartFile.transferTo(file);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "文件转换失败");
+        }
+
+        // 调用 CosUploadUtils 的 putPictureObject 方法
+        try {
+            PutObjectResult putObjectResult = cosUploadUtils.putPictureObject(path, file);
+            ProcessResults processResults = putObjectResult.getCiUploadResult().getProcessResults();
+            List<CIObject> objectList = processResults.getObjectList();
+            if (CollUtil.isNotEmpty(objectList)) {
+                CIObject compressedCiObject = objectList.get(0);
+                String userAvatarThumbnail = cosConfigProperties.getUrl() + "/" + compressedCiObject.getKey();
+//                String userAvatar = cosConfigProperties.getUrl() + "/" + path;
+//                loginUser.setThumbnailAvatarUrl(userAvatarThumbnail);
+//                loginUser.setUserAvatar(userAvatar);
+//                boolean result = this.updateById(loginUser);
+//                if (!result) {
+//                    throw new BusinessException(ErrorCode.OPERATION_ERROR, "头像修改失败");
+//                }
+                // 封装压缩图返回结果
+
+                return userAvatarThumbnail;
+            }
+
+            // 封装原图返回结果
+//            loginUser.setUserAvatar(cosConfigProperties.getUrl() + "/" + path);
+//            boolean result = this.updateById(loginUser);
+//            if (!result) {
+//                throw new BusinessException(ErrorCode.OPERATION_ERROR, "头像修改失败");
+//            }
+            return cosConfigProperties.getUrl() + "/" + path;
+        } catch (Exception e) {
+            log.error("图片上传到对象存储失败", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
+        }
+    }
+
+    @Override
+    public Boolean getReward(User loginUser) {
+        Long userId = loginUser.getId();
+        QueryWrapper<Post> postQueryWrapper = new QueryWrapper<>();
+        postQueryWrapper.eq("userId", userId);
+        postQueryWrapper.eq("rewardStatus", 0);
+        postQueryWrapper.select("id");
+        List<Post> postList = postMapper.selectList(postQueryWrapper);
+
+        // 新增逻辑：确保返回的结果数量为2的倍数
+        long count = postList.size();
+        if (count % 2 != 0) {
+            postList = postList.stream()
+                    .sorted(Comparator.comparing(Post::getId).reversed()) // 按id降序排序
+                    .skip(1) // 跳过最大的一条记录
+                    .collect(Collectors.toList());
+        }
+
+        QueryWrapper<Invitation> invitationQueryWrapper = new QueryWrapper<>();
+        invitationQueryWrapper.select("id");
+        invitationQueryWrapper.eq("inviterId", userId);
+        List<Invitation> invitationList = invitationService.list(invitationQueryWrapper);
+        int size = invitationList.size();
+        if (size % 3 != 0) {
+            invitationList = invitationList.stream()
+                    .sorted(Comparator.comparing(Invitation::getId).reversed()) // 按id降序排序
+                    .skip(1) // 跳过最大的一条记录
+                    .collect(Collectors.toList());
+        }
+        loginUser.setMatchCount(loginUser.getMatchCount() + postList.size() + invitationList.size());
+        boolean result = this.updateById(loginUser);
+        if (!result) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取奖励失败");
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> checkMyTags(HttpServletRequest request) {
+        User loginUser = this.getLoginUser(request);
+        return JSONUtil.toList(loginUser.getTags(), String.class);
     }
 
     private MatchUserVo getMatchUserVo(User user) {

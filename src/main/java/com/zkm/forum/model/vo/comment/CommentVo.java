@@ -61,4 +61,12 @@ public class CommentVo {
      * 评论时间
      */
     private Date createTime;
+    /**
+     * 是否有子评论，0-没有，1-有（针对顶层评论）
+     */
+    private int hasChildComment;
+    /**
+     * 最顶层的评论id
+     */
+    private Long topCommentId;
 }

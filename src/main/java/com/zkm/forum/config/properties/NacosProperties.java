@@ -8,18 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ComponentScan
-@ConfigurationProperties(prefix = "upload.oss")
-public class OssConfigProperties {
-
-    private String url;
-
-    private String endpoint;
-
-    private String accessKeyId;
-
-    private String accessKeySecret;
-
-    private String bucketName;
-
-    private String ossDomain;
+@ConfigurationProperties(prefix = "nacos.config")
+public class NacosProperties {
+    private String serverAddr;
 }

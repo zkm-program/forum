@@ -5,17 +5,19 @@
 <mapper namespace="com.zkm.forum.mapper.CommentMapper">
 
     <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Comment">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="userId" column="userId" jdbcType="INTEGER"/>
-            <result property="postId" column="postId" jdbcType="INTEGER"/>
-            <result property="commentContent" column="commentContent" jdbcType="VARCHAR"/>
-            <result property="replyUserId" column="replyUserId" jdbcType="INTEGER"/>
-            <result property="parentId" column="parentId" jdbcType="INTEGER"/>
-            <result property="type" column="type" jdbcType="TINYINT"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
-            <result property="isReview" column="isevRiew" jdbcType="TINYINT"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="userId" jdbcType="INTEGER"/>
+        <result property="postId" column="postId" jdbcType="INTEGER"/>
+        <result property="commentContent" column="commentContent" jdbcType="VARCHAR"/>
+        <result property="replyUserId" column="replyUserId" jdbcType="INTEGER"/>
+        <result property="parentId" column="parentId" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="TINYINT"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <result property="isReview" column="isevRiew" jdbcType="TINYINT"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="hasChildComment" column="hasChildComment" jdbcType="TINYINT"/>
+        <result property="topCommentId" column="topCommentId" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">

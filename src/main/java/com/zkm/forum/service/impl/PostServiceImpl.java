@@ -56,6 +56,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.zkm.forum.constant.JdHotKeyConstant.POST_DETAIL;
 import static com.zkm.forum.constant.RabbitMqConstant.FOLLOW_EXCHANGE;
 import static com.zkm.forum.constant.RabbitMqConstant.FOLLOW_USER_ROUTINGKEY;
 import static com.zkm.forum.constant.RedisConstant.*;
@@ -107,6 +108,8 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         post.setTags(tagStr);
         if(content.length()>15){
             post.setArticle_abstract(content.substring(0, 15));
+        }else{
+            post.setArticle_abstract(content);
         }
         if (id != null) {
             Post updatePost = this.getById(id);
@@ -147,7 +150,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Override
     public List<PostSearchVo> searchPost(PostSearchRequest postSearchRequest) {
-        return searchStrategyContext.postExcuteSearchStrategy(postSearchRequest.getKeyWords());
+        return searchStrategyContext.postExcuteSearchStrategy(postSearchRequest);
     }
 
     // todo hot-key实现，当前缓存内容存的地方是内存，需要把缓存内容移到redis中，而不是内存。
@@ -157,46 +160,46 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "该文章不存在");
         }
         PostVo postVo = new PostVo();
-//        String key = "post_detail_" + id;
-//        if (JdHotKeyStore.isHotKey(key)) {
-//            Object postDetail = JdHotKeyStore.get(key);
-//            if (postDetail != null) {
-//                BeanUtils.copyProperties(postDetail, postVo);
-//                return postVo;
-//            }
-//        }
+        String key = POST_DETAIL + id;
+        if (JdHotKeyStore.isHotKey(key)) {
+            Object postDetail = JdHotKeyStore.get(key);
+            if (postDetail != null) {
+                BeanUtils.copyProperties(postDetail, postVo);
+                return postVo;
+            }
+        }
         Post post = this.getById(id);
         BeanUtils.copyProperties(post, postVo);
         postVo.setTags(JSONUtil.toList(JSONUtil.parseArray(post.getTags()), String.class));
         updatePostViewCount(id);
-//        JdHotKeyStore.smartSet(key, postVo);
+        JdHotKeyStore.smartSet(key, postVo);
         User loginuser = userService.getLoginUser(httpServletRequest);
         post.setUserId(loginuser.getId());
-        CompletableFuture.runAsync(() -> {
-            try {
-                Long loginUserId = loginuser.getId();
-                String userCommendKey = USER_RECOMMEND + loginUserId;
-                String readKey = USER_POST_READ + loginUserId;
-                Set<String> readPostIds = Objects.requireNonNull(strngredisTemplate.opsForSet().members(readKey)).stream().map(JSONUtil::toJsonStr).collect(Collectors.toSet());
-//            List<Long> ;
-                //id是文章id
-                if (readPostIds.isEmpty()) {
-                    readPostIds = new HashSet<String>();
-                    readPostIds.add(String.valueOf(id));
-                }
-                Long expire = strngredisTemplate.getExpire(userCommendKey, TimeUnit.SECONDS);
-                if (expire < 60) {
-                    getPostCommendVoForRedis(userCommendKey, postVo.getTags().get(0), readPostIds);
-                }
-                strngredisTemplate.opsForSet().add(readKey, String.valueOf(id), JSONUtil.toJsonStr(readPostIds));
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error(e.getMessage());
-            }
-
-        }, threadPoolExecutor);
-        Double viewsCount = strngredisTemplate.opsForZSet().score("POST_VIEWS_COUNT", String.valueOf(id));
-        postVo.setViewCount(viewsCount);
+//        CompletableFuture.runAsync(() -> {
+//            try {
+//                Long loginUserId = loginuser.getId();
+//                String userCommendKey = USER_RECOMMEND + loginUserId;
+//                String readKey = USER_POST_READ + loginUserId;
+//                Set<String> readPostIds = Objects.requireNonNull(strngredisTemplate.opsForSet().members(readKey)).stream().map(JSONUtil::toJsonStr).collect(Collectors.toSet());
+////            List<Long> ;
+//                //id是文章id
+//                if (readPostIds.isEmpty()) {
+//                    readPostIds = new HashSet<String>();
+//                    readPostIds.add(String.valueOf(id));
+//                }
+//                Long expire = strngredisTemplate.getExpire(userCommendKey, TimeUnit.SECONDS);
+//                if (expire < 60) {
+//                    getPostCommendVoForRedis(userCommendKey, postVo.getTags().get(0), readPostIds);
+//                }
+//                strngredisTemplate.opsForSet().add(readKey, String.valueOf(id), JSONUtil.toJsonStr(readPostIds));
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                log.error(e.getMessage());
+//            }
+//
+//        }, threadPoolExecutor);
+//        Double viewsCount = strngredisTemplate.opsForZSet().score("POST_VIEWS_COUNT", String.valueOf(id));
+//        postVo.setViewCount(viewsCount);
         return postVo;
     }
 
@@ -341,7 +344,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             sortBuilder = SortBuilders.fieldSort(sortField);
             sortBuilder.order(CommonConstant.SORT_ORDER_ASC.equals(sortOrder) ? SortOrder.ASC : SortOrder.DESC);
         }
-        PageRequest pageRequest = PageRequest.of(current - 1, pageSize); // 将current转换为页码（用户传入的current是1-based）
+        PageRequest pageRequest = PageRequest.of(current - 1, 4); // 将current转换为页码（用户传入的current是1-based）
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(boolQueryBuilder).withPageable(pageRequest).withSorts(sortBuilder).build();
 //        String queryDsl = Objects.requireNonNull(searchQuery.getQuery()).toString();
 //        System.out.println("Elasticsearch Query DSL:\n" + queryDsl);

@@ -4,22 +4,32 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.alibaba.nacos.api.naming.NamingFactory;
+import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zkm.forum.annotation.AuthCheck;
 import com.zkm.forum.common.BaseResponse;
 import com.zkm.forum.common.ErrorCode;
 import com.zkm.forum.common.ResultUtils;
+import com.zkm.forum.config.properties.NacosProperties;
 import com.zkm.forum.constant.UserConstant;
 import com.zkm.forum.exception.BusinessException;
 import com.zkm.forum.model.dto.post.*;
 import com.zkm.forum.model.entity.Post;
+import com.zkm.forum.model.entity.User;
 import com.zkm.forum.model.vo.post.PostSearchVo;
 import com.zkm.forum.model.vo.post.PostVo;
 import com.zkm.forum.service.PostService;
+import com.zkm.forum.service.UserService;
+import com.zkm.forum.utils.CounterUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.ObjectUtils;
 //import org.springframework.data.redis.core.RedisTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,15 +39,23 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Api(tags = "帖子模块")
 @RestController
 @RequestMapping("/post")
 public class PostController {
+    private static final Logger log = LoggerFactory.getLogger(PostController.class);
     @Resource
     PostService postService;
     @Resource
     StringRedisTemplate stringredisTemplate;
+    @Resource
+    private CounterUtils counterUtils;
+    @Resource
+    private UserService userService;
+    @Resource
+    private NacosProperties nacosProperties;
 
     @ApiOperation("发布或修改帖子")
     @PostMapping("/add")
@@ -59,8 +77,16 @@ public class PostController {
     @ApiOperation("搜索帖子")
     @PostMapping("/searchPost")
     @AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
-    public BaseResponse<List<PostSearchVo>> searchPost(PostSearchRequest postSearchRequest) {
+    public BaseResponse<List<PostSearchVo>> searchPost(@RequestBody PostSearchRequest postSearchRequest, HttpServletRequest request) {
+//        crawlerDetect(request);
         return ResultUtils.success(postService.searchPost(postSearchRequest));
+    }
+
+    @ApiOperation("ES搜索帖子")
+    @PostMapping("/searchEsPost")
+    public BaseResponse<Page<PostSearchVo>> searchEsPost(@RequestBody PostQueryRequest postQueryRequest, HttpServletRequest request) {
+//        crawlerDetect(request);
+        return ResultUtils.success(postService.searchEsPost(postQueryRequest));
     }
 
     @ApiOperation("查看帖子详情")
@@ -170,10 +196,57 @@ public class PostController {
         return ResultUtils.success(postService.reportPost(reportPostRequest, request));
     }
 
-    @ApiOperation("ES搜索帖子")
-    @PostMapping("/searchEsPost")
-    public BaseResponse<Page<PostSearchVo>> searchEsPost(@RequestBody PostQueryRequest postQueryRequest) {
-        return ResultUtils.success(postService.searchEsPost(postQueryRequest));
+    /**
+     * 检测爬虫
+     *
+     * @param request
+     */
+    private void crawlerDetect(HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        long loginUserId = loginUser.getId();
+        // 调用多少次时告警
+        final int WARN_COUNT = 10;
+        // 超过多少次封号
+        final int BAN_COUNT = 1;
+        // 拼接访问 key
+        String key = String.format("user:access:%s", loginUserId);
+        // 一分钟内访问次数，180 秒过期
+        long count = counterUtils.incrAndGetCounter(key, 1, TimeUnit.MINUTES, 180);
+        // 是否封号
+        if (count > BAN_COUNT) {
+            // 强制退出登录
+            request.getSession().removeAttribute(UserConstant.USER_LOGIN_STATE);
+            // 封号
+            User updateUser = new User();
+            updateUser.setId(loginUserId);
+            updateUser.setUserRole(UserConstant.BAN_ROLE);
+            userService.updateById(updateUser);
+            log.error("用户 {} 访问太频繁，已被封号", loginUserId);
+            throw new BusinessException(ErrorCode.Many_Times, "访问太频繁，已被封号");
+        }
+        // 是否告警
+        if (count == WARN_COUNT) {
+            // 可以改为向管理员发送邮件通知
+            throw new BusinessException(110, "警告访问太频繁");
+        }
+    }
+
+    /**
+     * 添加IP到黑名单
+     *
+     * @param ip 要添加的IP地址
+     */
+    public void addIpToBlacklist(String ip) throws NacosException {
+        NamingService namingService = NamingFactory.createNamingService(nacosProperties.getServerAddr());
+
+        // 构造黑名单实例
+        Instance instance = new Instance();
+        instance.setIp(ip);
+        instance.setPort(0); // 黑名单不需要端口
+        instance.setEnabled(false); // 禁用表示加入黑名单
+
+        // 注册实例到黑名单服务
+        namingService.registerInstance("nacos.ips.blacklist", "DEFAULT_GROUP", instance);
     }
 
 }

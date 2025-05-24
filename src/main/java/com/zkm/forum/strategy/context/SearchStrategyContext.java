@@ -1,5 +1,6 @@
 package com.zkm.forum.strategy.context;
 
+import com.zkm.forum.model.dto.post.PostSearchRequest;
 import com.zkm.forum.model.enums.PostSearchModeEnum;
 import com.zkm.forum.model.enums.QuestionSearchModeEnum;
 import com.zkm.forum.model.vo.post.PostSearchVo;
@@ -20,8 +21,8 @@ public class SearchStrategyContext {
     @Resource
     private Map<String, PostSearchStrategy> postSearchStrategyMap;
     private Map<String, QuestionSearchStrategy> questionSearchStrategyMap;
-    public List<PostSearchVo> postExcuteSearchStrategy(String keyWords){
-       return postSearchStrategyMap.get(PostSearchModeEnum.getMessageByMode(mode)).searchPost(keyWords);
+    public List<PostSearchVo> postExcuteSearchStrategy(PostSearchRequest postSearchRequest){
+       return postSearchStrategyMap.get(PostSearchModeEnum.getMessageByMode(mode)).searchPost(postSearchRequest);
     }
     public List<QuestionSearchVo> questionExcuteSearchStrategy(String keyWords){
         return questionSearchStrategyMap.get(QuestionSearchModeEnum.getMessageByMode(mode)).searchQuestion(keyWords);
