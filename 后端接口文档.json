@@ -1,0 +1,5391 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "接口文档",
+    "contact": {}
+  },
+  "host": "localhost:8101",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "ai+健身模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "帖子收藏模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "帖子模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "帖子点赞模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "标签管理模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "用户关注模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "用户模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "评论模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "邀请用户注册模块",
+      "x-order": "2147483647"
+    },
+    {
+      "name": "问题模块",
+      "x-order": "2147483647"
+    }
+  ],
+  "paths": {
+    "/api/PostThumb/": {
+      "post": {
+        "tags": [
+          "帖子点赞模块"
+        ],
+        "summary": "点赞帖子",
+        "operationId": "doPostThumbUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*"
+        ],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«int»",
+              "$ref": "#/definitions/BaseResponse«int»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«int»",
+              "$ref": "#/definitions/BaseResponse«int»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/comment/delete/{commentId}": {
+      "get": {
+        "tags": [
+          "评论模块"
+        ],
+        "summary": "删除自己发布的评论",
+        "operationId": "deleteCommentUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "commentId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/comment/listChildren": {
+      "post": {
+        "tags": [
+          "评论模块"
+        ],
+        "summary": "查看某篇文章的某个父评论的子评论",
+        "operationId": "listChildrenCommentUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "originalRef": "ListCommentRequest",
+              "$ref": "#/definitions/ListCommentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«CommentVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«CommentVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«CommentVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«CommentVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/comment/listParent": {
+      "post": {
+        "tags": [
+          "评论模块"
+        ],
+        "summary": "查看某篇文章的父评论",
+        "operationId": "listParentCommentUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "request",
+            "description": "request",
+            "required": true,
+            "schema": {
+              "originalRef": "ListCommentRequest",
+              "$ref": "#/definitions/ListCommentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«CommentVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«CommentVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«CommentVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«CommentVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/comment/save": {
+      "post": {
+        "tags": [
+          "评论模块"
+        ],
+        "summary": "发布评论",
+        "operationId": "saveCommentUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "saveCommentRequest",
+            "description": "saveCommentRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "SaveCommentRequest",
+              "$ref": "#/definitions/SaveCommentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/fitness/ai/analyseUser": {
+      "post": {
+        "tags": [
+          "ai+健身模块"
+        ],
+        "summary": "根据目标分析自己每日摄入多少卡路里",
+        "operationId": "analyseUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«AnalyseUserVo»",
+              "$ref": "#/definitions/BaseResponse«AnalyseUserVo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«AnalyseUserVo»",
+              "$ref": "#/definitions/BaseResponse«AnalyseUserVo»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/fitness/analysePicture": {
+      "post": {
+        "tags": [
+          "ai+健身模块"
+        ],
+        "summary": "根据图片分析卡路里脂肪蛋白质碳水含量",
+        "operationId": "analysePictureUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "description",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pictureUrl",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«string»",
+              "$ref": "#/definitions/BaseResponse«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«string»",
+              "$ref": "#/definitions/BaseResponse«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/fitness/saveOrUpdate": {
+      "post": {
+        "tags": [
+          "ai+健身模块"
+        ],
+        "summary": "新增或修改基本信息",
+        "operationId": "saveOrUpdateMessageUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "saveOrUpdateMessageRequest",
+            "description": "saveOrUpdateMessageRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "SaveOrUpdateMessageRequest",
+              "$ref": "#/definitions/SaveOrUpdateMessageRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/follow/listUserFollowVo": {
+      "get": {
+        "tags": [
+          "用户关注模块"
+        ],
+        "summary": "查看关注列表",
+        "operationId": "listUserFollowVoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListUserFollowVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListUserFollowVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListUserFollowVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListUserFollowVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/follow/user/{followerId}": {
+      "get": {
+        "tags": [
+          "用户关注模块"
+        ],
+        "summary": "关注某个用户",
+        "operationId": "doFollowUserUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "followerId",
+            "in": "path",
+            "description": "followerId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«int»",
+              "$ref": "#/definitions/BaseResponse«int»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«int»",
+              "$ref": "#/definitions/BaseResponse«int»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/invite/getInviteLink": {
+      "get": {
+        "tags": [
+          "邀请用户注册模块"
+        ],
+        "summary": "生成邀请用户链接",
+        "operationId": "getInviteLinkUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«string»",
+              "$ref": "#/definitions/BaseResponse«string»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«string»",
+              "$ref": "#/definitions/BaseResponse«string»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/invite/processInvitation/{inviteeId}/{inviterId}": {
+      "get": {
+        "tags": [
+          "邀请用户注册模块"
+        ],
+        "summary": "处理被邀请注册的用户",
+        "operationId": "processInvitationUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "inviteeId",
+            "in": "path",
+            "description": "inviteeId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "inviterId",
+            "in": "path",
+            "description": "inviterId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/add": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "发布或修改帖子",
+        "operationId": "addPostUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "addPostRequest",
+            "description": "addPostRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "AddPostRequest",
+              "$ref": "#/definitions/AddPostRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/list/post": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "管理员:发布文章列表",
+        "operationId": "listPostForAdminUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "begin",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "favourNum",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "isReported",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "keyWords",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orTags",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "thumbNum",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "viewCount",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«Post»»",
+              "$ref": "#/definitions/BaseResponse«Page«Post»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«Post»»",
+              "$ref": "#/definitions/BaseResponse«Page«Post»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/logout/recommend": {
+      "get": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "热缓存推荐未登录",
+        "operationId": "getLogoutRecommendUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/private/recommend/{userId}": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "热缓存私人推荐文章",
+        "operationId": "getPrivateRecommendUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "getPrivateRecommendRequest",
+            "description": "getPrivateRecommendRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "GetPrivateRecommendRequest",
+              "$ref": "#/definitions/GetPrivateRecommendRequest"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/public/login/recommend": {
+      "get": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "热缓存推荐登录",
+        "operationId": "getLoginPublicRecommendUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/report/post": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "举报帖子",
+        "operationId": "reportPostUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "reportPostRequest",
+            "description": "reportPostRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "ReportPostRequest",
+              "$ref": "#/definitions/ReportPostRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/searchEsPost": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "ES搜索帖子",
+        "operationId": "searchEsPostUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "postQueryRequest",
+            "description": "postQueryRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "PostQueryRequest",
+              "$ref": "#/definitions/PostQueryRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«PostSearchVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«PostSearchVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«PostSearchVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«PostSearchVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/searchPost": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "搜索帖子",
+        "operationId": "searchPostUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "keyWords",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostSearchVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostSearchVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostSearchVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostSearchVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/updatedelete/mypost": {
+      "post": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "逻辑删除帖子",
+        "operationId": "updatePostDeletForMyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "isDelete",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/post/{postId}": {
+      "get": {
+        "tags": [
+          "帖子模块"
+        ],
+        "summary": "查看帖子详情",
+        "operationId": "getPostByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "postId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«PostVo»",
+              "$ref": "#/definitions/BaseResponse«PostVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«PostVo»",
+              "$ref": "#/definitions/BaseResponse«PostVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/postfavour/": {
+      "post": {
+        "tags": [
+          "帖子收藏模块"
+        ],
+        "summary": "收藏帖子",
+        "operationId": "doPostFavourUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "postFavourRequest",
+            "description": "postFavourRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "PostFavourRequest",
+              "$ref": "#/definitions/PostFavourRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«int»",
+              "$ref": "#/definitions/BaseResponse«int»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«int»",
+              "$ref": "#/definitions/BaseResponse«int»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/postfavour/listMyPostFavour": {
+      "post": {
+        "tags": [
+          "帖子收藏模块"
+        ],
+        "summary": "查看收藏的帖子",
+        "operationId": "listMyPostFavourVoUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListMyPostFavourVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListMyPostFavourVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListMyPostFavourVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListMyPostFavourVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/question/answer": {
+      "post": {
+        "tags": [
+          "问题模块"
+        ],
+        "summary": "回答问题",
+        "operationId": "answerQuestionUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "article_abstract",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "original_url",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "postId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "questionId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/question/getQuestionAnswer/{questionId}": {
+      "get": {
+        "tags": [
+          "问题模块"
+        ],
+        "summary": "用户查看问题答案列表",
+        "operationId": "getQuestionAnswerUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "questionId",
+            "in": "query",
+            "description": "questionId",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«PostVo»»",
+              "$ref": "#/definitions/BaseResponse«List«PostVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/question/list": {
+      "post": {
+        "tags": [
+          "问题模块"
+        ],
+        "summary": "用户查讯问题",
+        "operationId": "listQuestionUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "current",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sortField",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«QuestionListVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«QuestionListVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«QuestionListVo»»",
+              "$ref": "#/definitions/BaseResponse«Page«QuestionListVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/question/save": {
+      "post": {
+        "tags": [
+          "问题模块"
+        ],
+        "summary": "发布问题",
+        "operationId": "saveQuestionUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "question",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/question/search/{keyWords}": {
+      "get": {
+        "tags": [
+          "问题模块"
+        ],
+        "summary": "搜索问题sql",
+        "operationId": "searchQustionUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "keyWords",
+            "in": "path",
+            "description": "keyWords",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«QuestionSearchVo»",
+              "$ref": "#/definitions/BaseResponse«QuestionSearchVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«QuestionSearchVo»",
+              "$ref": "#/definitions/BaseResponse«QuestionSearchVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/tag/addorupdate": {
+      "post": {
+        "tags": [
+          "标签管理模块"
+        ],
+        "summary": "新增或修改标签",
+        "operationId": "saveOrUpdateTagUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "addTagForAdmin",
+            "description": "addTagForAdmin",
+            "required": true,
+            "schema": {
+              "originalRef": "AddTagForAdminRequest",
+              "$ref": "#/definitions/AddTagForAdminRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/tag/listTagsForAdminVo": {
+      "get": {
+        "tags": [
+          "标签管理模块"
+        ],
+        "summary": "管理员:查看已有的标签",
+        "operationId": "listTagsForAdminVoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListTagsForAdminVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListTagsForAdminVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListTagsForAdminVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListTagsForAdminVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/tag/listTagsForUserVo": {
+      "get": {
+        "tags": [
+          "标签管理模块"
+        ],
+        "summary": "用户查看自己设置的标签",
+        "operationId": "listTagsForUserVoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListTagsForUserVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListTagsForUserVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«ListTagsForUserVo»»",
+              "$ref": "#/definitions/BaseResponse«List«ListTagsForUserVo»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/tag/updateTagsDelete": {
+      "post": {
+        "tags": [
+          "标签管理模块"
+        ],
+        "summary": "逻辑删除标签",
+        "operationId": "updateTagsDeleteUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "updateTagsDeleteRequest",
+            "description": "updateTagsDeleteRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "UpdateTagsDeleteRequest",
+              "$ref": "#/definitions/UpdateTagsDeleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/current": {
+      "get": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "getLoginUser",
+        "operationId": "getLoginUserUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«LoginUserVO»",
+              "$ref": "#/definitions/BaseResponse«LoginUserVO»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«LoginUserVO»",
+              "$ref": "#/definitions/BaseResponse«LoginUserVO»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/get": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "管理员通过邮箱获取用户信息",
+        "operationId": "getUserByEmailUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "userQqEmail",
+            "in": "query",
+            "description": "userQqEmail",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«User»",
+              "$ref": "#/definitions/BaseResponse«User»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«User»",
+              "$ref": "#/definitions/BaseResponse«User»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/get/circle": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "获得距离自己1500米的用户信息",
+        "operationId": "getOwnCircleDistanceUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "true",
+            "in": "query",
+            "description": "true",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«LoginUserVO»»",
+              "$ref": "#/definitions/BaseResponse«List«LoginUserVO»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«LoginUserVO»»",
+              "$ref": "#/definitions/BaseResponse«List«LoginUserVO»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/getKnowUserVo/{userId}": {
+      "get": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "产看用户基本信息详情页",
+        "operationId": "getKnowUserVoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "userId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«KnowUserVo»",
+              "$ref": "#/definitions/BaseResponse«KnowUserVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«KnowUserVo»",
+              "$ref": "#/definitions/BaseResponse«KnowUserVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/getown/distance": {
+      "get": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "获得自己与所有用户之间的距离",
+        "operationId": "getOwnWithOtherDistanceUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Map«long,string»»",
+              "$ref": "#/definitions/BaseResponse«Map«long,string»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Map«long,string»»",
+              "$ref": "#/definitions/BaseResponse«Map«long,string»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/getuserthisweeksign": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "获得用户签到情况",
+        "operationId": "getUserThisWeekSignUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "userId",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Map«long,boolean»»",
+              "$ref": "#/definitions/BaseResponse«Map«long,boolean»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Map«long,boolean»»",
+              "$ref": "#/definitions/BaseResponse«Map«long,boolean»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/list/page": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "管理员:获取用户信息",
+        "operationId": "listUserByPageUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userQueryRequest",
+            "description": "userQueryRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "UserQueryRequest",
+              "$ref": "#/definitions/UserQueryRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«User»»",
+              "$ref": "#/definitions/BaseResponse«Page«User»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«Page«User»»",
+              "$ref": "#/definitions/BaseResponse«Page«User»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/login": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "用户登录",
+        "operationId": "loginUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userLoginRequest",
+            "description": "userLoginRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "UserLoginRequest",
+              "$ref": "#/definitions/UserLoginRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«LoginUserVO»",
+              "$ref": "#/definitions/BaseResponse«LoginUserVO»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«LoginUserVO»",
+              "$ref": "#/definitions/BaseResponse«LoginUserVO»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/logout": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "用户退出登录",
+        "operationId": "logoutUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/matchuser/bytags": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "基础根据标签匹配用户",
+        "operationId": "matchUserByTagsUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "true",
+            "in": "query",
+            "description": "true",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«MatchUserVo»»",
+              "$ref": "#/definitions/BaseResponse«List«MatchUserVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«List«MatchUserVo»»",
+              "$ref": "#/definitions/BaseResponse«List«MatchUserVo»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/register": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "用户注册",
+        "operationId": "registerUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userRegisterRequest",
+            "description": "userRegisterRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "UserRegisterRequest",
+              "$ref": "#/definitions/UserRegisterRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«long»",
+              "$ref": "#/definitions/BaseResponse«long»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«long»",
+              "$ref": "#/definitions/BaseResponse«long»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/report/post": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "举报用户",
+        "operationId": "reportUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "reportUserId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "reportedResults",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/sendcode": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "发送验证码",
+        "operationId": "sendCodeUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "userQqEmail",
+            "in": "query",
+            "description": "userQqEmail",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/signin": {
+      "get": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "用户签到",
+        "operationId": "addUserSignInUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/super/match": {
+      "get": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "超级根据标签匹配用户",
+        "operationId": "superMatchUserUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«MatchUserVo»",
+              "$ref": "#/definitions/BaseResponse«MatchUserVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«MatchUserVo»",
+              "$ref": "#/definitions/BaseResponse«MatchUserVo»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/updateForAdmin": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "管理员修改基本信息",
+        "operationId": "updateForAdminUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "updateForAdminRequest",
+            "description": "updateForAdminRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "UpdateForAdminRequest",
+              "$ref": "#/definitions/UpdateForAdminRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/updatemy": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "用户修改基本信息",
+        "operationId": "userUpdateMyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userUpdateMyRequest",
+            "description": "userUpdateMyRequest",
+            "required": true,
+            "schema": {
+              "originalRef": "UserUpdateMyRequest",
+              "$ref": "#/definitions/UserUpdateMyRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«boolean»",
+              "$ref": "#/definitions/BaseResponse«boolean»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    },
+    "/api/user/upload": {
+      "post": {
+        "tags": [
+          "用户模块"
+        ],
+        "summary": "上传图片",
+        "operationId": "uploadUsingPOST",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "multipartFile",
+            "in": "formData",
+            "description": "multipartFile",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«string»",
+              "$ref": "#/definitions/BaseResponse«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "responsesObject": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "originalRef": "BaseResponse«string»",
+              "$ref": "#/definitions/BaseResponse«string»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false,
+        "x-order": "2147483647"
+      }
+    }
+  },
+  "definitions": {
+    "AddPostRequest": {
+      "type": "object",
+      "properties": {
+        "article_abstract": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "original_url": {
+          "type": "string"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "questionId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "AddPostRequest"
+    },
+    "AddTagForAdminRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "isParent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "parentTagName": {
+          "type": "string"
+        },
+        "tageName": {
+          "type": "string"
+        }
+      },
+      "title": "AddTagForAdminRequest"
+    },
+    "AnalyseUserVo": {
+      "type": "object",
+      "properties": {
+        "bmr": {
+          "type": "string"
+        },
+        "getKcal": {
+          "type": "string"
+        }
+      },
+      "title": "AnalyseUserVo"
+    },
+    "BaseResponse«AnalyseUserVo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "AnalyseUserVo",
+          "$ref": "#/definitions/AnalyseUserVo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«AnalyseUserVo»"
+    },
+    "BaseResponse«KnowUserVo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "KnowUserVo",
+          "$ref": "#/definitions/KnowUserVo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«KnowUserVo»"
+    },
+    "BaseResponse«List«ListMyPostFavourVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "ListMyPostFavourVo",
+            "$ref": "#/definitions/ListMyPostFavourVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«ListMyPostFavourVo»»"
+    },
+    "BaseResponse«List«ListTagsForAdminVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "ListTagsForAdminVo",
+            "$ref": "#/definitions/ListTagsForAdminVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«ListTagsForAdminVo»»"
+    },
+    "BaseResponse«List«ListTagsForUserVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "ListTagsForUserVo",
+            "$ref": "#/definitions/ListTagsForUserVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«ListTagsForUserVo»»"
+    },
+    "BaseResponse«List«ListUserFollowVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "ListUserFollowVo",
+            "$ref": "#/definitions/ListUserFollowVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«ListUserFollowVo»»"
+    },
+    "BaseResponse«List«LoginUserVO»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "LoginUserVO",
+            "$ref": "#/definitions/LoginUserVO"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«LoginUserVO»»"
+    },
+    "BaseResponse«List«MatchUserVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "MatchUserVo",
+            "$ref": "#/definitions/MatchUserVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«MatchUserVo»»"
+    },
+    "BaseResponse«List«PostSearchVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "PostSearchVo",
+            "$ref": "#/definitions/PostSearchVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«PostSearchVo»»"
+    },
+    "BaseResponse«List«PostVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "originalRef": "PostVo",
+            "$ref": "#/definitions/PostVo"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«List«PostVo»»"
+    },
+    "BaseResponse«LoginUserVO»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "LoginUserVO",
+          "$ref": "#/definitions/LoginUserVO"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«LoginUserVO»"
+    },
+    "BaseResponse«Map«long,boolean»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Map«long,boolean»»"
+    },
+    "BaseResponse«Map«long,string»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Map«long,string»»"
+    },
+    "BaseResponse«MatchUserVo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "MatchUserVo",
+          "$ref": "#/definitions/MatchUserVo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«MatchUserVo»"
+    },
+    "BaseResponse«Page«CommentVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "Page«CommentVo»",
+          "$ref": "#/definitions/Page«CommentVo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Page«CommentVo»»"
+    },
+    "BaseResponse«Page«PostSearchVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "Page«PostSearchVo»",
+          "$ref": "#/definitions/Page«PostSearchVo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Page«PostSearchVo»»"
+    },
+    "BaseResponse«Page«Post»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "Page«Post»",
+          "$ref": "#/definitions/Page«Post»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Page«Post»»"
+    },
+    "BaseResponse«Page«QuestionListVo»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "Page«QuestionListVo»",
+          "$ref": "#/definitions/Page«QuestionListVo»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Page«QuestionListVo»»"
+    },
+    "BaseResponse«Page«User»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "Page«User»",
+          "$ref": "#/definitions/Page«User»"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«Page«User»»"
+    },
+    "BaseResponse«PostVo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "PostVo",
+          "$ref": "#/definitions/PostVo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«PostVo»"
+    },
+    "BaseResponse«QuestionSearchVo»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "QuestionSearchVo",
+          "$ref": "#/definitions/QuestionSearchVo"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«QuestionSearchVo»"
+    },
+    "BaseResponse«User»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "originalRef": "User",
+          "$ref": "#/definitions/User"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«User»"
+    },
+    "BaseResponse«boolean»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«boolean»"
+    },
+    "BaseResponse«int»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«int»"
+    },
+    "BaseResponse«long»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«long»"
+    },
+    "BaseResponse«string»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "data": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "title": "BaseResponse«string»"
+    },
+    "CommentVo": {
+      "type": "object",
+      "properties": {
+        "commentContent": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "isReview": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "parentId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "replyUserAvatar": {
+          "type": "string"
+        },
+        "replyUserId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "replyUserName": {
+          "type": "string"
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userName": {
+          "type": "string"
+        }
+      },
+      "title": "CommentVo"
+    },
+    "GetPrivateRecommendRequest": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "viewedIds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "title": "GetPrivateRecommendRequest"
+    },
+    "KnowUserVo": {
+      "type": "object",
+      "properties": {
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "followerCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userRole": {
+          "type": "string"
+        }
+      },
+      "title": "KnowUserVo"
+    },
+    "ListCommentRequest": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "parentId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "replyUserId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sortField": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "title": "ListCommentRequest"
+    },
+    "ListMyPostFavourVo": {
+      "type": "object",
+      "properties": {
+        "favourNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "title": "ListMyPostFavourVo"
+    },
+    "ListTagsForAdminVo": {
+      "type": "object",
+      "properties": {
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "isDelete": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isParent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "originalRef": "ListTagsForAdminVo",
+            "$ref": "#/definitions/ListTagsForAdminVo"
+          }
+        },
+        "parentTagName": {
+          "type": "string"
+        },
+        "tageName": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "title": "ListTagsForAdminVo"
+    },
+    "ListTagsForUserVo": {
+      "type": "object",
+      "properties": {
+        "isParent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "originalRef": "ListTagsForUserVo",
+            "$ref": "#/definitions/ListTagsForUserVo"
+          }
+        },
+        "parentTagName": {
+          "type": "string"
+        },
+        "tageName": {
+          "type": "string"
+        }
+      },
+      "title": "ListTagsForUserVo"
+    },
+    "ListUserFollowVo": {
+      "type": "object",
+      "properties": {
+        "introduction": {
+          "type": "string"
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userName": {
+          "type": "string"
+        }
+      },
+      "title": "ListUserFollowVo"
+    },
+    "LoginUserVO": {
+      "type": "object",
+      "properties": {
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "distance": {
+          "type": "number",
+          "format": "double"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tagList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userRole": {
+          "type": "string"
+        }
+      },
+      "title": "LoginUserVO"
+    },
+    "Map«long,boolean»": {
+      "type": "object",
+      "title": "Map«long,boolean»",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "Map«long,string»": {
+      "type": "object",
+      "title": "Map«long,string»",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "MatchUserVo": {
+      "type": "object",
+      "properties": {
+        "gender": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userQqEmail": {
+          "type": "string"
+        }
+      },
+      "title": "MatchUserVo"
+    },
+    "OrderItem": {
+      "type": "object",
+      "properties": {
+        "asc": {
+          "type": "boolean"
+        },
+        "column": {
+          "type": "string"
+        }
+      },
+      "title": "OrderItem"
+    },
+    "Page«CommentVo»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "originalRef": "OrderItem",
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "originalRef": "CommentVo",
+            "$ref": "#/definitions/CommentVo"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«CommentVo»"
+    },
+    "Page«PostSearchVo»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "originalRef": "OrderItem",
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "originalRef": "PostSearchVo",
+            "$ref": "#/definitions/PostSearchVo"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«PostSearchVo»"
+    },
+    "Page«Post»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "originalRef": "OrderItem",
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "originalRef": "Post",
+            "$ref": "#/definitions/Post"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«Post»"
+    },
+    "Page«QuestionListVo»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "originalRef": "OrderItem",
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "originalRef": "QuestionListVo",
+            "$ref": "#/definitions/QuestionListVo"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«QuestionListVo»"
+    },
+    "Page«User»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "originalRef": "OrderItem",
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "originalRef": "User",
+            "$ref": "#/definitions/User"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«User»"
+    },
+    "Post": {
+      "type": "object",
+      "properties": {
+        "article_abstract": {
+          "type": "string"
+        },
+        "authorAvatar": {
+          "type": "string"
+        },
+        "authorName": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "favourNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "isDelete": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isReported": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "is_featured": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "is_top": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "original_url": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "reportResults": {
+          "type": "string"
+        },
+        "reportUserId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "string"
+        },
+        "thumbNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "viewCount": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "Post"
+    },
+    "PostFavourRequest": {
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "integer",
+          "format": "int64",
+          "refType": null
+        }
+      },
+      "title": "PostFavourRequest"
+    },
+    "PostQueryRequest": {
+      "type": "object",
+      "properties": {
+        "begin": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "content": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "favourNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "isReported": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "keyWords": {
+          "type": "string"
+        },
+        "orTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sortField": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thumbNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "viewCount": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "PostQueryRequest"
+    },
+    "PostSearchVo": {
+      "type": "object",
+      "properties": {
+        "authorName": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "favourNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thumbNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "viewCount": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "PostSearchVo"
+    },
+    "PostVo": {
+      "type": "object",
+      "properties": {
+        "article_abstract": {
+          "type": "string"
+        },
+        "authorName": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "favourNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "is_featured": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "is_top": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "original_url": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thumbNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "title": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "viewCount": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "PostVo"
+    },
+    "QuestionListVo": {
+      "type": "object",
+      "properties": {
+        "answerCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "autorName": {
+          "type": "string"
+        },
+        "concernNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "question": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "QuestionListVo"
+    },
+    "QuestionSearchVo": {
+      "type": "object",
+      "properties": {
+        "authorName": {
+          "type": "string"
+        },
+        "concernNum": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "question": {
+          "type": "string"
+        },
+        "questionId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tag": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "viewCount": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "QuestionSearchVo"
+    },
+    "ReportPostRequest": {
+      "type": "object",
+      "properties": {
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "reportUserId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "reportedResults": {
+          "type": "string"
+        }
+      },
+      "title": "ReportPostRequest"
+    },
+    "SaveCommentRequest": {
+      "type": "object",
+      "properties": {
+        "commentContent": {
+          "type": "string"
+        },
+        "isReview": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "parentId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "postId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "replyUserId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "SaveCommentRequest"
+    },
+    "SaveOrUpdateMessageRequest": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "height": {
+          "type": "number"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "target": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number"
+        }
+      },
+      "title": "SaveOrUpdateMessageRequest"
+    },
+    "UpdateForAdminRequest": {
+      "type": "object",
+      "properties": {
+        "matchCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userQqEmail": {
+          "type": "string"
+        },
+        "userRole": {
+          "type": "string"
+        }
+      },
+      "title": "UpdateForAdminRequest"
+    },
+    "UpdateTagsDeleteRequest": {
+      "type": "object",
+      "properties": {
+        "idList": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "isDelete": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "UpdateTagsDeleteRequest"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "createTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dimension": {
+          "type": "number",
+          "format": "double"
+        },
+        "fitnessId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "followerCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "introduction": {
+          "type": "string"
+        },
+        "isDelete": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "isReported": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "matchCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "reportResults": {
+          "type": "string"
+        },
+        "reportUserId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "superMatchCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "tags": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userAvatar": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userPassword": {
+          "type": "string"
+        },
+        "userQqEmail": {
+          "type": "string"
+        },
+        "userRole": {
+          "type": "string"
+        }
+      },
+      "title": "User"
+    },
+    "UserLoginRequest": {
+      "type": "object",
+      "properties": {
+        "userPassword": {
+          "type": "string"
+        },
+        "userQqEmail": {
+          "type": "string"
+        }
+      },
+      "title": "UserLoginRequest"
+    },
+    "UserQueryRequest": {
+      "type": "object",
+      "properties": {
+        "current": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "isReported": {
+          "type": "string"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sortField": {
+          "type": "string"
+        },
+        "sortOrder": {
+          "type": "string"
+        }
+      },
+      "title": "UserQueryRequest"
+    },
+    "UserRegisterRequest": {
+      "type": "object",
+      "properties": {
+        "checkPassword": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "inviteeId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "inviterId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userCode": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userPassword": {
+          "type": "string"
+        },
+        "userQqEmail": {
+          "type": "string"
+        }
+      },
+      "title": "UserRegisterRequest"
+    },
+    "UserUpdateMyRequest": {
+      "type": "object",
+      "properties": {
+        "gender": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userName": {
+          "type": "string"
+        }
+      },
+      "title": "UserUpdateMyRequest"
+    }
+  },
+  "x-openapi": {
+    "x-markdownFiles": null,
+    "x-setting": {
+      "language": "zh-CN",
+      "enableSwaggerModels": true,
+      "swaggerModelName": "Swagger Models",
+      "enableReloadCacheParameter": false,
+      "enableAfterScript": true,
+      "enableDocumentManage": true,
+      "enableVersion": false,
+      "enableRequestCache": true,
+      "enableFilterMultipartApis": false,
+      "enableFilterMultipartApiMethodType": "POST",
+      "enableHost": false,
+      "enableHostText": "",
+      "enableDynamicParameter": false,
+      "enableDebug": true,
+      "enableFooter": true,
+      "enableFooterCustom": false,
+      "footerCustomContent": null,
+      "enableSearch": true,
+      "enableOpenApi": true,
+      "enableHomeCustom": false,
+      "homeCustomLocation": null,
+      "enableGroup": true,
+      "enableResponseCode": true
+    }
+  }
+}
