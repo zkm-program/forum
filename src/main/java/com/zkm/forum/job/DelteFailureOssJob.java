@@ -19,6 +19,9 @@ import javax.annotation.Resource;
 import java.util.List;
 
 
+/**
+ * 物理删除对象存储中没用的文件
+ */
 @Slf4j
 @Component
 public class DelteFailureOssJob {

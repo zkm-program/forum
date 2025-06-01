@@ -8,6 +8,8 @@ import com.zkm.forum.model.entity.Fitness;
 import com.zkm.forum.service.FitnessService;
 import com.zkm.forum.utils.AIUtils;
 
+import com.zkm.forum.utils.EncryptorUtils;
+import com.zkm.forum.utils.UserBasicEncryptorUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -70,6 +72,10 @@ public class AnalyseUserConsumer {
             channel.basicNack(deliveryTag, false, false);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "图片状态更新失败");
         }
+        fitness.setHeight(BigDecimal.ZERO);
+        fitness.setWeight(BigDecimal.ZERO);
+        fitness.setDesensitization(1);
+        // todo 如果抹除敏感信息不成功，把抹除失败的fitnessId设个状态，之后来个定时任务进行处理
         // todo 这样ack对吗？
         channel.basicAck(deliveryTag, false);
     }

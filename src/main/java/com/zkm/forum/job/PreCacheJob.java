@@ -36,6 +36,7 @@ public class PreCacheJob {
 
         QueryWrapper<Post> postLoginQueryWrapper = new QueryWrapper<>();
         postLoginQueryWrapper
+                .eq("audit",1)
                 // 筛选昨天创建的帖子
                 .between("createTime", yesterdayStart, yesterdayEnd)
                 // 按(点赞数+收藏数)的总和降序排序

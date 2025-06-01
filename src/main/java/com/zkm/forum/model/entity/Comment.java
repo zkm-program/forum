@@ -51,7 +51,7 @@ public class Comment implements Serializable {
 
 
     /**
-     * 是否审核
+     * 评论审核 0-未审核，1-审核成功，2-拒绝发布
      */
     private Integer isReview;
 

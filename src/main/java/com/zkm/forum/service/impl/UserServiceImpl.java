@@ -32,10 +32,7 @@ import com.zkm.forum.service.InvitationService;
 import com.zkm.forum.service.MatchTagsService;
 import com.zkm.forum.service.PostService;
 import com.zkm.forum.service.UserService;
-import com.zkm.forum.utils.AlgorithmUtils;
-import com.zkm.forum.utils.CosUploadUtils;
-import com.zkm.forum.utils.MailUtils;
-import com.zkm.forum.utils.MultiMailSender;
+import com.zkm.forum.utils.*;
 import kotlin.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RBitSet;
@@ -149,10 +146,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次密码不一致");
         }
-        String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + SALT).getBytes());
+        String encryptPassword = EmailPasswordEncryptorUtils.encrypt(userPassword);
+        String encryptQqEmail = EmailPasswordEncryptorUtils.encrypt(userQqEmail);
+//        String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + SALT).getBytes());
         User user = new User();
         user.setUserName(userName);
-        user.setUserQqEmail(userQqEmail);
+        user.setUserQqEmail(encryptQqEmail);
         user.setGender(gender);
         user.setUserPassword(encryptPassword);
 //        user.setUserAvatar(userAvatar);
@@ -171,10 +170,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     public LoginUserVO login(String userQqEmail, String userPassword, HttpServletRequest request) {
-        String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + SALT).getBytes());
+//        String encryptPassword = DigestUtils.md5DigestAsHex((userPassword + SALT).getBytes());
+        String encryptQqEmail = EmailPasswordEncryptorUtils.encrypt(userQqEmail);
+        String encryptPassword = EmailPasswordEncryptorUtils.encrypt(userPassword);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userPassword", encryptPassword);
-        queryWrapper.eq("userQqEmail", userQqEmail);
+        queryWrapper.eq("userQqEmail", encryptQqEmail);
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱或密码错误或账户不存在");

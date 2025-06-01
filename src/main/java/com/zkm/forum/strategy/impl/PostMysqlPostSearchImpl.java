@@ -48,6 +48,7 @@ public class PostMysqlPostSearchImpl implements PostSearchStrategy {
             return new ArrayList<>();
         }
         QueryWrapper<Post> postSearchVoQueryWrapper = new QueryWrapper<>();
+        postSearchVoQueryWrapper.eq("audit",1);
         postSearchVoQueryWrapper.like("title", keyWords)
                 .or()
                 .like("content", keyWords).or()

@@ -169,6 +169,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             }
         }
         Post post = this.getById(id);
+        if(post.getAudit()!=2){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"该文章未审核");
+        }
         BeanUtils.copyProperties(post, postVo);
         postVo.setTags(JSONUtil.toList(JSONUtil.parseArray(post.getTags()), String.class));
         updatePostViewCount(id);
@@ -303,6 +306,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         String sortField = postQueryRequest.getSortField();
         String sortOrder = postQueryRequest.getSortOrder();
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolQueryBuilder.filter(QueryBuilders.termQuery("audit", 1));
         boolQueryBuilder.filter(QueryBuilders.termQuery("isDelete", 0));
         if (id != null && id != 0) {
             boolQueryBuilder.filter(QueryBuilders.termQuery("id", id));

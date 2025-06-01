@@ -31,6 +31,7 @@
         <result property="authorName" column="authorName" jdbcType="VARCHAR"/>
         <result property="authorAvatar" column="authorAvatar" jdbcType="VARCHAR"/>
         <result property="rewardStatus" column="rewardStatus" jdbcType="TINYINT"/>
+        <result property="audit" column="audit" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">

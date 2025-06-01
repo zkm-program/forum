@@ -144,6 +144,10 @@ public class Post implements Serializable {
      * 奖励状态：0-未发放，1-已发放
      */
     private Integer rewardStatus;
+    /**
+     * 是否审核 0-未审核，1-已审核，2-拒绝发布
+     */
+    private Integer audit;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

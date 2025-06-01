@@ -5,31 +5,32 @@
 <mapper namespace="com.zkm.forum.mapper.FitnessMapper">
 
     <resultMap id="BaseResultMap" type="com.zkm.forum.model.entity.Fitness">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <id property="userId" column="userId" jdbcType="BIGINT"/>
-            <result property="age" column="age" jdbcType="INTEGER"/>
-            <result property="gender" column="gender" jdbcType="VARCHAR"/>
-            <result property="height" column="height" jdbcType="DECIMAL"/>
-            <result property="weight" column="weight" jdbcType="DECIMAL"/>
-            <result property="pictureUrl" column="pictureUrl" jdbcType="VARCHAR"/>
-            <result property="target" column="target" jdbcType="VARCHAR"/>
-            <result property="calorie" column="calorie" jdbcType="DECIMAL"/>
-            <result property="protein" column="protein" jdbcType="DECIMAL"/>
-            <result property="carbohydrate" column="carbohydrate" jdbcType="DECIMAL"/>
-            <result property="fat" column="fat" jdbcType="DECIMAL"/>
-            <result property="foodAdvice" column="foodAdvice" jdbcType="VARCHAR"/>
-            <result property="sportAdvice" column="sportAdvice" jdbcType="VARCHAR"/>
-            <result property="sport" column="sport" jdbcType="VARCHAR"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
-            <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
-            <result property="status" column="status" jdbcType="TINYINT"/>
-            <result property="calorieTarget" column="calorieTarget" jdbcType="DECIMAL"/>
-            <result property="proteinTarget" column="proteinTarget" jdbcType="DECIMAL"/>
-            <result property="carbohydrateTarget" column="carbohydrateTarget" jdbcType="DECIMAL"/>
-            <result property="fatTarget" column="fatTarget" jdbcType="DECIMAL"/>
-            <result property="type" column="type" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <id property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="age" column="age" jdbcType="INTEGER"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="height" column="height" jdbcType="DECIMAL"/>
+        <result property="weight" column="weight" jdbcType="DECIMAL"/>
+        <result property="pictureUrl" column="pictureUrl" jdbcType="VARCHAR"/>
+        <result property="target" column="target" jdbcType="VARCHAR"/>
+        <result property="calorie" column="calorie" jdbcType="DECIMAL"/>
+        <result property="protein" column="protein" jdbcType="DECIMAL"/>
+        <result property="carbohydrate" column="carbohydrate" jdbcType="DECIMAL"/>
+        <result property="fat" column="fat" jdbcType="DECIMAL"/>
+        <result property="foodAdvice" column="foodAdvice" jdbcType="VARCHAR"/>
+        <result property="sportAdvice" column="sportAdvice" jdbcType="VARCHAR"/>
+        <result property="sport" column="sport" jdbcType="VARCHAR"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="calorieTarget" column="calorieTarget" jdbcType="DECIMAL"/>
+        <result property="proteinTarget" column="proteinTarget" jdbcType="DECIMAL"/>
+        <result property="carbohydrateTarget" column="carbohydrateTarget" jdbcType="DECIMAL"/>
+        <result property="fatTarget" column="fatTarget" jdbcType="DECIMAL"/>
+        <result property="type" column="type" jdbcType="TINYINT"/>
+        <result property="desensitization" column="desensitization" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">

@@ -127,6 +127,12 @@ public class Fitness implements Serializable {
      */
     private Integer type;
 
+    /**
+     * 是否进行脱敏 0-没有，1-脱敏成功
+     */
+    private Integer desensitization;
+
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

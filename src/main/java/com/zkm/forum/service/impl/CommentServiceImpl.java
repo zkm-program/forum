@@ -138,6 +138,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             }
         }
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
+        commentQueryWrapper.eq( "isReview", 1);
         commentQueryWrapper.eq("postId", postId).isNull("parentId");
         commentQueryWrapper.orderBy(true, true, "createTime");
         Page<Comment> page = this.page(new Page<>(current, pageSize), commentQueryWrapper);
@@ -169,6 +170,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment>
             }
         }
         QueryWrapper<Comment> commentQueryWrapper = new QueryWrapper<>();
+        commentQueryWrapper.eq( "isReview", 1);
         commentQueryWrapper.eq(!Objects.isNull(parentId), "topCommentId", parentId);
         commentQueryWrapper.orderBy(true, true, "createTime");
         Page<Comment> page = this.page(new Page<>(current, 3), commentQueryWrapper);
